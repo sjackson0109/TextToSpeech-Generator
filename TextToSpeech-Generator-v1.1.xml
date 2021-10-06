@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <MS_Key>
+  </MS_Key>
+  <MS_Datacenter>uksouth</MS_Datacenter>
+  <MS_Audio_Format>audio-16khz-32kbitrate-mono-mp3</MS_Audio_Format>
+  <MS_Voice>Microsoft Server Speech Text to Speech Voice (en-US, SaraNeural)</MS_Voice>
+  <Input_File>C:\Users\simon.jackson\OneDrive - Alltime Technologies Ltd\Desktop\test.csv</Input_File>
+  <Output_Path>C:\Temp\Call-Recordings</Output_Path>
+</configuration>
