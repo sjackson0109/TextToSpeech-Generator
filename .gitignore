@@ -1,0 +1,11 @@
+// Ignore the TESTING folder
+TESTING
+TESTING/*
+
+// Ignore the SCRIPTS folder
+SCRIPTS
+SCRIPTS/*
+
+// Ignore the OUTPUT folder
+OUTPUT
+OUTPUT/*
