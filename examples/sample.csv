@@ -1,0 +1,11 @@
+SCRIPT,FILENAME
+"Welcome to TechCorp customer service. How may we assist you today?","welcome_greeting"
+"Thank you for calling TechCorp. Please hold while we connect you to the next available representative.","hold_message"
+"Press 1 for sales, press 2 for technical support, or press 3 for billing inquiries.","main_menu"
+"Your call is very important to us. Current estimated wait time is 3 minutes.","wait_time_3min"
+"We apologize for the delay. A customer service representative will be with you shortly.","apology_delay"
+"Thank you for choosing TechCorp. Have a wonderful day!","goodbye_message"
+"Due to high call volume, your wait time may be longer than usual. We appreciate your patience.","high_volume_warning"
+"Your account balance is $125.50. Your next payment is due on the 15th of this month.","account_balance"
+"Your order has been successfully processed and will be shipped within 2 business days.","order_confirmation"
+"We're experiencing technical difficulties. Please try your call again in a few minutes.","technical_difficulties"
