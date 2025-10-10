@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <MS_Key>STORED_SECURELY</MS_Key>
+  <MS_Datacenter>eastus</MS_Datacenter>
+  <MS_Audio_Format>audio-16khz-32kbitrate-mono-mp3</MS_Audio_Format>
+  <MS_Voice>Microsoft Server Speech Text to Speech Voice (en-US, SaraNeural)</MS_Voice>
+  <Input_File>C:\Users\Administrator\Documents\TextToSpeech-Generator\TextToSpeech-Generator\examples\sample.csv</Input_File>
+  <Output_Path>C:\Users\Administrator\Documents\TextToSpeech-Generator\TextToSpeech-Generator\output</Output_Path>
+</configuration>
