@@ -1,19 +1,28 @@
 # Advanced Error Recovery Module for TextToSpeech Generator v3.2
 # Provider-specific recovery strategies and intelligent error handling
+# Integrated with AdvancedResilience for enterprise-grade error handling
+
+# Import the AdvancedResilience module for circuit breaker functionality
+using module .\AdvancedResilience.psm1
 
 class AdvancedErrorRecovery {
     [hashtable] $RecoveryStrategies
     [hashtable] $ErrorPatterns
     [hashtable] $RecoveryHistory
+    [hashtable] $CircuitBreakers
+    [hashtable] $ProviderHealthMonitors
     [int] $MaxRecoveryAttempts
     
     AdvancedErrorRecovery() {
         $this.RecoveryStrategies = @{}
         $this.ErrorPatterns = @{}
         $this.RecoveryHistory = @{}
+        $this.CircuitBreakers = @{}
+        $this.ProviderHealthMonitors = @{}
         $this.MaxRecoveryAttempts = 3
         $this.InitializeDefaultStrategies()
         $this.InitializeErrorPatterns()
+        $this.InitializeCircuitBreakers()
     }
     
     [void] InitializeDefaultStrategies() {
@@ -117,6 +126,30 @@ class AdvancedErrorRecovery {
         })
     }
     
+    [void] InitializeCircuitBreakers() {
+        # Initialize circuit breakers for each TTS provider
+        $providers = @("Azure", "AWSPolly", "GoogleCloud", "CloudPronouncer", "Twilio", "VoiceForge")
+        
+        foreach ($provider in $providers) {
+            $circuitBreaker = [CircuitBreaker]::new($provider)
+            $circuitBreaker.FailureThreshold = 5
+            
+            $this.CircuitBreakers[$provider] = $circuitBreaker
+            
+            # Initialize health monitor for each provider
+            $healthMonitor = @{
+                Provider = $provider
+                LastHealthCheck = $null
+                IsHealthy = $true
+                ConsecutiveFailures = 0
+                LastFailureTime = $null
+                HealthCheckInterval = 300  # 5 minutes
+                MaxConsecutiveFailures = 3
+            }
+            $this.ProviderHealthMonitors[$provider] = $healthMonitor
+        }
+    }
+    
     [void] InitializeErrorPatterns() {
         # Define error patterns and their corresponding recovery strategies
         $this.ErrorPatterns = @{
@@ -150,12 +183,87 @@ class AdvancedErrorRecovery {
         return "Generic"
     }
     
+    [bool] IsProviderHealthy([string]$provider) {
+        if (-not $this.ProviderHealthMonitors.ContainsKey($provider)) {
+            return $true  # Unknown provider, assume healthy
+        }
+        
+        $monitor = $this.ProviderHealthMonitors[$provider]
+        $now = Get-Date
+        
+        # Check if health check is due
+        if ($monitor.LastHealthCheck -eq $null -or 
+            ($now - $monitor.LastHealthCheck).TotalSeconds -gt $monitor.HealthCheckInterval) {
+            $this.PerformHealthCheck($provider)
+        }
+        
+        return $monitor.IsHealthy
+    }
+    
+    [void] PerformHealthCheck([string]$provider) {
+        try {
+            $monitor = $this.ProviderHealthMonitors[$provider]
+            $healthResult = Invoke-ProviderHealthCheck -Provider $provider -CheckLevel "Basic"
+            
+            if ($healthResult.IsHealthy) {
+                $monitor.IsHealthy = $true
+                $monitor.ConsecutiveFailures = 0
+                $monitor.LastFailureTime = $null
+                Write-ApplicationLog -Message "Provider $provider health check passed" -Level "DEBUG"
+            } else {
+                $monitor.ConsecutiveFailures++
+                $monitor.LastFailureTime = Get-Date
+                
+                if ($monitor.ConsecutiveFailures -ge $monitor.MaxConsecutiveFailures) {
+                    $monitor.IsHealthy = $false
+                    Write-ApplicationLog -Message "Provider $provider marked as unhealthy after $($monitor.ConsecutiveFailures) consecutive failures" -Level "WARNING"
+                    
+                    # Send operational alert
+                    Send-OperationalAlert -AlertType "ProviderHealth" -Provider $provider -Message "Provider marked unhealthy"
+                }
+            }
+            
+            $monitor.LastHealthCheck = Get-Date
+        } catch {
+            Write-ApplicationLog -Message "Health check failed for provider $provider`: $_" -Level "ERROR"
+        }
+    }
+    
     [hashtable] AttemptRecovery([object]$error, [hashtable]$context) {
         $errorMessage = if ($error -is [System.Exception]) { $error.Message } else { $error.ToString() }
         $errorType = $this.IdentifyErrorPattern($errorMessage)
+        $provider = if ($context.Provider) { $context.Provider } else { 'Unknown' }
+        
+        # Check circuit breaker state for the provider
+        if ($this.CircuitBreakers.ContainsKey($provider)) {
+            $circuitBreaker = $this.CircuitBreakers[$provider]
+            if ($circuitBreaker.State -eq 'Open') {
+                Write-ApplicationLog -Message "Circuit breaker is OPEN for provider $provider - preventing recovery attempt" -Level "WARNING"
+                return @{
+                    Success = $false
+                    Action = "Circuit breaker is open - provider temporarily disabled"
+                    ErrorType = $errorType
+                    Provider = $provider
+                    CircuitBreakerState = 'Open'
+                    RecommendAlternativeProvider = $true
+                }
+            }
+        }
+        
+        # Check provider health before attempting recovery
+        if (-not $this.IsProviderHealthy($provider)) {
+            Write-ApplicationLog -Message "Provider $provider is unhealthy - skipping recovery attempt" -Level "WARNING"
+            return @{
+                Success = $false
+                Action = "Provider is marked as unhealthy"
+                ErrorType = $errorType
+                Provider = $provider
+                RecommendAlternativeProvider = $true
+            }
+        }
         
         # Check recovery history to prevent infinite loops
-        $errorKey = "$(if ($context.Provider) { $context.Provider } else { 'Unknown' })-$errorType"
+        $errorKey = "$provider-$errorType"
         if (-not $this.RecoveryHistory.ContainsKey($errorKey)) {
             $this.RecoveryHistory[$errorKey] = @{ Count = 0; LastAttempt = [DateTime]::MinValue }
         }
@@ -186,35 +294,203 @@ class AdvancedErrorRecovery {
         
         Write-ApplicationLog -Message "Attempting recovery for error type: $errorType (attempt $($history.Count))" -Level "INFO"
         
-        # Execute recovery strategy
+        # Execute recovery strategy with advanced retry logic
         if ($this.RecoveryStrategies.ContainsKey($errorType)) {
             try {
-                $result = & $this.RecoveryStrategies[$errorType] $context
+                # Use AdvancedResilience for retry logic
+                $retryParams = @{
+                    ScriptBlock = { 
+                        param($ctx)
+                        return & $this.RecoveryStrategies[$errorType] $ctx
+                    }
+                    MaxAttempts = 3
+                    BackoffStrategy = 'Exponential'
+                    BaseDelaySeconds = 2
+                    MaxDelaySeconds = 60
+                    Arguments = @($context)
+                }
+                
+                $result = Invoke-AdvancedRetry @retryParams
+                
+                # Record the result with circuit breaker
+                if ($this.CircuitBreakers.ContainsKey($provider)) {
+                    if ($result.Success) {
+                        $this.CircuitBreakers[$provider].RecordSuccess()
+                    } else {
+                        $this.CircuitBreakers[$provider].RecordFailure()
+                    }
+                }
+                
                 $result.ErrorType = $errorType
                 $result.AttemptCount = $history.Count
+                $result.Provider = $provider
                 
                 $this.LogRecoveryAttempt($errorType, $result.Success, $result.Action)
                 return $result
+                
             } catch {
+                # Record failure with circuit breaker
+                if ($this.CircuitBreakers.ContainsKey($provider)) {
+                    $this.CircuitBreakers[$provider].RecordFailure()
+                }
+                
                 $this.LogRecoveryAttempt($errorType, $false, "Recovery strategy failed: $($_.Exception.Message)")
                 return @{
                     Success = $false
                     Action = "Recovery strategy execution failed"
                     ErrorType = $errorType
                     AttemptCount = $history.Count
+                    Provider = $provider
                     Exception = $_.Exception.Message
+                    RecommendManualIntervention = $true
                 }
             }
         } else {
-            # No specific strategy, use generic approach
-            $this.LogRecoveryAttempt($errorType, $false, "No specific recovery strategy available")
-            return @{
-                Success = $false
-                Action = "No recovery strategy available for error type: $errorType"
-                ErrorType = $errorType
-                AttemptCount = $history.Count
-                RecommendManualIntervention = $true
+            # No specific strategy available - try generic recovery with circuit breaker
+            Write-ApplicationLog -Message "No specific recovery strategy for $errorType - attempting generic recovery" -Level "INFO"
+            
+            try {
+                $genericResult = $this.AttemptGenericRecovery($error, $context)
+                
+                # Record the result with circuit breaker
+                if ($this.CircuitBreakers.ContainsKey($provider)) {
+                    if ($genericResult.Success) {
+                        $this.CircuitBreakers[$provider].RecordSuccess()
+                    } else {
+                        $this.CircuitBreakers[$provider].RecordFailure()
+                    }
+                }
+                
+                $genericResult.ErrorType = $errorType
+                $genericResult.AttemptCount = $history.Count
+                $genericResult.Provider = $provider
+                
+                $this.LogRecoveryAttempt($errorType, $genericResult.Success, $genericResult.Action)
+                return $genericResult
+                
+            } catch {
+                if ($this.CircuitBreakers.ContainsKey($provider)) {
+                    $this.CircuitBreakers[$provider].RecordFailure()
+                }
+                
+                $this.LogRecoveryAttempt($errorType, $false, "Generic recovery failed")
+                return @{
+                    Success = $false
+                    Action = "No recovery strategy available and generic recovery failed"
+                    ErrorType = $errorType
+                    AttemptCount = $history.Count
+                    Provider = $provider
+                    RecommendManualIntervention = $true
+                }
             }
+        }
+    }
+    
+    [hashtable] AttemptGenericRecovery([object]$error, [hashtable]$context) {
+        Write-ApplicationLog -Message "Attempting generic recovery strategies" -Level "INFO"
+        
+        # Strategy 1: Wait and retry
+        Start-Sleep -Seconds 5
+        
+        # Strategy 2: Test basic connectivity if it's a network-related error
+        $errorMessage = if ($error -is [System.Exception]) { $error.Message } else { $error.ToString() }
+        if ($errorMessage -match "timeout|network|connection|dns") {
+            try {
+                $networkTest = Test-NetConnection -ComputerName "8.8.8.8" -Port 53 -InformationLevel Quiet
+                if (-not $networkTest) {
+                    return @{
+                        Success = $false
+                        Action = "Network connectivity test failed"
+                        RecommendManualIntervention = $true
+                    }
+                }
+            } catch {
+                return @{
+                    Success = $false
+                    Action = "Unable to perform network connectivity test"
+                    RecommendManualIntervention = $true
+                }
+            }
+        }
+        
+        # Strategy 3: Provider failover if alternative providers are available
+        if ($context.AvailableProviders -and $context.AvailableProviders.Count -gt 1) {
+            $currentProvider = $context.Provider
+            $alternativeProviders = $context.AvailableProviders | Where-Object { $_ -ne $currentProvider }
+            
+            foreach ($altProvider in $alternativeProviders) {
+                if ($this.IsProviderHealthy($altProvider)) {
+                    return @{
+                        Success = $true
+                        Action = "Failover to alternative provider: $altProvider"
+                        AlternativeProvider = $altProvider
+                        RequiresProviderSwitch = $true
+                    }
+                }
+            }
+        }
+        
+        return @{
+            Success = $false
+            Action = "Generic recovery strategies exhausted"
+            RecommendManualIntervention = $true
+        }
+    }
+    
+    [string[]] GetHealthyProviders() {
+        $healthyProviders = @()
+        
+        foreach ($provider in $this.ProviderHealthMonitors.Keys) {
+            if ($this.IsProviderHealthy($provider)) {
+                $healthyProviders += $provider
+            }
+        }
+        
+        return $healthyProviders
+    }
+    
+    [hashtable] GetProviderStatus([string]$provider) {
+        if (-not $this.ProviderHealthMonitors.ContainsKey($provider)) {
+            return @{
+                Provider = $provider
+                Status = "Unknown"
+                IsHealthy = $null
+                CircuitBreakerState = "Unknown"
+            }
+        }
+        
+        $monitor = $this.ProviderHealthMonitors[$provider]
+        $circuitBreakerState = if ($this.CircuitBreakers.ContainsKey($provider)) {
+            $this.CircuitBreakers[$provider].State
+        } else {
+            "Unknown"
+        }
+        
+        return @{
+            Provider = $provider
+            IsHealthy = $monitor.IsHealthy
+            ConsecutiveFailures = $monitor.ConsecutiveFailures
+            LastHealthCheck = $monitor.LastHealthCheck
+            LastFailureTime = $monitor.LastFailureTime
+            CircuitBreakerState = $circuitBreakerState
+            Status = if ($monitor.IsHealthy) { "Healthy" } else { "Unhealthy" }
+        }
+    }
+    
+    [void] ResetProviderHealth([string]$provider) {
+        if ($this.ProviderHealthMonitors.ContainsKey($provider)) {
+            $monitor = $this.ProviderHealthMonitors[$provider]
+            $monitor.IsHealthy = $true
+            $monitor.ConsecutiveFailures = 0
+            $monitor.LastFailureTime = $null
+            $monitor.LastHealthCheck = $null
+            
+            Write-ApplicationLog -Message "Reset health status for provider: $provider" -Level "INFO"
+        }
+        
+        if ($this.CircuitBreakers.ContainsKey($provider)) {
+            $this.CircuitBreakers[$provider].Reset()
+            Write-ApplicationLog -Message "Reset circuit breaker for provider: $provider" -Level "INFO"
         }
     }
     
