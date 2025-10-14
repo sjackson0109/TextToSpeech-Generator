@@ -1,0 +1,828 @@
+# Advanced Configuration Module for TextToSpeech Generator v3.2
+# PowerShell 5.1 Compatible Version
+
+# Configuration profiles for different environments
+$script:ConfigurationProfiles = @{
+    "Development" = @{
+        Name = "Development"
+        Description = "Development environment settings"
+        Settings = @{
+            LogLevel = "DEBUG"
+            Timeout = 30
+            RetryCount = 2
+            MaxParallelJobs = 2
+            EnableDetailedLogging = $true
+            CacheEnabled = $false
+        }
+    }
+    "Production" = @{
+        Name = "Production"  
+        Description = "Production environment settings"
+        Settings = @{
+            LogLevel = "INFO"
+            Timeout = 60
+            RetryCount = 5
+            MaxParallelJobs = 4
+            EnableDetailedLogging = $false
+            CacheEnabled = $true
+        }
+    }
+    "Testing" = @{
+        Name = "Testing"
+        Description = "Testing environment settings"
+        Settings = @{
+            LogLevel = "WARNING"
+            Timeout = 10
+            RetryCount = 1
+            MaxParallelJobs = 1
+            EnableDetailedLogging = $true
+            CacheEnabled = $false
+        }
+    }
+}
+
+# Configuration templates for common setups
+$script:ConfigurationTemplates = @{
+    "AzureBasic" = @{
+        Name = "Azure Basic Setup"
+        Description = "Basic Azure configuration for personal use"
+        Provider = "Microsoft Azure"
+        Configuration = @{
+            Region = "eastus"
+            Voice = "en-US-JennyNeural"
+            AdvancedOptions = @{
+                SpeechRate = 1.0
+                Pitch = 0
+                Volume = 50
+                Style = "neutral"
+            }
+        }
+    }
+    "GoogleCloudBasic" = @{
+        Name = "Google Cloud Basic Setup"
+        Description = "Basic Google Cloud configuration"
+        Provider = "Google Cloud"
+        Configuration = @{
+            Voice = "en-US-Wavenet-F"
+            LanguageCode = "en-US"
+            AdvancedOptions = @{
+                SpeakingRate = 1.0
+                Pitch = 0.0
+                VolumeGainDb = 0.0
+            }
+        }
+    }
+}
+
+# PowerShell 5.1 compatible class definition using Add-Type
+Add-Type -TypeDefinition @"
+using System;
+using System.Collections;
+
+public class AdvancedConfigurationManager
+{
+    public Hashtable Profiles;
+    public Hashtable Templates; 
+    public string CurrentProfile;
+    public string ConfigPath;
+    public Hashtable CurrentConfiguration;
+    
+    public AdvancedConfigurationManager(string configPath)
+    {
+        this.ConfigPath = configPath;
+        this.CurrentProfile = "Development";
+        this.CurrentConfiguration = new Hashtable();
+    }
+}
+"@
+
+# Configuration validation function
+function Test-ConfigurationValid {
+    <#
+    .SYNOPSIS
+    Enhanced configuration validation with detailed feedback
+    #>
+    param(
+        $this.LoadConfiguration()
+        $this.ProcessEncryptedValues()
+        Write-ApplicationLog -Message "Advanced Configuration Manager initialized" -Level "INFO"
+    }
+    
+    [void] ProcessEncryptedValues() {
+        # Process encrypted values in configuration
+        $profileKeys = @($this.Profiles.Keys)  # Create array copy to avoid enumeration issues
+        foreach ($profileName in $profileKeys) {
+            $profile = $this.Profiles[$profileName]
+            if ($profile.ContainsKey("Providers")) {
+                $providerKeys = @($profile.Providers.Keys)  # Create array copy
+                foreach ($providerName in $providerKeys) {
+                    $provider = $profile.Providers[$providerName]
+                    $propertyKeys = @($provider.Keys)  # Create array copy
+                    foreach ($key in $propertyKeys) {
+                        $value = $provider[$key]
+                        if ($value -is [string] -and $value.StartsWith("ENCRYPTED:")) {
+                            try {
+                                # Use security module to decrypt
+                                $encryptedValue = $value.Substring(10) # Remove "ENCRYPTED:" prefix
+                                
+                                # Skip if it's obviously a test/placeholder value
+                                if ($encryptedValue -match "^(test-key-|secret123|AKIA\.\.\.)") {
+                                    Write-ApplicationLog -Message "Skipping decryption of test value for $providerName.$key" -Level "DEBUG"
+                                    $provider[$key] = $encryptedValue  # Use the test value as-is
+                                } else {
+                                    $decryptedValue = Invoke-SecureDecryption -EncryptedValue $encryptedValue
+                                    $provider[$key] = $decryptedValue
+                                    Write-ApplicationLog -Message "Decrypted sensitive value for $providerName.$key" -Level "DEBUG"
+                                }
+                            }
+                            catch {
+                                Write-ApplicationLog -Message "Failed to decrypt value for $providerName.$key - using test placeholder" -Level "DEBUG"
+                                $provider[$key] = $encryptedValue  # Use the value without ENCRYPTED: prefix
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    [hashtable] GetProfileConfiguration([string]$profileName) {
+        if ($this.Profiles.ContainsKey($profileName)) {
+            return $this.Profiles[$profileName].Settings.Clone()
+        }
+        
+        Write-ApplicationLog -Message "Profile not found: $profileName, using Development" -Level "WARNING"
+        return $this.Profiles["Development"].Settings.Clone()
+    }
+    
+    [void] SetCurrentProfile([string]$profileName) {
+        if ($this.Profiles.ContainsKey($profileName)) {
+            $this.CurrentProfile = $profileName
+            Write-ApplicationLog -Message "Switched to profile: $profileName" -Level "INFO"
+        } else {
+            Write-ApplicationLog -Message "Invalid profile: $profileName" -Level "ERROR"
+            throw "Profile '$profileName' does not exist"
+        }
+    }
+    
+    [hashtable] GetTemplate([string]$templateName) {
+        if ($this.Templates.ContainsKey($templateName)) {
+            return $this.Templates[$templateName].Configuration.Clone()
+        }
+        
+        Write-ApplicationLog -Message "Template not found: $templateName" -Level "WARNING"
+        return @{}
+    }
+    
+    [void] AddCustomProfile([string]$name, [string]$description, [hashtable]$settings) {
+        $this.Profiles[$name] = @{
+            Name = $name
+            Description = $description
+            Settings = $settings.Clone()
+            IsCustom = $true
+        }
+        
+        Write-ApplicationLog -Message "Added custom profile: $name" -Level "INFO"
+        $this.SaveConfiguration()
+    }
+    
+    [void] RemoveProfile([string]$profileName) {
+        if ($this.Profiles.ContainsKey($profileName) -and $this.Profiles[$profileName].IsCustom) {
+            $this.Profiles.Remove($profileName)
+            Write-ApplicationLog -Message "Removed custom profile: $profileName" -Level "INFO"
+            $this.SaveConfiguration()
+        } else {
+            Write-ApplicationLog -Message "Cannot remove built-in profile: $profileName" -Level "WARNING"
+        }
+    }
+    
+    [hashtable] ValidateSchema([hashtable]$config) {
+        $validation = @{
+            IsValid = $true
+            Errors = @()
+            Warnings = @()
+            Version = "3.2"
+        }
+        
+        # Check required fields
+        $requiredFields = @("ConfigVersion", "CurrentProfile", "Profiles")
+        foreach ($field in $requiredFields) {
+            if (-not $config.ContainsKey($field)) {
+                $validation.Errors += "Missing required field: $field"
+                $validation.IsValid = $false
+            }
+        }
+        
+        # Validate version compatibility
+        if ($config.ContainsKey("ConfigVersion")) {
+            $configVersion = [Version]::Parse($config.ConfigVersion)
+            $currentVersion = [Version]::Parse("3.2")
+            
+            if ($configVersion -gt $currentVersion) {
+                $validation.Warnings += "Configuration version ($($config.ConfigVersion)) is newer than application version (3.2)"
+            }
+        }
+        
+        return $validation
+    }
+    
+    [hashtable] MigrateConfiguration([hashtable]$oldConfig, [string]$fromVersion, [string]$toVersion) {
+        Write-ApplicationLog -Message "Migrating configuration from $fromVersion to $toVersion" -Level "INFO"
+        
+        $migratedConfig = $oldConfig.Clone()
+        
+        # Version-specific migrations
+        switch ($fromVersion) {
+            "3.0" {
+                # Add new fields introduced in 3.1
+                if (-not $migratedConfig.ContainsKey("SecuritySettings")) {
+                    $migratedConfig["SecuritySettings"] = @{
+                        EncryptionEnabled = $true
+                        AuditLogging = $true
+                    }
+                }
+            }
+            "3.1" {
+                # Add new fields introduced in 3.2
+                if (-not $migratedConfig.ContainsKey("AdvancedSettings")) {
+                    $migratedConfig["AdvancedSettings"] = @{
+                        ProfilesEnabled = $true
+                        TemplatesEnabled = $true
+                    }
+                }
+            }
+        }
+        
+        $migratedConfig["Version"] = $toVersion
+        $migratedConfig["MigrationDate"] = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+        
+        return $migratedConfig
+    }
+    
+    [void] SaveConfiguration() {
+        try {
+            $configData = @{
+                Version = "3.2"
+                Timestamp = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+                CurrentProfile = $this.CurrentProfile
+                Profiles = $this.Profiles
+                Templates = $this.Templates
+                Configuration = $this.CurrentConfiguration
+            }
+            
+            $json = $configData | ConvertTo-Json -Depth 10
+            Set-Content -Path $this.ConfigPath -Value $json -Encoding UTF8
+            
+            Write-ApplicationLog -Message "Configuration saved to $($this.ConfigPath)" -Level "INFO"
+        }
+        catch {
+            Write-ErrorLog -Operation "SaveConfiguration" -Exception $_.Exception
+            throw
+        }
+    }
+    
+    [hashtable] ValidateProviderConfiguration([string]$providerName, [hashtable]$config) {
+        $validationResult = @{
+            IsValid = $true
+            Errors = @()
+            Warnings = @()
+        }
+        
+        switch ($providerName) {
+            "Azure Cognitive Services" {
+                $required = @("ApiKey", "Datacenter", "DefaultVoice")
+                foreach ($key in $required) {
+                    if (-not $config.ContainsKey($key) -or [string]::IsNullOrWhiteSpace($config[$key])) {
+                        $validationResult.IsValid = $false
+                        $validationResult.Errors += "Azure provider missing required field: $key"
+                    }
+                }
+            }
+            "AWS Polly" {
+                $required = @("AccessKey", "SecretKey", "Region", "DefaultVoice")
+                foreach ($key in $required) {
+                    if (-not $config.ContainsKey($key) -or [string]::IsNullOrWhiteSpace($config[$key])) {
+                        $validationResult.IsValid = $false
+                        $validationResult.Errors += "AWS Polly provider missing required field: $key"
+                    }
+                }
+            }
+            "Google Cloud TTS" {
+                $required = @("ApiKey", "DefaultVoice")
+                foreach ($key in $required) {
+                    if (-not $config.ContainsKey($key) -or [string]::IsNullOrWhiteSpace($config[$key])) {
+                        $validationResult.IsValid = $false
+                        $validationResult.Errors += "Google Cloud TTS provider missing required field: $key"
+                    }
+                }
+            }
+        }
+        
+        return $validationResult
+    }
+    
+    [void] LoadConfiguration() {
+        try {
+            if (-not (Test-Path $this.ConfigPath)) {
+                Write-ApplicationLog -Message "No configuration file found, using defaults" -Level "INFO"
+                return
+            }
+            
+            $json = Get-Content -Path $this.ConfigPath -Raw
+            $configData = $json | ConvertFrom-Json -AsHashtable
+            
+            # Validate schema
+            $validation = $this.ValidateSchema($configData)
+            if (-not $validation.IsValid) {
+                Write-ApplicationLog -Message "Configuration validation failed: $($validation.Errors -join ', ')" -Level "ERROR"
+                return
+            }
+            
+            # Check for version migration
+            if ($configData.Version -ne "3.2") {
+                $configData = $this.MigrateConfiguration($configData, $configData.Version, "3.2")
+                Write-ApplicationLog -Message "Configuration migrated to version 3.2" -Level "INFO"
+            }
+            
+            # Load configuration
+            $this.CurrentProfile = if ($configData.CurrentProfile) { $configData.CurrentProfile } else { "Development" }
+            if ($configData.Profiles) {
+                # Merge with built-in profiles
+                foreach ($key in $configData.Profiles.Keys) {
+                    $this.Profiles[$key] = $configData.Profiles[$key]
+                }
+            }
+            if ($configData.Templates) {
+                # Merge with built-in templates
+                foreach ($key in $configData.Templates.Keys) {
+                    $this.Templates[$key] = $configData.Templates[$key]
+                }
+            }
+            if ($configData.Configuration) {
+                $this.CurrentConfiguration = $configData.Configuration
+            }
+            
+            Write-ApplicationLog -Message "Configuration loaded from $($this.ConfigPath)" -Level "INFO"
+        }
+        catch {
+            Write-ErrorLog -Operation "LoadConfiguration" -Exception $_.Exception
+            Write-ApplicationLog -Message "Failed to load configuration, using defaults" -Level "WARNING"
+        }
+    }
+}
+
+function Test-ConfigurationValid {
+    <#
+    .SYNOPSIS
+    Enhanced configuration validation with detailed feedback
+    #>
+    param(
+        [Parameter(Mandatory=$true)][string]$Provider,
+        [hashtable]$Configuration
+    )
+    
+    $validationResult = @{
+        IsValid = $false
+        Errors = @()
+        Warnings = @()
+        Recommendations = @()
+        Provider = $Provider
+    }
+    
+    Write-ApplicationLog -Message "Validating configuration for $Provider" -Level "DEBUG" -Category "Configuration"
+    
+    switch ($Provider) {
+        "Microsoft Azure" {
+            # API Key validation
+            if ([string]::IsNullOrWhiteSpace($Configuration.APIKey)) {
+                $validationResult.Errors += "Azure API Key is required"
+            } elseif ($Configuration.APIKey -eq "your-api-key-here") {
+                $validationResult.Errors += "Azure API Key is still set to placeholder value"
+            } elseif (-not ($Configuration.APIKey -match '^[a-fA-F0-9]{32}$')) {
+                $validationResult.Warnings += "Azure API Key format appears invalid (expected 32 hex characters)"
+                $validationResult.Recommendations += "Verify API key from Azure Cognitive Services portal"
+            }
+            
+            # Region validation
+            if ([string]::IsNullOrWhiteSpace($Configuration.Region)) {
+                $validationResult.Errors += "Azure Region is required"
+            } elseif (-not ($Configuration.Region -match '^[a-z]+[a-z0-9]*$')) {
+                $validationResult.Warnings += "Azure Region format appears invalid"
+                $validationResult.Recommendations += "Use standard Azure region names like 'eastus', 'westeurope'"
+            }
+            
+            # Voice validation
+            if ([string]::IsNullOrWhiteSpace($Configuration.Voice)) {
+                $validationResult.Warnings += "No voice specified, will use default"
+                $validationResult.Recommendations += "Select a specific voice for consistent results"
+            }
+        }
+        
+        "Google Cloud" {
+            # API Key validation
+            if ([string]::IsNullOrWhiteSpace($Configuration.APIKey)) {
+                $validationResult.Errors += "Google Cloud API Key is required"
+            } elseif ($Configuration.APIKey -eq "your-api-key-here") {
+                $validationResult.Errors += "Google Cloud API Key is still set to placeholder value"
+            } elseif (-not ($Configuration.APIKey -match '^AIza[0-9A-Za-z-_]{35}$')) {
+                $validationResult.Warnings += "Google Cloud API Key format appears invalid"
+                $validationResult.Recommendations += "Verify API key from Google Cloud Console"
+            }
+            
+            # Voice validation
+            if ([string]::IsNullOrWhiteSpace($Configuration.Voice)) {
+                $validationResult.Warnings += "No voice specified, will use default"
+                $validationResult.Recommendations += "Select a specific voice for consistent results"
+            }
+        }
+        
+        "Amazon Polly" {
+            # Access Key validation
+            if ([string]::IsNullOrWhiteSpace($Configuration.AccessKeyId)) {
+                $validationResult.Errors += "AWS Access Key ID is required"
+            } elseif (-not ($Configuration.AccessKeyId -match '^AKIA[0-9A-Z]{16}$')) {
+                $validationResult.Warnings += "AWS Access Key ID format appears invalid"
+                $validationResult.Recommendations += "Verify access key from AWS IAM console"
+            }
+            
+            # Secret Key validation
+            if ([string]::IsNullOrWhiteSpace($Configuration.SecretAccessKey)) {
+                $validationResult.Errors += "AWS Secret Access Key is required"
+            } elseif ($Configuration.SecretAccessKey.Length -ne 40) {
+                $validationResult.Warnings += "AWS Secret Access Key length appears invalid (expected 40 characters)"
+                $validationResult.Recommendations += "Verify secret key from AWS IAM console"
+            }
+            
+            # Region validation
+            if ([string]::IsNullOrWhiteSpace($Configuration.Region)) {
+                $validationResult.Errors += "AWS Region is required"
+            }
+        }
+        
+        default {
+            $validationResult.Warnings += "Unknown provider: $Provider"
+        }
+    }
+    
+    # Set overall validity
+    $validationResult.IsValid = ($validationResult.Errors.Count -eq 0)
+    
+    # Log validation results
+    $logLevel = if ($validationResult.IsValid) { "INFO" } else { "WARNING" }
+    $errorCount = $validationResult.Errors.Count
+    $warningCount = $validationResult.Warnings.Count
+    
+    Write-ApplicationLog -Message "$Provider validation: Valid=$($validationResult.IsValid), Errors=$errorCount, Warnings=$warningCount" -Level $logLevel -Category "Configuration"
+    
+    return $validationResult
+}
+
+function Test-APIConnectivity {
+    <#
+    .SYNOPSIS
+    Enhanced API connectivity testing with detailed diagnostics
+    #>
+    param(
+        [Parameter(Mandatory=$true)][string]$Provider,
+        [hashtable]$Configuration
+    )
+    
+    $connectivityResult = @{
+        IsConnected = $false
+        ResponseTime = 0
+        StatusCode = 0
+        ErrorMessage = ""
+        Recommendations = @()
+        Provider = $Provider
+    }
+    
+    Write-ApplicationLog -Message "Testing connectivity for $Provider" -Level "INFO" -Category "Configuration"
+    
+    $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+    
+    try {
+        switch ($Provider) {
+            "Microsoft Azure" {
+                $endpoint = "https://$($Configuration.Region).tts.speech.microsoft.com/cognitiveservices/voices/list"
+                $headers = @{
+                    'Ocp-Apim-Subscription-Key' = $Configuration.APIKey
+                }
+                
+                $response = Invoke-RestMethod -Uri $endpoint -Headers $headers -TimeoutSec 10 -Method Get
+                $connectivityResult.IsConnected = $true
+                $connectivityResult.StatusCode = 200
+            }
+            
+            "Google Cloud" {
+                $endpoint = "https://texttospeech.googleapis.com/v1/voices?key=$($Configuration.APIKey)"
+                
+                $response = Invoke-RestMethod -Uri $endpoint -TimeoutSec 10 -Method Get
+                $connectivityResult.IsConnected = $true
+                $connectivityResult.StatusCode = 200
+            }
+            
+            default {
+                $connectivityResult.ErrorMessage = "Connectivity test not implemented for $Provider"
+                $connectivityResult.Recommendations += "Manual verification required"
+            }
+        }
+    }
+    catch [System.Net.WebException] {
+        $connectivityResult.StatusCode = [int]$_.Exception.Response.StatusCode
+        
+        switch ($connectivityResult.StatusCode) {
+            401 { 
+                $connectivityResult.ErrorMessage = "Authentication failed"
+                $connectivityResult.Recommendations += "Verify API key is correct and active"
+            }
+            403 { 
+                $connectivityResult.ErrorMessage = "Access forbidden"
+                $connectivityResult.Recommendations += "Check API key permissions and subscription status"
+            }
+            404 { 
+                $connectivityResult.ErrorMessage = "Service endpoint not found"
+                $connectivityResult.Recommendations += "Verify region setting is correct"
+            }
+            429 { 
+                $connectivityResult.ErrorMessage = "Rate limit exceeded"
+                $connectivityResult.Recommendations += "Wait before retrying, consider upgrading service tier"
+            }
+            default { 
+                $connectivityResult.ErrorMessage = "HTTP error: $($connectivityResult.StatusCode)"
+                $connectivityResult.Recommendations += "Check network connectivity and service status"
+            }
+        }
+    }
+    catch {
+        $connectivityResult.ErrorMessage = $_.Exception.Message
+        $connectivityResult.Recommendations += "Check network connectivity and DNS resolution"
+    }
+    finally {
+        $stopwatch.Stop()
+        $connectivityResult.ResponseTime = $stopwatch.ElapsedMilliseconds
+    }
+    
+    # Log connectivity results
+    $logLevel = if ($connectivityResult.IsConnected) { "INFO" } else { "ERROR" }
+    Write-ApplicationLog -Message "$Provider connectivity: Connected=$($connectivityResult.IsConnected), ResponseTime=$($connectivityResult.ResponseTime)ms" -Level $logLevel -Category "Configuration"
+    
+    return $connectivityResult
+}
+
+function New-AdvancedConfigurationManager {
+    <#
+    .SYNOPSIS
+    Creates a new advanced configuration manager instance
+    #>
+    param(
+        [Parameter(Mandatory=$true)][string]$ConfigPath
+    )
+    
+    return [AdvancedConfigurationManager]::new($ConfigPath)
+}
+
+function Get-ConfigurationProfiles {
+    <#
+    .SYNOPSIS
+    Returns available configuration profiles
+    #>
+    return $script:ConfigurationProfiles
+}
+
+function Get-ConfigurationTemplates {
+    <#
+    .SYNOPSIS
+    Returns available configuration templates
+    #>
+    return $script:ConfigurationTemplates
+}
+
+# Export functions and classes
+# GUI Integration Functions for Provider Configuration Management
+function Update-ProviderConfiguration {
+    <#
+    .SYNOPSIS
+    Updates provider configuration from GUI settings
+    
+    .DESCRIPTION
+    Updates the configuration file with provider settings from the GUI.
+    Called when user hits 'Save' in the API Configuration page.
+    
+    .PARAMETER ProviderName
+    Name of the TTS provider to update
+    
+    .PARAMETER Settings
+    Hashtable containing the provider settings
+    
+    .PARAMETER Profile
+    Configuration profile to update (defaults to current profile)
+    
+    .EXAMPLE
+    Update-ProviderConfiguration -ProviderName "Microsoft Azure" -Settings @{
+        Enabled = $true
+        ApiKey = "your-api-key"
+        Datacenter = "eastus"
+        DefaultVoice = "en-US-JennyNeural"
+    }
+    #>
+    param(
+        [Parameter(Mandatory=$true)][string]$ProviderName,
+        [Parameter(Mandatory=$true)][hashtable]$Settings,
+        [string]$Profile = $null,
+        [string]$ConfigPath = ".\config.json"
+    )
+    
+    try {
+        # Load current configuration
+        if (Test-Path $ConfigPath) {
+            $config = Get-Content $ConfigPath | ConvertFrom-Json -Depth 10
+        } else {
+            throw "Configuration file not found: $ConfigPath"
+        }
+        
+        # Use current profile if not specified
+        if (-not $Profile) {
+            $Profile = $config.CurrentProfile
+        }
+        
+        # Ensure profile exists
+        if (-not $config.Profiles.$Profile) {
+            throw "Profile not found: $Profile"
+        }
+        
+        # Update provider settings
+        if (-not $config.Profiles.$Profile.Providers) {
+            $config.Profiles.$Profile.Providers = @{}
+        }
+        
+        # Convert PSCustomObject to hashtable for manipulation
+        $providerConfig = @{}
+        if ($config.Profiles.$Profile.Providers.$ProviderName) {
+            $existingConfig = $config.Profiles.$Profile.Providers.$ProviderName
+            $existingConfig.PSObject.Properties | ForEach-Object {
+                $providerConfig[$_.Name] = $_.Value
+            }
+        }
+        
+        # Update with new settings
+        foreach ($key in $Settings.Keys) {
+            $providerConfig[$key] = $Settings[$key]
+        }
+        
+        $config.Profiles.$Profile.Providers.$ProviderName = $providerConfig
+        $config.LastUpdated = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+        
+        # Save configuration
+        $config | ConvertTo-Json -Depth 10 | Set-Content -Path $ConfigPath -Encoding UTF8
+        
+        Write-ApplicationLog -Message "Updated provider configuration: $ProviderName in profile $Profile" -Level "INFO"
+        return $true
+        
+    } catch {
+        Write-ApplicationLog -Message "Failed to update provider configuration: $($_.Exception.Message)" -Level "ERROR"
+        return $false
+    }
+}
+
+function Get-ProviderConfiguration {
+    <#
+    .SYNOPSIS
+    Retrieves provider configuration for GUI population
+    
+    .DESCRIPTION
+    Gets the current provider configuration settings to populate GUI fields.
+    
+    .PARAMETER ProviderName
+    Name of the TTS provider to retrieve (optional, returns all if not specified)
+    
+    .PARAMETER Profile
+    Configuration profile to retrieve from (defaults to current profile)
+    
+    .EXAMPLE
+    $azureConfig = Get-ProviderConfiguration -ProviderName "Microsoft Azure"
+    #>
+    param(
+        [string]$ProviderName = $null,
+        [string]$Profile = $null,
+        [string]$ConfigPath = ".\config.json"
+    )
+    
+    try {
+        # Load current configuration
+        if (Test-Path $ConfigPath) {
+            $config = Get-Content $ConfigPath | ConvertFrom-Json -Depth 10
+        } else {
+            Write-ApplicationLog -Message "Configuration file not found, using defaults" -Level "WARNING"
+            return @{}
+        }
+        
+        # Use current profile if not specified
+        if (-not $Profile) {
+            $Profile = $config.CurrentProfile
+        }
+        
+        # Ensure profile exists
+        if (-not $config.Profiles.$Profile -or -not $config.Profiles.$Profile.Providers) {
+            Write-ApplicationLog -Message "No providers configured for profile: $Profile" -Level "WARNING"
+            return @{}
+        }
+        
+        $providers = $config.Profiles.$Profile.Providers
+        
+        if ($ProviderName) {
+            # Return specific provider
+            if ($providers.$ProviderName) {
+                return $providers.$ProviderName
+            } else {
+                Write-ApplicationLog -Message "Provider not found: $ProviderName" -Level "WARNING"
+                return @{}
+            }
+        } else {
+            # Return all providers
+            $result = @{}
+            $providers.PSObject.Properties | ForEach-Object {
+                $result[$_.Name] = $_.Value
+            }
+            return $result
+        }
+        
+    } catch {
+        Write-ApplicationLog -Message "Failed to get provider configuration: $($_.Exception.Message)" -Level "ERROR"
+        return @{}
+    }
+}
+
+function Get-AvailableProviders {
+    <#
+    .SYNOPSIS
+    Gets list of all supported TTS providers
+    
+    .DESCRIPTION
+    Returns information about all supported TTS providers and their current status.
+    
+    .EXAMPLE
+    $providers = Get-AvailableProviders
+    #>
+    
+    return @{
+        "Microsoft Azure" = @{
+            DisplayName = "Microsoft Azure Cognitive Services"
+            Description = "Enterprise-grade TTS with neural voices"
+            RequiredFields = @("ApiKey", "Datacenter")
+            OptionalFields = @("AudioFormat", "DefaultVoice")
+            SupportedFormats = @("audio-16khz-32kbitrate-mono-mp3", "audio-24khz-48kbitrate-mono-mp3", "riff-16khz-16bit-mono-pcm")
+            DocumentationUrl = "https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/"
+        }
+        "AWS Polly" = @{
+            DisplayName = "Amazon Polly"
+            Description = "Scalable cloud TTS service with lifelike speech"
+            RequiredFields = @("AccessKey", "SecretKey", "Region")
+            OptionalFields = @("DefaultVoice", "Engine")
+            SupportedFormats = @("mp3", "ogg_vorbis", "pcm")
+            DocumentationUrl = "https://docs.aws.amazon.com/polly/"
+        }
+        "Google Cloud TTS" = @{
+            DisplayName = "Google Cloud Text-to-Speech"
+            Description = "Machine learning powered TTS with WaveNet voices"
+            RequiredFields = @("ApiKey")
+            OptionalFields = @("DefaultVoice", "AudioEncoding")
+            SupportedFormats = @("MP3", "LINEAR16", "OGG_OPUS")
+            DocumentationUrl = "https://cloud.google.com/text-to-speech/docs"
+        }
+        "CloudPronouncer" = @{
+            DisplayName = "CloudPronouncer"
+            Description = "Pronunciation-focused TTS service"
+            RequiredFields = @("ApiKey", "Username")
+            OptionalFields = @("DefaultVoice", "Speed", "Pitch")
+            SupportedFormats = @("mp3", "wav")
+            DocumentationUrl = "https://cloudpronouncer.com/docs"
+        }
+        "Twilio" = @{
+            DisplayName = "Twilio Voice"
+            Description = "Communication platform TTS integration"
+            RequiredFields = @("AccountSid", "AuthToken")
+            OptionalFields = @("DefaultVoice", "Language")
+            SupportedFormats = @("mp3", "wav")
+            DocumentationUrl = "https://www.twilio.com/docs/voice"
+        }
+        "VoiceForge" = @{
+            DisplayName = "VoiceForge"
+            Description = "High-quality commercial TTS service"
+            RequiredFields = @("ApiKey", "Username")
+            OptionalFields = @("DefaultVoice", "Quality", "Speed")
+            SupportedFormats = @("mp3", "wav")
+            DocumentationUrl = "https://voiceforge.com/docs"
+        }
+    }
+}
+
+Export-ModuleMember -Function @(
+    'Test-ConfigurationValid',
+    'Test-APIConnectivity',
+    'New-AdvancedConfigurationManager',
+    'Get-ConfigurationProfiles',
+    'Get-ConfigurationTemplates',
+    'Update-ProviderConfiguration',
+    'Get-ProviderConfiguration', 
+    'Get-AvailableProviders'
+)

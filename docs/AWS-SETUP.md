@@ -1,62 +1,124 @@
-# AWS Polly Text-to-Speech Setup Guide
+# Amazon Polly (AWS) Text-to-Speech Setup Guide
 
-Setup and configuration guide for Amazon Polly Text-to-Speech integration.
+**Updated: October 2025** | **Status: ⚠️ PLACEHOLDER IMPLEMENTATION**
+
+Setup and configuration guide for Amazon Polly Text-to-Speech integration with TextToSpeech Generator v2.0.
 
 ![AWS](https://img.shields.io/badge/AWS-Polly-orange)
-![Status](https://img.shields.io/badge/Status-Coming_Soon-yellow)
+![Status](https://img.shields.io/badge/Status-Placeholder_Only-yellow)
 
 ## ⚠️ Implementation Status
 
-AWS Polly integration is **planned for a future release**. This documentation is prepared for when the feature becomes available.
+**Current Status in TextToSpeech Generator v2.0:**
+- ✅ **UI Configuration**: Complete configuration panel implemented  
+- ⚠️ **Placeholder Processing**: Creates dummy text files, not real audio
+- ❌ **Real TTS Processing**: Not yet implemented
+- ⏳ **Planned**: Full AWS Polly API integration in future release
 
-**Current Status**: 
-- ❌ Not implemented in TextToSpeech Generator v1.21
-- 📋 Planned for v1.30 release
-- 🔧 UI elements present but non-functional
+**What Works Now:**
+- Complete AWS configuration interface
+- Access Key, Secret Key, and Region selection
+- Voice selection dropdown with Polly voices
+- Credential validation and storage
 
-## 🔵 Overview (Planned Features)
+**What Doesn't Work:**
+- Audio file generation (creates placeholder text files only)
+- Advanced voice options
+- Real AWS Polly API calls
 
-Amazon Polly will offer:
+## 🔵 Overview
 
-### Key Benefits (When Available)
+Amazon Polly offers high-quality text-to-speech with advanced neural voices and extensive language support. As of October 2025, AWS Polly provides **75+ voices across 31+ languages** with neural and long-form capabilities.
+
+### Key Features (When Fully Implemented)
 - **Neural TTS**: High-quality neural voices with natural prosody  
-- **Global Reach**: 60+ voices across 29+ languages
+- **Global Reach**: 75+ voices across 31+ languages and dialects
 - **SSML Support**: Advanced speech markup for fine control
-- **Competitive Pricing**: Pay-per-character with no upfront costs
-- **AWS Integration**: Seamless integration with other AWS services
+- **Competitive Pricing**: $4.00 per 1M characters (Neural: $16.00)
+- **AWS Integration**: Native integration with AWS ecosystem
+- **Long-form Content**: Specialized for audiobooks and extended content
 
-### Planned Voice Categories
-- **Standard**: Traditional concatenative synthesis
-- **Neural**: Deep learning-based natural voices  
-- **Long-form**: Optimized for audiobooks and long content
-- **Conversational**: Designed for interactive applications
+### Voice Categories Available
+- **Standard**: Traditional concatenative synthesis - reliable quality
+- **Neural**: Deep learning-based natural voices - premium quality
+- **Long-form**: Optimized for audiobooks and extended content
+- **Conversational**: Designed for interactive applications and chatbots
 
-## 📋 Future Setup Process (Planned)
+### Current Pricing (October 2025)
+| Voice Type | Price per 1M chars | Quality | Use Case |
+|------------|-------------------|---------|----------|
+| **Standard** | $4.00 | Good | General purpose |
+| **Neural** | $16.00 | Premium | Professional content |
+| **Long-form** | $100.00 | Optimized | Audiobooks, podcasts |
 
-### Prerequisites (When Available)
-- AWS account with billing configured
-- IAM user with Polly permissions
-- Access key and secret key
+## 📋 Setup Process (Configuration Only)
 
-### Planned Configuration Steps
+### Step 1: Create AWS Account
 
-1. **AWS Account Setup**: Create AWS account at https://aws.amazon.com
-2. **IAM Configuration**: Create user with `AmazonPollyFullAccess` policy
-3. **API Credentials**: Generate access key and secret key
-4. **Application Setup**: Configure in TextToSpeech Generator
+1. **Sign Up**: Visit [aws.amazon.com](https://aws.amazon.com) 
+2. **Account Setup**: Complete registration with credit card
+3. **Console Access**: Log into AWS Management Console
+4. **Billing**: Set up billing alerts and budgets
 
-### Planned Voice Selection
+### Step 2: Create IAM User for Polly
 
-**English Voices (Preview)**:
-- `Joanna` (Female, US) - Neural available
-- `Matthew` (Male, US) - Neural available  
-- `Amy` (Female, UK) - Neural available
-- `Brian` (Male, UK) - Neural available
+1. **IAM Console**: Navigate to IAM in AWS Console
+2. **Create User**: 
+   - Username: `textto-speech-generator`
+   - Access type: Programmatic access
+3. **Attach Policy**: 
+   - Search for `AmazonPollyFullAccess`
+   - Attach the policy to user
+4. **Download Credentials**: Save Access Key ID and Secret Access Key
 
-**Multi-Language Support**:
-- Spanish, French, German, Italian, Japanese
-- Portuguese, Dutch, Russian, Arabic, Hindi
-- And many more regional variants
+### Step 3: Configure TextToSpeech Generator
+
+1. **Launch Application**: Run `TextToSpeech-Generator.ps1`
+2. **Select AWS**: Choose "Amazon Polly" from provider dropdown
+3. **Enter Credentials**:
+   - **Access Key**: Your AWS Access Key ID (starts with AKIA)
+   - **Secret Key**: Your AWS Secret Access Key (secure field)
+   - **Region**: Choose AWS region (us-east-1, us-west-2, eu-west-1)
+4. **Select Voice**: Choose from available voices
+
+### Available Voices (October 2025)
+
+#### English Voices - United States
+| Voice | Gender | Type | Neural | Long-form |
+|-------|--------|------|--------|-----------|
+| Joanna | Female | Standard/Neural | ✅ | ✅ |
+| Matthew | Male | Standard/Neural | ✅ | ✅ |
+| Kimberly | Female | Standard/Neural | ✅ | ❌ |
+| Justin | Male | Standard/Neural | ✅ | ❌ |
+| Joey | Male | Standard/Neural | ✅ | ❌ |
+| Ivy | Female | Standard/Neural | ✅ | ❌ |
+
+#### English Voices - United Kingdom
+| Voice | Gender | Type | Neural | Long-form |
+|-------|--------|------|--------|-----------|
+| Amy | Female | Standard/Neural | ✅ | ✅ |
+| Brian | Male | Standard/Neural | ✅ | ✅ |
+| Emma | Female | Standard/Neural | ✅ | ❌ |
+
+#### English Voices - Australia/India
+| Voice | Gender | Region | Neural |
+|-------|--------|---------|--------|
+| Nicole | Female | Australian | ✅ |
+| Russell | Male | Australian | ✅ |
+| Raveena | Female | Indian | ✅ |
+| Aditi | Female | Indian | ✅ |
+
+#### Major International Languages
+- **Spanish**: Conchita, Lucia, Enrique, Miguel
+- **French**: Celine, Lea, Mathieu  
+- **German**: Marlene, Vicki, Hans
+- **Italian**: Carla, Bianca, Giorgio
+- **Japanese**: Mizuki, Takumi
+- **Portuguese**: Ines, Cristiano, Camila
+- **Arabic**: Zeina
+- **Chinese**: Zhiyu
+- **Dutch**: Lotte, Ruben
+- **Russian**: Tatyana, Maxim
 
 ## 🔗 Current Alternatives
 
@@ -87,13 +149,25 @@ While AWS Polly integration is in development, consider these options:
 - [ ] Conversation marks and metadata
 - [ ] Advanced audio format options
 
-## 🛠️ Development Status
+## 🛠️ Current Implementation Status
 
-### Current Implementation
-The application currently shows AWS Polly as an option but displays:
+### Placeholder Implementation
+The application currently has AWS Polly configuration but only creates placeholder files:
+
+```powershell
+# Current placeholder function creates dummy files
+function Invoke-PollyTTS {
+    # ... configuration code ...
+    
+    # Creates placeholder text file instead of real audio
+    $placeholderBytes = [System.Text.Encoding]::UTF8.GetBytes("Polly TTS placeholder - Implementation needed")
+    [System.IO.File]::WriteAllBytes($OutputPath, $placeholderBytes)
+    
+    return @{ Success = $true; Message = "Generated successfully (placeholder)" }
+}
 ```
-"WARNING: AWS Polly TTS is not yet implemented"
-```
+
+**Result**: Files are created but contain placeholder text, not audio.
 
 ### How to Help
 Interested in AWS Polly support? You can:

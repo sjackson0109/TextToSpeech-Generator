@@ -1,6 +1,23 @@
-# API Setup Guide
+# API Setup Guide - Complete Provider Overview
 
-This guide provides detailed instructions for setting up API access for supported Text-to-Speech providers.
+**Updated: October 2025** | **TextToSpeech Generator v2.0**
+
+This guide provides detailed instructions for setting up API access for all TTS providers supported by TextToSpeech Generator v2.0.
+
+## 🎯 **Provider Implementation Status**
+
+| Provider | Status | Implementation | Setup Guide |
+|----------|--------|----------------|-------------|
+| **Microsoft Azure** | ✅ **PRODUCTION** | Full API integration | [AZURE-SETUP.md](AZURE-SETUP.md) |
+| **Google Cloud** | ✅ **PRODUCTION** | Full API integration | [GOOGLE-SETUP.md](GOOGLE-SETUP.md) |
+| **Amazon Polly** | ⚠️ **PLACEHOLDER** | Creates dummy files | [AWS-SETUP.md](AWS-SETUP.md) |
+| **CloudPronouncer** | ⚠️ **UI ONLY** | Configuration only | [CLOUDPRONOUNCER-SETUP.md](CLOUDPRONOUNCER-SETUP.md) |
+| **Twilio** | ⚠️ **UI ONLY** | Configuration only | [TWILIO-SETUP.md](TWILIO-SETUP.md) |
+| **VoiceForge** | ⚠️ **UI ONLY** | Configuration only | [VOICEFORGE-SETUP.md](VOICEFORGE-SETUP.md) |
+
+## 🚀 **Quick Start - Production Ready Providers**
+
+For immediate TTS generation, use these fully implemented providers:
 
 ## Azure Cognitive Services Text-to-Speech
 
@@ -78,18 +95,20 @@ Azure offers 400+ neural voices across 140+ languages:
 ### Pricing Information
 
 **Free Tier (F0)**:
-- 5,000 transactions per month
-- Standard voices only
+- 500,000 characters per month (2025 update)
+- Neural voices included (limited)
 - Rate limited
 
 **Standard Tier (S0)**:
-- Pay per use: $4 per 1M characters (Neural voices)
+- Pay per use: $15 per 1M characters (Neural), $4 (Standard)
 - No monthly limits
 - All features available
 
+📖 **[Complete Azure Setup Guide →](AZURE-SETUP.md)**
+
 ---
 
-## Google Cloud Text-to-Speech
+## Google Cloud Text-to-Speech ✅ **PRODUCTION READY**
 
 ### Prerequisites
 - Google Cloud account
@@ -198,67 +217,155 @@ For simplicity, create an API Key:
 3. **Monitor network traffic** in enterprise environments
 4. **Consider proxy settings** if behind corporate firewall
 
+📖 **[Complete Google Cloud Setup Guide →](GOOGLE-SETUP.md)**
+
 ---
 
-## Troubleshooting API Issues
+## ⚠️ **Configuration-Only Providers**
 
-### Common Azure Issues
+These providers have UI configuration but are not yet fully implemented:
 
-**401 Unauthorized**:
-- Check API key is correct (32 hex characters)
-- Verify key isn't expired
-- Ensure datacenter region matches subscription
+### Amazon Polly ⚠️ **PLACEHOLDER**
+- **Status**: Creates placeholder text files, not real audio
+- **Configuration**: Complete AWS credentials interface
+- **Implementation**: Planned for future release
+- 📖 **[AWS Polly Setup Guide →](AWS-SETUP.md)**
 
-**403 Forbidden**:
-- Check subscription has available quota
-- Verify service isn't suspended
-- Confirm billing information is current
+### CloudPronouncer ⚠️ **UI ONLY**
+- **Status**: Configuration interface only, no TTS processing
+- **Use Case**: Specialized pronunciation accuracy
+- **Implementation**: Requires community interest
+- 📖 **[CloudPronouncer Setup Guide →](CLOUDPRONOUNCER-SETUP.md)**
 
-**429 Rate Limited**:
-- Reduce request frequency
-- Upgrade to paid tier
-- Implement proper delays between requests
+### Twilio ⚠️ **UI ONLY**
+- **Status**: Configuration interface only, no TTS processing
+- **Use Case**: Telephony and voice applications
+- **Implementation**: Lower priority, planned for 2026
+- 📖 **[Twilio Setup Guide →](TWILIO-SETUP.md)**
 
-### Common Google Cloud Issues
+### VoiceForge ⚠️ **UI ONLY**
+- **Status**: Configuration interface only, no TTS processing
+- **Use Case**: Professional and custom voices
+- **Implementation**: Enterprise demand dependent
+- 📖 **[VoiceForge Setup Guide →](VOICEFORGE-SETUP.md)**
 
-**Authentication Errors**:
-- Verify API key format
-- Check Text-to-Speech API is enabled
-- Confirm billing is enabled on project
+---
 
-**Quota Exceeded**:
-- Check usage in Cloud Console
-- Upgrade quotas if needed
-- Monitor monthly usage
+## 🎯 **Recommended Setup Paths**
+
+### For Immediate Use (Production Ready)
+1. **Choose a Provider**: Azure (recommended for beginners) or Google Cloud (advanced features)
+2. **Follow Setup Guide**: Complete provider-specific setup
+3. **Test Configuration**: Use single script mode first
+4. **Scale Up**: Move to bulk processing once comfortable
+
+### For Enterprise Users
+1. **Azure Cognitive Services**: Best for Microsoft ecosystem integration
+2. **Google Cloud TTS**: Best for Google Cloud Platform integration
+3. **Both**: Use both for redundancy and feature comparison
+
+### For Future Planning
+1. **Configure All Providers**: Set up UI configurations now
+2. **Monitor Development**: Watch for implementation updates
+3. **Provide Feedback**: Request features for non-implemented providers
+
+---
+
+## 🔒 Security Best Practices
+
+### API Key Management
+1. **Never commit API keys** to version control
+2. **Use environment variables** in production
+3. **Rotate keys regularly** (monthly recommended)
+4. **Restrict key permissions** to minimum required
+5. **Monitor usage** for unexpected activity
+
+### Application Security
+1. **Enable secure storage** when prompted (Windows Credential Manager)
+2. **Use latest version** of TextToSpeech Generator
+3. **Validate input files** before processing
+4. **Run with minimum privileges**
+
+### Network Security
+1. **Use HTTPS only** (enforced by application)
+2. **Configure firewall** to allow outbound HTTPS (443)
+3. **Monitor network traffic** in enterprise environments
+4. **Consider proxy settings** if behind corporate firewall
+
+---
+
+## 🛠️ Troubleshooting Common Issues
+
+### Azure Issues
+**401 Unauthorized**: Check API key format and region match
+**403 Forbidden**: Verify billing and subscription status
+**429 Rate Limited**: Implement delays, upgrade to paid tier
+
+### Google Cloud Issues  
+**Authentication Errors**: Ensure API is enabled and billing configured
+**Quota Exceeded**: Monitor usage in Cloud Console
+**Invalid API Key**: Check key restrictions and permissions
+
+### Application Issues
+**"Provider not implemented"**: Use Azure or Google Cloud for working TTS
+**Configuration not saving**: Check write permissions, run as administrator
+**No voices loading**: Verify API credentials and internet connection
 
 ### Network Issues
+**Connection Timeouts**: Check internet, DNS, corporate firewall
+**SSL/TLS Errors**: Update PowerShell, verify system time
+**Proxy Issues**: Configure PowerShell proxy settings
 
-**Connection Timeouts**:
-- Check internet connectivity
-- Verify DNS resolution
-- Test with different datacenter/region
-- Check corporate firewall settings
-
-**SSL/TLS Errors**:
-- Update PowerShell to latest version
-- Check system date/time is correct
-- Verify certificate store is updated
+📖 **[Comprehensive Troubleshooting Guide →](TROUBLESHOOTING.md)**
 
 ---
 
-## API Testing
+## ⚡ Quick Start Checklist
 
-### Quick Test Commands
+### Production TTS in 5 Minutes
+1. ✅ **Choose Provider**: Azure (easiest) or Google Cloud (advanced)
+2. ✅ **Create Account**: Follow provider-specific setup guide
+3. ✅ **Get API Key**: Copy credentials from provider dashboard  
+4. ✅ **Configure App**: Enter credentials in TextToSpeech Generator
+5. ✅ **Test**: Try single script mode with "Hello world"
+6. ✅ **Scale**: Move to CSV bulk processing for larger datasets
 
-**Azure Test (PowerShell)**:
-```powershell
-$headers = @{
-    "Ocp-Apim-Subscription-Key" = "YOUR_KEY_HERE"
-    "Content-Type" = "application/x-www-form-urlencoded"
-}
-$uri = "https://YOUR_REGION.api.cognitive.microsoft.com/sts/v1.0/issueToken"
-Invoke-RestMethod -Uri $uri -Method POST -Headers $headers
-```
+### Enterprise Deployment
+1. ✅ **Security Review**: Implement key management and monitoring
+2. ✅ **Provider Selection**: Choose based on ecosystem integration
+3. ✅ **Redundancy**: Configure multiple providers for failover
+4. ✅ **Monitoring**: Set up usage tracking and billing alerts
+5. ✅ **Documentation**: Train users on TTS best practices
+
+---
+
+## 📚 Additional Resources
+
+### Provider-Specific Documentation
+- **[Azure Cognitive Services](AZURE-SETUP.md)**: Complete Azure TTS setup
+- **[Google Cloud TTS](GOOGLE-SETUP.md)**: Complete Google Cloud setup  
+- **[AWS Polly](AWS-SETUP.md)**: Placeholder implementation status
+- **[CloudPronouncer](CLOUDPRONOUNCER-SETUP.md)**: Configuration-only setup
+- **[Twilio](TWILIO-SETUP.md)**: Configuration-only setup
+- **[VoiceForge](VOICEFORGE-SETUP.md)**: Configuration-only setup
+
+### Application Documentation
+- **[Main README](../README.md)**: Application overview and features
+- **[CSV Format Guide](CSV-FORMAT.md)**: Bulk processing file format
+- **[Troubleshooting Guide](TROUBLESHOOTING.md)**: Problem solving
+- **[Quick Start Guide](../QUICKSTART.md)**: 5-minute setup walkthrough
+
+### Community and Support
+- **GitHub Repository**: [TextToSpeech Generator](https://github.com/sjackson0109/TextToSpeech-Generator)
+- **Issues and Features**: [GitHub Issues](https://github.com/sjackson0109/TextToSpeech-Generator/issues)
+- **Contributions**: [Contributing Guidelines](../CONTRIBUTING.md)
+
+---
+
+**🎯 Ready to start? Choose your provider and begin with the detailed setup guide!**
+
+**Production Ready Now**: [Azure Setup](AZURE-SETUP.md) | [Google Cloud Setup](GOOGLE-SETUP.md)  
+**Future Options**: [AWS](AWS-SETUP.md) | [CloudPronouncer](CLOUDPRONOUNCER-SETUP.md) | [Twilio](TWILIO-SETUP.md) | [VoiceForge](VOICEFORGE-SETUP.md)
 
 **Google Test (PowerShell)**:
 ```powershell

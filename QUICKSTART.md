@@ -5,36 +5,51 @@ Get up and running with TextToSpeech Generator in under 5 minutes!
 ## ⚡ 5-Minute Setup
 
 ### Step 1: Download and Run (30 seconds)
-1. Download `TextToSpeech-Generator-v1.1.ps1`
+1. Download `TextToSpeech-Generator.ps1`
 2. Right-click → "Run with PowerShell" (or open PowerShell and navigate to file)
 3. If prompted about execution policy, type `Y` and press Enter
 
-### Step 2: Get API Key (2 minutes)
+### Step 2: Choose Provider & Get API Key (2 minutes)
 
-#### For Azure (Recommended)
+#### Azure Cognitive Services ✅ **PRODUCTION READY** (Recommended)
 1. Visit [Azure Portal](https://portal.azure.com) (free account available)
-2. Create "Cognitive Services" resource → "Speech"
+2. Create "Microsoft Cognitive Services" resource → "Speech" - [Enrolment Link](https://azure.microsoft.com/en-us/try/cognitive-services/)
 3. Copy the API Key (32 characters)
 4. Note the Region (e.g., "eastus", "westeurope")
+5. **Free Tier**: 500,000 characters/month
+6. **Status**: Full implementation with real TTS processing
 
-#### For Google Cloud
+#### Google Cloud TTS ✅ **PRODUCTION READY** (High Quality)
 1. Visit [Google Cloud Console](https://console.cloud.google.com)
 2. Enable "Text-to-Speech API"
 3. Create API Key in Credentials
 4. Copy the key
+5. **Free Tier**: 1 million characters/month
+6. **Status**: Full implementation with real TTS processing
+
+#### Amazon Polly ⚠️ **PLACEHOLDER ONLY** (Configuration Available)
+1. Visit [AWS Console](https://aws.amazon.com/polly/)
+2. Create IAM user with Polly permissions
+3. Generate Access Key ID and Secret Access Key
+4. **Pricing**: $4.00 per 1 million characters
+5. **Status**: Creates placeholder files only, needs API implementation
+
+#### Other Providers ⚠️ **CONFIGURATION ONLY**
+
+**Twilio, CloudPronouncer, VoiceForge**: Configuration panels are available, but TTS processing is not yet implemented. These providers can be configured but will not generate audio files until API integration is completed.
 
 ### Step 3: Configure App (1 minute)
-1. In the app, select your provider (Azure or Google)
-2. Paste your API key
-3. Select region/datacenter (Azure only)
+1. In the app, select your provider (Azure, Amazon Polly, Google Cloud, etc.)
+2. Paste your API key (and secret key for AWS)
+3. Select region/datacenter (for Azure and AWS)
 4. Choose voice and audio format
-5. Click "Save"
+5. Click "Save Config"
 
 ### Step 4: Test Single Script (1 minute)
-1. Select "Single-Script" mode
+1. Select "Single Script" mode
 2. Type: "Hello world, this is a test"
-3. Choose output folder (Desktop recommended)
-4. Click "Go!" or press F5
+3. Choose output directory (Desktop recommended)
+4. Click "Start Processing" or press F5
 5. Listen to your generated audio file!
 
 ## 🚀 First Bulk Processing
@@ -49,11 +64,11 @@ SCRIPT,FILENAME
 ```
 
 ### Process the CSV
-1. Select "Bulk-Scripts" mode
-2. Click "..." next to Input File → select your `test.csv`
-3. Choose output folder
-4. Click "Go!" or press F5
-5. Watch the log for progress!
+1. Select "Bulk Processing (CSV)" mode
+2. Click "Browse..." next to CSV Input File → select your `test.csv`
+3. Choose output directory
+4. Click "Start Processing" or press F5
+5. Watch the processing log for real-time progress!
 
 ## 🎯 Tips for Success
 
@@ -74,17 +89,28 @@ SCRIPT,FILENAME
 
 | Shortcut | Action |
 |----------|--------|
-| **F5** | Generate audio |
-| **Ctrl+R** | Generate audio (alternative) |
+| **F5** | Start Processing |
+| **Ctrl+R** | Start Processing (alternative) |
 | **Ctrl+S** | Save configuration |
 | **Ctrl+O** | Open input file |
 | **Escape** | Clear log window |
 
 ## 🆘 Quick Troubleshooting
 
-### "Authentication failed"
+### Azure: "Authentication failed"
 - ✅ Check API key is correct (no extra spaces)
 - ✅ Verify datacenter region matches your subscription
+- ✅ Ensure Speech service is enabled (not just Cognitive Services)
+
+### AWS Polly: "Access Denied"
+- ✅ Verify both Access Key ID and Secret Access Key
+- ✅ Check IAM user has `AmazonPollyFullAccess` permissions
+- ✅ Confirm AWS region is correct
+
+### Google Cloud: "Invalid API Key"
+- ✅ Ensure Text-to-Speech API is enabled
+- ✅ Check API key has proper permissions
+- ✅ Verify billing is enabled for your project
 - ✅ Ensure internet connection is working
 
 ### "CSV validation failed" 

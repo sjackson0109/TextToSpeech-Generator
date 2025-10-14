@@ -1,0 +1,285 @@
+{
+  "ConfigVersion": "3.2",
+  "MigratedFrom": "TextToSpeech-Generator.xml",
+  "Profiles": {
+    "Development": {
+      "Processing": {
+        "OutputPath": "C:\\Users\\Administrator\\Desktop\\TESTING\\Output",
+        "InputFile": "C:\\Users\\Administrator\\Desktop\\TESTING\\test.csv",
+        "Timeout": 30,
+        "MaxParallelJobs": 2
+      },
+      "Providers": {
+        "Azure Cognitive Services": {
+          "Datacenter": "eastus",
+          "AudioFormat": "audio-16khz-32kbitrate-mono-mp3",
+          "ApiKey": "ENCRYPTED:test-key-12345",
+          "AdvancedOptions": {
+            "SpeechRate": "medium",
+            "Pitch": "medium",
+            "Volume": "medium",
+            "Style": "neutral",
+            "Emphasis": "moderate"
+          },
+          "Enabled": true,
+          "DefaultVoice": "en-US-JennyNeural"
+        },
+        "AWS Polly": {
+          "Region": "us-west-2",
+          "AdvancedOptions": {
+            "Engine": "neural",
+            "SampleRate": "22050",
+            "OutputFormat": "mp3",
+            "TextType": "text",
+            "LexiconNames": []
+          },
+          "SecretKey": "ENCRYPTED:secret123",
+          "Enabled": true,
+          "AccessKey": "ENCRYPTED:AKIA...",
+          "DefaultVoice": "Matthew"
+        },
+        "Google Cloud TTS": {
+          "Enabled": false,
+          "ApiKey": "",
+          "DefaultVoice": "en-US-Wavenet-D",
+          "AdvancedOptions": {
+            "SpeakingRate": 1.0,
+            "Pitch": 0.0,
+            "VolumeGain": 0.0,
+            "AudioEncoding": "MP3",
+            "SampleRateHertz": 22050
+          }
+        },
+        "CloudPronouncer": {
+          "Enabled": false,
+          "ApiKey": "",
+          "Username": "",
+          "DefaultVoice": "claire",
+          "AdvancedOptions": {
+            "Speed": 150,
+            "Pitch": 100,
+            "Volume": 100,
+            "Format": "mp3",
+            "SampleRate": "22050"
+          }
+        },
+        "Twilio": {
+          "Enabled": false,
+          "AccountSid": "",
+          "AuthToken": "",
+          "DefaultVoice": "Polly.Joanna",
+          "AdvancedOptions": {
+            "Language": "en-US",
+            "StatusCallback": "",
+            "StatusCallbackMethod": "POST"
+          }
+        },
+        "VoiceForge": {
+          "Enabled": false,
+          "ApiKey": "",
+          "Username": "",
+          "DefaultVoice": "julie",
+          "AdvancedOptions": {
+            "Speed": 150,
+            "Pitch": 100,
+            "Volume": 100,
+            "Format": "mp3",
+            "SampleRate": "22050",
+            "Quality": "high"
+          }
+        }
+      },
+      "Logging": {
+        "Level": "INFO",
+        "EnableDetailedLogging": true
+      }
+    },
+    "Production": {
+      "Processing": {
+        "OutputPath": "C:\\TTS\\Output",
+        "InputFile": "C:\\TTS\\Input\\batch.csv",
+        "Timeout": 60,
+        "MaxParallelJobs": 4
+      },
+      "Providers": {
+        "Microsoft Azure": {
+          "Enabled": true,
+          "ApiKey": "",
+          "Datacenter": "uksouth",
+          "AudioFormat": "audio-24khz-48kbitrate-mono-mp3",
+          "DefaultVoice": "Microsoft Server Speech Text to Speech Voice (en-US, SaraNeural)",
+          "AdvancedOptions": {
+            "SpeechRate": "medium",
+            "Pitch": "medium",
+            "Volume": "medium",
+            "Style": "neutral",
+            "Emphasis": "moderate"
+          }
+        },
+        "AWS Polly": {
+          "Enabled": false,
+          "AccessKey": "",
+          "SecretKey": "",
+          "Region": "us-east-1",
+          "DefaultVoice": "Joanna",
+          "AdvancedOptions": {
+            "Engine": "neural",
+            "SampleRate": "22050",
+            "OutputFormat": "mp3",
+            "TextType": "text",
+            "LexiconNames": []
+          }
+        },
+        "Google Cloud TTS": {
+          "Enabled": false,
+          "ApiKey": "",
+          "DefaultVoice": "en-US-Wavenet-D",
+          "AdvancedOptions": {
+            "SpeakingRate": 1.0,
+            "Pitch": 0.0,
+            "VolumeGain": 0.0,
+            "AudioEncoding": "MP3",
+            "SampleRateHertz": 22050
+          }
+        },
+        "CloudPronouncer": {
+          "Enabled": false,
+          "ApiKey": "",
+          "Username": "",
+          "DefaultVoice": "claire",
+          "AdvancedOptions": {
+            "Speed": 150,
+            "Pitch": 100,
+            "Volume": 100,
+            "Format": "mp3",
+            "SampleRate": "22050"
+          }
+        },
+        "Twilio": {
+          "Enabled": false,
+          "AccountSid": "",
+          "AuthToken": "",
+          "DefaultVoice": "Polly.Joanna",
+          "AdvancedOptions": {
+            "Language": "en-US",
+            "StatusCallback": "",
+            "StatusCallbackMethod": "POST"
+          }
+        },
+        "VoiceForge": {
+          "Enabled": false,
+          "ApiKey": "",
+          "Username": "",
+          "DefaultVoice": "julie",
+          "AdvancedOptions": {
+            "Speed": 150,
+            "Pitch": 100,
+            "Volume": 100,
+            "Format": "mp3",
+            "SampleRate": "22050",
+            "Quality": "high"
+          }
+        }
+      },
+      "Logging": {
+        "Level": "WARNING",
+        "EnableDetailedLogging": false
+      }
+    },
+    "Testing": {
+      "Processing": {
+        "OutputPath": "C:\\TTS\\Test\\Output",
+        "InputFile": "C:\\TTS\\Test\\test.csv",
+        "Timeout": 10,
+        "MaxParallelJobs": 1
+      },
+      "Providers": {
+        "Microsoft Azure": {
+          "Enabled": true,
+          "ApiKey": "",
+          "Datacenter": "uksouth",
+          "AudioFormat": "audio-16khz-32kbitrate-mono-mp3",
+          "DefaultVoice": "Microsoft Server Speech Text to Speech Voice (en-US, SaraNeural)",
+          "AdvancedOptions": {
+            "SpeechRate": "medium",
+            "Pitch": "medium",
+            "Volume": "medium",
+            "Style": "neutral",
+            "Emphasis": "moderate"
+          }
+        },
+        "AWS Polly": {
+          "Enabled": false,
+          "AccessKey": "",
+          "SecretKey": "",
+          "Region": "us-east-1",
+          "DefaultVoice": "Joanna",
+          "AdvancedOptions": {
+            "Engine": "neural",
+            "SampleRate": "22050",
+            "OutputFormat": "mp3",
+            "TextType": "text",
+            "LexiconNames": []
+          }
+        },
+        "Google Cloud TTS": {
+          "Enabled": false,
+          "ApiKey": "",
+          "DefaultVoice": "en-US-Wavenet-D",
+          "AdvancedOptions": {
+            "SpeakingRate": 1.0,
+            "Pitch": 0.0,
+            "VolumeGain": 0.0,
+            "AudioEncoding": "MP3",
+            "SampleRateHertz": 22050
+          }
+        },
+        "CloudPronouncer": {
+          "Enabled": false,
+          "ApiKey": "",
+          "Username": "",
+          "DefaultVoice": "claire",
+          "AdvancedOptions": {
+            "Speed": 150,
+            "Pitch": 100,
+            "Volume": 100,
+            "Format": "mp3",
+            "SampleRate": "22050"
+          }
+        },
+        "Twilio": {
+          "Enabled": false,
+          "AccountSid": "",
+          "AuthToken": "",
+          "DefaultVoice": "Polly.Joanna",
+          "AdvancedOptions": {
+            "Language": "en-US",
+            "StatusCallback": "",
+            "StatusCallbackMethod": "POST"
+          }
+        },
+        "VoiceForge": {
+          "Enabled": false,
+          "ApiKey": "",
+          "Username": "",
+          "DefaultVoice": "julie",
+          "AdvancedOptions": {
+            "Speed": 150,
+            "Pitch": 100,
+            "Volume": 100,
+            "Format": "mp3",
+            "SampleRate": "22050",
+            "Quality": "high"
+          }
+        }
+      },
+      "Logging": {
+        "Level": "DEBUG",
+        "EnableDetailedLogging": true
+      }
+    }
+  },
+  "CurrentProfile": "Development",
+  "LastMigrated": "2025-10-14 12:31:14",
+  "LastUpdated": "2025-10-14 12:36:59"
+}
