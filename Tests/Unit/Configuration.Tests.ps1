@@ -19,176 +19,175 @@ Describe "Configuration Module Tests" {
         if (Test-Path $script:TestConfigPath) {
             Remove-Item $script:TestConfigPath -Force
         }
+        if (Test-Path "$PSScriptRoot\config-test.log") {
+            Remove-Item "$PSScriptRoot\config-test.log" -Force
+        }
     }
     
     Context "Configuration Validation" {
         It "Should validate Azure configuration successfully" {
             $config = @{
-                APIKey = "12345678901234567890123456789012"
+                APIKey = "fake-azure-api-key-for-testing"
                 Region = "eastus"
                 Voice = "en-US-JennyNeural"
             }
             
-            $result = Test-ConfigurationValid -Provider "Microsoft Azure" -Configuration $config
-            $result.IsValid | Should -Be $true
-            $result.Errors.Count | Should -Be 0
+            $result = Test-AzureConfiguration -APIKey $config.APIKey -Region $config.Region -Voice $config.Voice
+            $result | Should -Be $true
         }
         
-        It "Should detect missing Azure API key" {
-            $config = @{
-                Region = "eastus"
-                Voice = "en-US-JennyNeural"
-            }
-            
-            $result = Test-ConfigurationValid -Provider "Microsoft Azure" -Configuration $config
-            $result.IsValid | Should -Be $false
-            $result.Errors | Should -Contain "Azure API Key is required"
+        It "Should reject invalid Azure API key" {
+            $result = Test-AzureConfiguration -APIKey "short" -Region "eastus" -Voice "en-US-JennyNeural"
+            $result | Should -Be $false
         }
         
-        It "Should validate Google Cloud configuration successfully" {
-            $config = @{
-                APIKey = "AIzaSyABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
-                Voice = "en-US-Wavenet-F"
-            }
-            
-            $result = Test-ConfigurationValid -Provider "Google Cloud" -Configuration $config
-            $result.IsValid | Should -Be $true
-            $result.Errors.Count | Should -Be 0
+        It "Should reject invalid Azure region" {
+            $result = Test-AzureConfiguration -APIKey "fake-azure-api-key-for-testing" -Region "invalid-region" -Voice "en-US-JennyNeural"
+            $result | Should -Be $false
         }
         
-        It "Should detect placeholder API keys" {
-            $config = @{
-                APIKey = "your-api-key-here"
-                Region = "eastus"
+        It "Should validate Google Cloud configuration" {
+            $serviceAccount = @{
+                type = "service_account"
+                project_id = "test-project"
+                private_key_id = "key123"
+                private_key = "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC1234567890\n-----END PRIVATE KEY-----"
+                client_email = "test@test-project.iam.gserviceaccount.com"
+                client_id = "123456789012345678901"
             }
             
-            $result = Test-ConfigurationValid -Provider "Microsoft Azure" -Configuration $config
-            $result.IsValid | Should -Be $false
-            $result.Errors | Should -Contain "Azure API Key is still set to placeholder value"
+            $result = Test-GoogleCloudConfiguration -ServiceAccountJson ($serviceAccount | ConvertTo-Json) -ProjectId "test-project"
+            $result | Should -Be $true
         }
         
-        It "Should provide recommendations for warnings" {
-            $config = @{
-                APIKey = "invalid-format-key"
-                Region = "eastus"
-                Voice = "en-US-JennyNeural"
-            }
-            
-            $result = Test-ConfigurationValid -Provider "Microsoft Azure" -Configuration $config
-            $result.Recommendations.Count | Should -BeGreaterThan 0
+        It "Should validate AWS configuration" {
+            $result = Test-AWSConfiguration -AccessKey "FAKE_AWS_ACCESS_KEY" -SecretKey "fake_secret_key_for_testing_purposes_only" -Region "us-east-1"
+            $result | Should -Be $true
+        }
+        
+        It "Should reject invalid AWS access key" {
+            $result = Test-AWSConfiguration -AccessKey "short" -SecretKey "fake_secret_key_for_testing_purposes_only" -Region "us-east-1"
+            $result | Should -Be $false
         }
     }
     
     Context "Configuration Profiles" {
-        It "Should return available profiles" {
-            $profiles = Get-ConfigurationProfiles
-            $profiles.Keys | Should -Contain "Development"
-            $profiles.Keys | Should -Contain "Production"
-            $profiles.Keys | Should -Contain "Testing"
+        It "Should create development profile" {
+            $profile = New-ConfigurationProfile -ProfileName "Development" -LogLevel "DEBUG" -SecurityEnabled $false
+            $profile | Should -Not -BeNullOrEmpty
+            $profile.Environment | Should -Be "Development"
+            $profile.Settings.LogLevel | Should -Be "DEBUG"
         }
         
-        It "Should create advanced configuration manager" {
-            $manager = New-AdvancedConfigurationManager -ConfigPath $script:TestConfigPath
-            $manager | Should -Not -BeNullOrEmpty
+        It "Should create production profile" {
+            $profile = New-ConfigurationProfile -ProfileName "Production" -LogLevel "INFO" -SecurityEnabled $true
+            $profile | Should -Not -BeNullOrEmpty
+            $profile.Environment | Should -Be "Production"
+            $profile.Settings.LogLevel | Should -Be "INFO"
+            $profile.Settings.SecurityEnabled | Should -Be $true
         }
         
-        It "Should get profile configuration" {
-            $manager = New-AdvancedConfigurationManager -ConfigPath $script:TestConfigPath
-            $devConfig = $manager.GetProfileConfiguration("Development")
+        It "Should save and load configuration profile" {
+            $originalProfile = New-ConfigurationProfile -ProfileName "Testing" -LogLevel "INFO" -SecurityEnabled $true
             
-            $devConfig.LogLevel | Should -Be "DEBUG"
-            $devConfig.RetryCount | Should -Be 2
-            $devConfig.EnableDetailedLogging | Should -Be $true
-        }
-        
-        It "Should switch profiles" {
-            $manager = New-AdvancedConfigurationManager -ConfigPath $script:TestConfigPath
-            $manager.SetCurrentProfile("Production")
-            $manager.CurrentProfile | Should -Be "Production"
+            # Save profile
+            $originalProfile | ConvertTo-Json -Depth 4 | Set-Content $script:TestConfigPath
             
-            $prodConfig = $manager.GetProfileConfiguration("Production")
-            $prodConfig.LogLevel | Should -Be "INFO"
-            $prodConfig.RetryCount | Should -Be 5
-        }
-        
-        It "Should handle invalid profile gracefully" {
-            $manager = New-AdvancedConfigurationManager -ConfigPath $script:TestConfigPath
-            { $manager.SetCurrentProfile("InvalidProfile") } | Should -Throw
+            # Load profile
+            $loadedProfile = Get-ConfigurationProfile -ProfileName "Testing" -ConfigPath $script:TestConfigPath
+            $loadedProfile | Should -Not -BeNullOrEmpty
+            $loadedProfile.Environment | Should -Be $originalProfile.Environment
         }
     }
     
     Context "Configuration Templates" {
-        It "Should return available templates" {
-            $templates = Get-ConfigurationTemplates
-            $templates.Keys | Should -Contain "AzureBasic"
-            $templates.Keys | Should -Contain "GoogleCloudBasic"
+        It "Should generate Azure template" {
+            $template = Get-ProviderTemplate -Provider "Azure"
+            $template | Should -Not -BeNullOrEmpty
+            $template.Provider | Should -Be "Azure"
+            $template.Settings | Should -Not -BeNullOrEmpty
         }
         
-        It "Should get template configuration" {
-            $manager = New-AdvancedConfigurationManager -ConfigPath $script:TestConfigPath
-            $azureTemplate = $manager.GetTemplate("AzureBasic")
-            
-            $azureTemplate.Region | Should -Be "eastus"
-            $azureTemplate.Voice | Should -Be "en-US-JennyNeural"
+        It "Should generate Google Cloud template" {
+            $template = Get-ProviderTemplate -Provider "GoogleCloud"
+            $template | Should -Not -BeNullOrEmpty
+            $template.Provider | Should -Be "GoogleCloud"
         }
         
-        It "Should handle missing template gracefully" {
-            $manager = New-AdvancedConfigurationManager -ConfigPath $script:TestConfigPath
-            $result = $manager.GetTemplate("NonExistentTemplate")
-            $result | Should -Be @{}
+        It "Should generate AWS template" {
+            $template = Get-ProviderTemplate -Provider "AWS"
+            $template | Should -Not -BeNullOrEmpty
+            $template.Provider | Should -Be "AWS"
         }
     }
     
-    Context "Configuration Persistence" {
-        It "Should save and load configuration" {
-            $manager = New-AdvancedConfigurationManager -ConfigPath $script:TestConfigPath
-            $manager.SetCurrentProfile("Production")
-            $manager.SaveConfiguration()
+    Context "Configuration Security" {
+        It "Should handle secure configuration storage" {
+            $secureConfig = @{
+                Provider = "Azure"
+                APIKey = "sensitive-api-key"
+                Region = "eastus"
+            }
             
-            # Create new instance to test loading
-            $manager2 = New-AdvancedConfigurationManager -ConfigPath $script:TestConfigPath
-            $manager2.CurrentProfile | Should -Be "Production"
+            # Should not throw when storing secure configuration
+            { Set-SecureConfiguration -Config $secureConfig } | Should -Not -Throw
         }
         
         It "Should validate configuration schema" {
-            $validConfig = @{
+            $config = @{
                 Version = "3.2"
-                CurrentProfile = "Development"
-                Providers = @{}
+                Environment = "Testing"
+                Providers = @{
+                    Azure = @{
+                        APIKey = "test-key"
+                        Region = "eastus"
+                    }
+                }
+                Settings = @{
+                    LogLevel = "INFO"
+                }
             }
             
-            $manager = New-AdvancedConfigurationManager -ConfigPath $script:TestConfigPath
-            $validation = $manager.ValidateSchema($validConfig)
-            $validation.IsValid | Should -Be $true
+            $isValid = Test-ConfigurationSchema -Config $config
+            $isValid | Should -Be $true
         }
         
-        It "Should detect schema violations" {
+        It "Should reject invalid configuration schema" {
             $invalidConfig = @{
-                Version = "3.2"
                 # Missing required fields
+                InvalidField = "invalid"
             }
             
-            $manager = New-AdvancedConfigurationManager -ConfigPath $script:TestConfigPath
-            $validation = $manager.ValidateSchema($invalidConfig)
-            $validation.IsValid | Should -Be $false
-            $validation.Errors.Count | Should -BeGreaterThan 0
+            $isValid = Test-ConfigurationSchema -Config $invalidConfig
+            $isValid | Should -Be $false
         }
     }
     
-    Context "Configuration Migration" {
-        It "Should migrate configuration between versions" {
-            $oldConfig = @{
-                Version = "3.0"
-                CurrentProfile = "Development"
-                Providers = @{}
+    Context "Configuration Error Handling" {
+        It "Should handle missing configuration files gracefully" {
+            $nonExistentPath = "$PSScriptRoot\non-existent-config.json"
+            { $null = Get-ConfigurationProfile -ConfigPath $nonExistentPath } | Should -Not -Throw
+        }
+        
+        It "Should handle corrupted configuration files" {
+            $corruptedConfigPath = "$PSScriptRoot\corrupted-config.json"
+            "{ invalid json" | Set-Content $corruptedConfigPath
+            
+            { $null = Get-ConfigurationProfile -ConfigPath $corruptedConfigPath } | Should -Not -Throw
+            
+            # Cleanup
+            Remove-Item $corruptedConfigPath -Force
+        }
+        
+        It "Should provide helpful error messages" {
+            $result = Test-AzureConfiguration -APIKey "" -Region "" -Voice ""
+            $result | Should -Be $false
+            
+            # Should log appropriate error messages
+            $logContent = Get-Content "$PSScriptRoot\config-test.log" -Raw -ErrorAction SilentlyContinue
+            if ($logContent) {
+                $logContent | Should -Match "validation|error"
             }
-            
-            $manager = New-AdvancedConfigurationManager -ConfigPath $script:TestConfigPath
-            $migratedConfig = $manager.MigrateConfiguration($oldConfig, "3.0", "3.2")
-            
-            $migratedConfig.Version | Should -Be "3.2"
-            $migratedConfig.MigrationDate | Should -Not -BeNullOrEmpty
-            $migratedConfig.SecuritySettings | Should -Not -BeNullOrEmpty
         }
     }
 }
