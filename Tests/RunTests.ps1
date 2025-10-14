@@ -55,21 +55,21 @@ foreach ($suite in $TestSuites) {
         continue
     }
     
-    # Configure Pester for this suite
-    $pesterConfig = [PesterConfiguration]::Default
-    $pesterConfig.Run.Path = $suitePath
-    $pesterConfig.Run.PassThru = $true
-    $pesterConfig.Output.Verbosity = "Normal"
+    # Configure Pester parameters
+    $pesterParams = @{
+        Path = $suitePath
+        PassThru = $true
+        Show = "All"
+    }
     
     if ($GenerateReport) {
         $reportPath = Join-Path $OutputDirectory "$suite-TestResults.xml"
-        $pesterConfig.TestResult.Enabled = $true
-        $pesterConfig.TestResult.OutputPath = $reportPath
-        $pesterConfig.TestResult.OutputFormat = "NUnitXml"
+        $pesterParams.OutputFile = $reportPath
+        $pesterParams.OutputFormat = "NUnitXml"
     }
     
     try {
-        $result = Invoke-Pester -Configuration $pesterConfig
+        $result = Invoke-Pester @pesterParams
         $suiteStopwatch.Stop()
         
         $suiteResult = @{

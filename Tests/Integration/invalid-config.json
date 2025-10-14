@@ -1,0 +1,9 @@
+{
+  "Version": "3.2",
+  "Providers": {
+    "Azure": {
+      "APIKey": "short",
+      "Region": "invalid-region"
+    }
+  }
+}
