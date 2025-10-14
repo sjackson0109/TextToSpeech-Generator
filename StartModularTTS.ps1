@@ -99,17 +99,28 @@ if ($ValidateOnly) {
 Write-Host "Initializing enhanced modular system..." -ForegroundColor Gray
 
 try {
-    # Import all modules
+    # Import all modules with individual error handling
     Write-Host "Loading modules..." -ForegroundColor Yellow
     
-    Import-Module "$PSScriptRoot\Modules\Logging\EnhancedLogging.psm1" -Force
-    Import-Module "$PSScriptRoot\Modules\Security\EnhancedSecurity.psm1" -Force
-    # Import-Module "$PSScriptRoot\Modules\Configuration\AdvancedConfiguration.psm1" -Force
-    Import-Module "$PSScriptRoot\Modules\Configuration\ConfigurationValidator.psm1" -Force
-    Import-Module "$PSScriptRoot\Modules\TTSProviders\TTSProviders.psm1" -Force
-    Import-Module "$PSScriptRoot\Modules\Utilities\UtilityFunctions.psm1" -Force
-    Import-Module "$PSScriptRoot\Modules\ErrorRecovery\ErrorRecovery.psm1" -Force
-    Import-Module "$PSScriptRoot\Modules\ErrorRecovery\StandardErrorHandling.psm1" -Force
+    $ModulesToLoad = @(
+        "Modules\Logging\EnhancedLogging.psm1",
+        "Modules\Security\EnhancedSecurity.psm1", 
+        "Modules\Configuration\AdvancedConfiguration.psm1",
+        "Modules\Configuration\ConfigurationValidator.psm1",
+        "Modules\TTSProviders\TTSProviders.psm1",
+        "Modules\Utilities\UtilityFunctions.psm1",
+        "Modules\ErrorRecovery\ErrorRecovery.psm1",
+        "Modules\ErrorRecovery\StandardErrorHandling.psm1"
+    )
+    
+    foreach ($Module in $ModulesToLoad) {
+        try {
+            Import-Module "$PSScriptRoot\$Module" -Force -ErrorAction Stop
+            Write-Host "  ✓ $Module" -ForegroundColor Green
+        } catch {
+            Write-Warning "  ✗ Failed to load $Module`: $($_.Exception.Message)"
+        }
+    }
     
     if ($EnablePerformanceMonitoring) {
         Import-Module "$PSScriptRoot\Modules\PerformanceMonitoring\PerformanceMonitoring.psm1" -Force
@@ -130,10 +141,10 @@ try {
     }
     
     $configPath = if ($ConfigPath) { $ConfigPath } else { Join-Path $PSScriptRoot "config.json" }
-    # $configManager = New-AdvancedConfigurationManager -ConfigPath $configPath
-    Write-ApplicationLog -Message "Configuration manager temporarily disabled - using basic configuration" -Level "INFO"
-    # $configManager.SetCurrentProfile($ConfigProfile)
-    Write-ApplicationLog -Message "Skipping profile configuration - using defaults" -Level "INFO"
+    $configManager = New-AdvancedConfigurationManager -ConfigPath $configPath
+    Write-ApplicationLog -Message "Configuration manager initialized successfully" -Level "INFO"
+    $configManager.SetCurrentProfile($ConfigProfile)
+    Write-ApplicationLog -Message "Configuration profile set to: $ConfigProfile" -Level "INFO"
     Write-ApplicationLog -Message "Configuration manager initialized with profile: $ConfigProfile" -Level "INFO"
     
     if ($EnablePerformanceMonitoring) {
@@ -244,14 +255,40 @@ try {
                         [string]$Level = "INFO"
                     )
                     
-                    # Use the global logging function directly since we're in the same session
+                    # Forward to the parent scope's logging function
                     try {
-                        & ([ScriptBlock]::Create("Write-ApplicationLog -Message '$Message' -Level '$Level'"))
+                        # Get the logging function from the parent scope
+                        $parentLoggingFunction = Get-Command Write-ApplicationLog -CommandType Function -ErrorAction Stop
+                        if ($parentLoggingFunction) {
+                            & $parentLoggingFunction -Message $Message -Level $Level
+                        } else {
+                            throw "Parent logging function not found"
+                        }
                     }
                     catch {
-                        # Fallback to basic logging if module function fails
+                        # Fallback to basic logging with proper path handling
                         $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
-                        Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $(if($Level -eq "ERROR"){"Red"}elseif($Level -eq "WARNING"){"Yellow"}else{"White"})
+                        $logMessage = "[$timestamp] [$Level] $Message"
+                        
+                        # Try to write to log file if path exists
+                        $logPath = Join-Path $PSScriptRoot "application.log"
+                        if (Test-Path (Split-Path $logPath -Parent)) {
+                            try {
+                                Add-Content -Path $logPath -Value $logMessage -ErrorAction SilentlyContinue
+                            }
+                            catch {
+                                # Silent failure for file logging
+                            }
+                        }
+                        
+                        # Always output to console
+                        $color = switch ($Level) {
+                            "ERROR" { "Red" }
+                            "WARNING" { "Yellow" }
+                            "DEBUG" { "Gray" }
+                            default { "White" }
+                        }
+                        Write-Host $logMessage -ForegroundColor $color
                     }
                 }
                 

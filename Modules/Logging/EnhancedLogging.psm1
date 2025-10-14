@@ -1,5 +1,5 @@
 # Enhanced Logging Module for TextToSpeech Generator v3.2
-# Provides structured logging with performance metrics and error tracking
+# Provides structured logging with performance monitoring and log rotation
 
 # Global variables for logging configuration
 $script:LogFilePath = ""

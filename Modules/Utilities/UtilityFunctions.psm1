@@ -405,6 +405,137 @@ function ConvertTo-SafeString {
     return $stringValue
 }
 
+function Test-PathSecurity {
+    <#
+    .SYNOPSIS
+    Validates that a file path is secure and prevents path traversal attacks
+    #>
+    param(
+        [Parameter(Mandatory=$true)][string]$Path,
+        [string]$AllowedBasePath = $null
+    )
+    
+    $securityResult = @{
+        IsSecure = $false
+        Issues = @()
+        ResolvedPath = ""
+    }
+    
+    try {
+        # Resolve the path to its absolute form
+        $resolvedPath = [System.IO.Path]::GetFullPath($Path)
+        $securityResult.ResolvedPath = $resolvedPath
+        
+        # Check for path traversal attempts
+        if ($Path -match '\.\.' -or $resolvedPath -match '\.\.') {
+            $securityResult.Issues += "Path traversal detected"
+        }
+        
+        # Check for suspicious characters
+        if ($Path -match '[<>|?*]' -or $Path -match '[\x00-\x1F]') {
+            $securityResult.Issues += "Invalid characters detected"
+        }
+        
+        # Check against allowed base path if provided
+        if ($AllowedBasePath) {
+            $allowedBase = [System.IO.Path]::GetFullPath($AllowedBasePath)
+            if (-not $resolvedPath.StartsWith($allowedBase)) {
+                $securityResult.Issues += "Path outside allowed directory"
+            }
+        }
+        
+        # Check for system directories (Windows)
+        $systemPaths = @(
+            "$env:WINDIR",
+            "$env:SystemRoot", 
+            "${env:ProgramFiles}",
+            "${env:ProgramFiles(x86)}"
+        )
+        
+        foreach ($sysPath in $systemPaths) {
+            if ($sysPath -and $resolvedPath.StartsWith($sysPath)) {
+                $securityResult.Issues += "Attempted access to system directory"
+                break
+            }
+        }
+        
+        $securityResult.IsSecure = ($securityResult.Issues.Count -eq 0)
+        
+    }
+    catch {
+        $securityResult.Issues += "Invalid path format: $($_.Exception.Message)"
+    }
+    
+    return $securityResult
+}
+
+function Test-InputSanitization {
+    <#
+    .SYNOPSIS
+    Tests input for common security issues and provides sanitized output
+    #>
+    param(
+        [Parameter(Mandatory=$true)][string]$Input,
+        [ValidateSet("FileName", "FilePath", "TextContent", "APIKey", "URL")]
+        [string]$InputType = "TextContent"
+    )
+    
+    $sanitizationResult = @{
+        IsClean = $false
+        SanitizedValue = ""
+        Issues = @()
+        OriginalValue = $Input
+    }
+    
+    switch ($InputType) {
+        "FileName" {
+            $sanitized = Clear-FileName -FileName $Input
+            if ($sanitized -ne $Input) {
+                $sanitizationResult.Issues += "Filename contained invalid characters"
+            }
+            $sanitizationResult.SanitizedValue = $sanitized
+        }
+        
+        "FilePath" {
+            $pathSecurity = Test-PathSecurity -Path $Input
+            $sanitizationResult.Issues += $pathSecurity.Issues
+            $sanitizationResult.SanitizedValue = $pathSecurity.ResolvedPath
+        }
+        
+        "TextContent" {
+            $sanitized = ConvertTo-SafeString -InputString $Input
+            if ($sanitized -ne $Input) {
+                $sanitizationResult.Issues += "Text content contained potentially unsafe characters"
+            }
+            $sanitizationResult.SanitizedValue = $sanitized
+        }
+        
+        "APIKey" {
+            # Basic API key validation
+            if ($Input -match '[<>&"''\x00-\x1F]') {
+                $sanitizationResult.Issues += "API key contains invalid characters"
+            }
+            if ($Input.Length -lt 10) {
+                $sanitizationResult.Issues += "API key appears too short"
+            }
+            if ($Input -match "(test|demo|example|placeholder|your-api-key)") {
+                $sanitizationResult.Issues += "API key appears to be a placeholder"
+            }
+            $sanitizationResult.SanitizedValue = $Input.Trim()
+        }
+        
+        "URL" {
+            if (-not (Test-URLFormat -URL $Input)) {
+                $sanitizationResult.Issues += "Invalid URL format"
+            }
+            $sanitizationResult.SanitizedValue = $Input.Trim()
+        }
+    }
+    
+    $sanitizationResult.IsClean = ($sanitizationResult.Issues.Count -eq 0)
+    return $sanitizationResult
+}
+
 # Export functions
 Export-ModuleMember -Function @(
     'Clear-FileName',
@@ -417,5 +548,7 @@ Export-ModuleMember -Function @(
     'Test-SystemRequirements',
     'Test-EmailFormat',
     'Test-URLFormat',
-    'ConvertTo-SafeString'
+    'ConvertTo-SafeString',
+    'Test-PathSecurity',
+    'Test-InputSanitization'
 )

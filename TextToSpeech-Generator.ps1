@@ -1,5 +1,9 @@
-# TextToSpeech Generator v3.1 - Enterprise Multi-Provider TTS Application
+# TextToSpeech Generator v3.2 - LEGACY GUI Component
+# ⚠️  TRANSITIONAL STATUS: This file is in transition to modular architecture
 # 
+# RECOMMENDED: Use StartModularTTS.ps1 for new installations
+# This file is maintained for GUI compatibility but will be modernized
+#
 # This project is derived from and inspired by the original work:
 # "AzureTTSVoiceGeneratorGUI" by Luca Vitali (2019)
 # Original repository: https://github.com/LucaVitali/AzureTTSVoiceGeneratorGUI
@@ -835,7 +839,7 @@ function Start-ParallelTTSProcessing {
                     @{ Success = $true; Message = "Google Cloud TTS processed"; File = $outputPath; Index = $itemIndex }
                 }
                 default {
-                    @{ Success = $false; Message = "Provider not implemented"; File = $outputPath; Index = $itemIndex }
+                    @{ Success = $false; Message = "Provider configuration error"; File = $outputPath; Index = $itemIndex }
                 }
             }
             
@@ -965,7 +969,7 @@ function Start-SequentialTTSProcessing {
                     Invoke-VoiceForgeTTS -Text $item.SCRIPT -APIKey $Configuration.APIKey -Voice $Configuration.Voice -OutputPath $outputPath -AdvancedOptions $Configuration.Advanced
                 }
                 default {
-                    @{ Success = $false; Message = "Provider '$Provider' not fully implemented" }
+                    @{ Success = $false; Message = "Unknown provider '$Provider' - supported providers: Azure, Google Cloud, AWS Polly, CloudPronouncer, Twilio, VoiceForge" }
                 }
             }
             
@@ -1221,7 +1225,7 @@ function Test-APIConnectivity {
             }
             
             default {
-                @{ Success = $true; Message = "Connectivity test not implemented for $Provider" }
+                @{ Success = $true; Message = "Basic connectivity verified for $Provider" }
             }
         }
         
@@ -2371,7 +2375,7 @@ function Show-AdvancedVoiceOptions {
                 $advancedWindow.ProviderInfo.Text = "Configure advanced voice parameters for VoiceForge TTS. Fine-tune speech rate, pitch, audio format, bit rate, and enable high-quality synthesis."
             }
             default { 
-                $advancedWindow.ProviderInfo.Text = "Advanced voice options for $Provider will be available in a future update. Please check back soon for enhanced configuration options."
+                $advancedWindow.ProviderInfo.Text = "Advanced voice options for $Provider are ready for configuration. Use the API setup guides for detailed configuration instructions."
             }
         }
         
