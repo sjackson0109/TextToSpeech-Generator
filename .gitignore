@@ -9,3 +9,7 @@ SCRIPTS/*
 // Ignore the OUTPUT folder
 OUTPUT
 OUTPUT/*
+
+// Ignore the LOGS file/folder
+LOGS/*
+*.log
