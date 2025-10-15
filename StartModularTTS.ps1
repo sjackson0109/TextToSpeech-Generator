@@ -271,13 +271,15 @@ try {
                         $logMessage = "[$timestamp] [$Level] $Message"
                         
                         # Try to write to log file if path exists
-                        $logPath = Join-Path $PSScriptRoot "application.log"
-                        if (Test-Path (Split-Path $logPath -Parent)) {
-                            try {
-                                Add-Content -Path $logPath -Value $logMessage -ErrorAction SilentlyContinue
-                            }
-                            catch {
-                                # Silent failure for file logging
+                        if ($PSScriptRoot -and -not [string]::IsNullOrWhiteSpace($PSScriptRoot)) {
+                            $logPath = Join-Path $PSScriptRoot "application.log"
+                            if (-not [string]::IsNullOrWhiteSpace($logPath) -and (Test-Path (Split-Path $logPath -Parent))) {
+                                try {
+                                    Add-Content -Path $logPath -Value $logMessage -ErrorAction SilentlyContinue
+                                }
+                                catch {
+                                    # Silent failure for file logging
+                                }
                             }
                         }
                         

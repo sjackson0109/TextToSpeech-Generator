@@ -116,7 +116,7 @@ function Test-CircuitBreakerState {
     }
 }
 
-function Record-CircuitBreakerSuccess {
+function Set-CircuitBreakerSuccess {
     <#
     .SYNOPSIS
     Records a successful operation for circuit breaker
@@ -151,7 +151,7 @@ function Record-CircuitBreakerSuccess {
     Write-ApplicationLog -Message "Success recorded for $ProviderId (State: $($breaker.State))" -Level "DEBUG"
 }
 
-function Record-CircuitBreakerFailure {
+function Set-CircuitBreakerFailure {
     <#
     .SYNOPSIS
     Records a failed operation for circuit breaker
@@ -277,7 +277,7 @@ function Invoke-AdvancedRetry {
             $result = & $Operation
             
             # Success - record with circuit breaker
-            Record-CircuitBreakerSuccess -ProviderId $ProviderId
+            Set-CircuitBreakerSuccess -ProviderId $ProviderId
             return $result
         }
         catch {
@@ -285,7 +285,7 @@ function Invoke-AdvancedRetry {
             $attempt++
             
             # Record failure with circuit breaker
-            Record-CircuitBreakerFailure -ProviderId $ProviderId -ErrorMessage $_.Exception.Message
+            Set-CircuitBreakerFailure -ProviderId $ProviderId -ErrorMessage $_.Exception.Message
             
             # Check if error is retriable
             $isRetriable = $false
@@ -451,8 +451,8 @@ function Test-ProviderRateLimit {
 Export-ModuleMember -Function @(
     'Initialize-CircuitBreaker',
     'Test-CircuitBreakerState',
-    'Record-CircuitBreakerSuccess', 
-    'Record-CircuitBreakerFailure',
+    'Set-CircuitBreakerSuccess', 
+    'Set-CircuitBreakerFailure',
     'Get-CircuitBreakerStatus',
     'Invoke-AdvancedRetry',
     'Test-ProviderHealth',
