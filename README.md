@@ -62,6 +62,14 @@ Both original and derivative works are licensed under the **MIT License**, allow
 Note: Simon Jackson and Luca Vitali will not be held responsible for you not understanding that there are sometimes costs involved with using external APIs.
 
 
+## Quick Preview
+ - Main Console:
+  ![<Main Console>](/screenshots/MainConsole.png)
+ - API Dropdown (list of TTS providers supported):
+  ![<Provider List>](/screenshots/ProviderList.png)
+ - API Config (*unique per provider*):
+  ![<API Config\n Provider Specific>](/screenshots/APIConfigs-Animated.gif)
+
 ## Installation
 
 ### **New Installation (v3.2+)**
