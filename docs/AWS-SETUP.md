@@ -142,7 +142,7 @@ While AWS Polly integration is in development, consider these options:
 - [ ] SSML support for advanced control
 
 ### v1.40 (Future)
-- [ ] Long-form content optimization
+- [ ] Long-form content optimisation
 - [ ] Custom lexicon support  
 - [ ] Conversation marks and metadata
 - [ ] Advanced audio format options

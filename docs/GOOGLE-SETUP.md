@@ -55,8 +55,8 @@ Google Cloud Text-to-Speech delivers natural-sounding speech using breakthrough 
 2. **New Project**: Click "NEW PROJECT"
 3. **Project Details**:
    - **Project Name**: e.g., "TTS Generator Project"
-   - **Organization**: Select if applicable
-   - **Location**: Choose organization or "No organization"
+   - **Organisation**: Select if applicable
+   - **Location**: Choose organisation or "No organisation"
 4. **Create**: Click "CREATE" button
 5. **Wait for Creation**: Project setup takes 30-60 seconds
 
@@ -259,11 +259,11 @@ Google Cloud supports extensive SSML features:
 - **Emphasis**: Strong, moderate, reduced emphasis
 - **Breaks**: Timed pauses and sentence breaks
 - **Say-as**: Number formatting, date/time pronunciation
-- **Audio effects**: Telephony, small speaker optimization
+- **Audio effects**: Telephony, small speaker optimisation
 
 ### Audio Effects Profiles
 
-Optimize audio for different playback environments:
+Optimise audio for different playback environments:
 
 | Profile ID | Description | Use Case |
 |------------|-------------|----------|
@@ -272,7 +272,7 @@ Optimize audio for different playback environments:
 | `headphone-class-device` | Headphones/earphones | Personal listening |
 | `small-bluetooth-speaker-class-device` | Small speakers | Desktop/laptop |
 | `medium-bluetooth-speaker-class-device` | Medium speakers | Home/office |
-| `large-home-entertainment-class-device` | Large speakers | Home theater |
+| `large-home-entertainment-class-device` | Large speakers | Home theatre |
 | `large-automotive-class-device` | Car speakers | Automotive |
 | `telephony-class-application` | Phone calls | VoIP/telephony |
 
@@ -382,17 +382,17 @@ curl -H "Authorization: Bearer $(gcloud auth print-access-token)" \
 4. **Monitoring**: Set up comprehensive alerting and logging
 5. **Security**: Use IAM roles with minimal required permissions
 
-### Performance Optimization
+### Performance Optimisation
 
-1. **Batch Processing**: Group requests when possible to minimize latency
+1. **Batch Processing**: Group requests when possible to minimise latency
 2. **Regional Deployment**: Google Cloud is global, but consider data residency
 3. **Connection Reuse**: Maintain HTTP connection pools for efficiency
 4. **Async Processing**: Use asynchronous requests for bulk operations
 
-### Cost Optimization
+### Cost Optimisation
 
 1. **Voice Selection**: Use Standard voices for non-critical applications
-2. **Text Optimization**: Remove unnecessary characters before synthesis
+2. **Text Optimisation**: Remove unnecessary characters before synthesis
 3. **Caching Strategy**: Implement intelligent caching to avoid duplicate generation
 4. **Budget Alerts**: Set up proactive budget monitoring
 

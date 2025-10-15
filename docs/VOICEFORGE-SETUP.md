@@ -137,7 +137,7 @@ Content-Type: application/json
 - **Financial Voices**: Business and finance focused
 - **Educational Voices**: Clear pronunciation for learning
 - **Entertainment Voices**: Dynamic and engaging styles
-- **Accessibility Voices**: Optimized for screen readers
+- **Accessibility Voices**: Optimised for screen readers
 
 ## 🚧 Implementation Roadmap
 

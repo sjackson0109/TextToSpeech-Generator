@@ -304,9 +304,9 @@ $response = Invoke-RestMethod -Uri "https://texttospeech.googleapis.com/v1/text:
 Write-Host "Audio content received: $($response.audioContent.Length) characters"
 ```
 
-## 📊 Performance Optimization
+## 📊 Performance Optimisation
 
-### Bulk Processing Optimization
+### Bulk Processing Optimisation
 
 1. **Batch Size Management**:
    - Process 10-50 items at a time for optimal performance

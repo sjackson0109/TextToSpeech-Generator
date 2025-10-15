@@ -182,7 +182,7 @@ Azure offers 400+ neural voices across 140+ languages:
 2. **Create Project**:
    - Click "Select a project" → "New Project"
    - Enter project name
-   - Select organization (if applicable)
+   - Select organisation (if applicable)
    - Click "Create"
 
 #### 2. Enable Text-to-Speech API
@@ -273,7 +273,7 @@ All six TTS providers are now fully implemented and production-ready:
 
 ### Twilio ✅ **FULLY IMPLEMENTED**
 - **Status**: Full production implementation with real API calls
-- **Use Case**: Telephony-optimized TTS for communication workflows
+- **Use Case**: Telephony-optimised TTS for communication workflows
 - **Features**: TwiML generation, call API integration, multi-language support
 - 📖 **[Twilio Setup Guide →](TWILIO-SETUP.md)**
 
@@ -302,7 +302,7 @@ All six TTS providers are now fully implemented and production-ready:
 
 ### For Advanced Users
 1. **Multi-Provider Setup**: Configure multiple providers for redundancy
-2. **Performance Optimization**: Compare voice quality and latency across providers
+2. **Performance Optimisation**: Compare voice quality and latency across providers
 3. **Cost Management**: Balance features vs. pricing across different providers
 
 ---
