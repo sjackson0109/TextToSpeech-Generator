@@ -1400,13 +1400,34 @@ $advancedVoiceXaml = @"
                     
                     <!-- Speech Rate -->
                     <Label Grid.Row="0" Grid.Column="0" Content="Speech Rate:" Foreground="White" VerticalAlignment="Center"/>
-                    <Slider x:Name="AZ_SpeechRate" Grid.Row="0" Grid.Column="1" Minimum="0.5" Maximum="2.0" Value="1.0" Margin="5,2"/>
+                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="5,2">
+                        <DockPanel>
+                            <Label DockPanel.Dock="Left" Content="0.5" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
+                            <Label DockPanel.Dock="Right" Content="2.0" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
+                            <Label x:Name="AZ_SpeechRateValue" DockPanel.Dock="Top" Content="1.00" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" FontSize="12" Padding="0"/>
+                        </DockPanel>
+                        <Slider x:Name="AZ_SpeechRate" Minimum="0.5" Maximum="2.0" Value="1.0" TickFrequency="0.1" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
+                    </StackPanel>
                     <Label Grid.Row="0" Grid.Column="2" Content="Pitch:" Foreground="White" VerticalAlignment="Center"/>
-                    <Slider x:Name="AZ_Pitch" Grid.Row="0" Grid.Column="3" Minimum="-50" Maximum="50" Value="0" Margin="5,2"/>
+                    <StackPanel Grid.Row="0" Grid.Column="3" Margin="5,2">
+                        <DockPanel>
+                            <Label DockPanel.Dock="Left" Content="-50" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
+                            <Label DockPanel.Dock="Right" Content="+50" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
+                            <Label x:Name="AZ_PitchValue" DockPanel.Dock="Top" Content="0" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" FontSize="12" Padding="0"/>
+                        </DockPanel>
+                        <Slider x:Name="AZ_Pitch" Minimum="-50" Maximum="50" Value="0" TickFrequency="5" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
+                    </StackPanel>
                     
                     <!-- Volume and Style -->
                     <Label Grid.Row="1" Grid.Column="0" Content="Volume:" Foreground="White" VerticalAlignment="Center"/>
-                    <Slider x:Name="AZ_Volume" Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="100" Value="50" Margin="5,2"/>
+                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="5,2">
+                        <DockPanel>
+                            <Label DockPanel.Dock="Left" Content="0%" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
+                            <Label DockPanel.Dock="Right" Content="100%" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
+                            <Label x:Name="AZ_VolumeValue" DockPanel.Dock="Top" Content="50%" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" FontSize="12" Padding="0"/>
+                        </DockPanel>
+                        <Slider x:Name="AZ_Volume" Minimum="0" Maximum="100" Value="50" TickFrequency="10" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
+                    </StackPanel>
                     <Label Grid.Row="1" Grid.Column="2" Content="Style:" Foreground="White" VerticalAlignment="Center"/>
                     <ComboBox x:Name="AZ_Style" Grid.Row="1" Grid.Column="3" Height="23" Margin="5,2">
                         <ComboBoxItem Content="neutral" IsSelected="True"/>
@@ -1526,9 +1547,23 @@ $advancedVoiceXaml = @"
                     </Grid.ColumnDefinitions>
                     
                     <Label Grid.Row="0" Grid.Column="0" Content="Speech Rate:" Foreground="White" VerticalAlignment="Center"/>
-                    <Slider x:Name="CP_SpeechRate" Grid.Row="0" Grid.Column="1" Minimum="0.5" Maximum="2.0" Value="1.0" Margin="5,2"/>
+                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="5,2">
+                        <DockPanel>
+                            <Label DockPanel.Dock="Left" Content="0.5" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
+                            <Label DockPanel.Dock="Right" Content="2.0" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
+                            <Label x:Name="CP_SpeechRateValue" DockPanel.Dock="Top" Content="1.00" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" FontSize="12" Padding="0"/>
+                        </DockPanel>
+                        <Slider x:Name="CP_SpeechRate" Minimum="0.5" Maximum="2.0" Value="1.0" TickFrequency="0.1" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
+                    </StackPanel>
                     <Label Grid.Row="0" Grid.Column="2" Content="Volume:" Foreground="White" VerticalAlignment="Center"/>
-                    <Slider x:Name="CP_Volume" Grid.Row="0" Grid.Column="3" Minimum="0" Maximum="100" Value="50" Margin="5,2"/>
+                    <StackPanel Grid.Row="0" Grid.Column="3" Margin="5,2">
+                        <DockPanel>
+                            <Label DockPanel.Dock="Left" Content="0%" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
+                            <Label DockPanel.Dock="Right" Content="100%" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
+                            <Label x:Name="CP_VolumeValue" DockPanel.Dock="Top" Content="50%" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" FontSize="12" Padding="0"/>
+                        </DockPanel>
+                        <Slider x:Name="CP_Volume" Minimum="0" Maximum="100" Value="50" TickFrequency="10" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
+                    </StackPanel>
                     
                     <Label Grid.Row="1" Grid.Column="0" Content="Audio Format:" Foreground="White" VerticalAlignment="Center"/>
                     <ComboBox x:Name="CP_AudioFormat" Grid.Row="1" Grid.Column="1" Height="23" Margin="5,2">
@@ -1610,9 +1645,23 @@ $advancedVoiceXaml = @"
                     </Grid.ColumnDefinitions>
                     
                     <Label Grid.Row="0" Grid.Column="0" Content="Speech Rate:" Foreground="White" VerticalAlignment="Center"/>
-                    <Slider x:Name="VF_SpeechRate" Grid.Row="0" Grid.Column="1" Minimum="0.5" Maximum="2.0" Value="1.0" Margin="5,2"/>
+                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="5,2">
+                        <DockPanel>
+                            <Label DockPanel.Dock="Left" Content="0.5" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
+                            <Label DockPanel.Dock="Right" Content="2.0" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
+                            <Label x:Name="VF_SpeechRateValue" DockPanel.Dock="Top" Content="1.00" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" FontSize="12" Padding="0"/>
+                        </DockPanel>
+                        <Slider x:Name="VF_SpeechRate" Minimum="0.5" Maximum="2.0" Value="1.0" TickFrequency="0.1" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
+                    </StackPanel>
                     <Label Grid.Row="0" Grid.Column="2" Content="Pitch:" Foreground="White" VerticalAlignment="Center"/>
-                    <Slider x:Name="VF_Pitch" Grid.Row="0" Grid.Column="3" Minimum="-50" Maximum="50" Value="0" Margin="5,2"/>
+                    <StackPanel Grid.Row="0" Grid.Column="3" Margin="5,2">
+                        <DockPanel>
+                            <Label DockPanel.Dock="Left" Content="-50" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
+                            <Label DockPanel.Dock="Right" Content="+50" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
+                            <Label x:Name="VF_PitchValue" DockPanel.Dock="Top" Content="0" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" FontSize="12" Padding="0"/>
+                        </DockPanel>
+                        <Slider x:Name="VF_Pitch" Minimum="-50" Maximum="50" Value="0" TickFrequency="5" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
+                    </StackPanel>
                     
                     <Label Grid.Row="1" Grid.Column="0" Content="Audio Format:" Foreground="White" VerticalAlignment="Center"/>
                     <ComboBox x:Name="VF_AudioFormat" Grid.Row="1" Grid.Column="1" Height="23" Margin="5,2">
@@ -2398,6 +2447,35 @@ function Show-AdvancedVoiceOptions {
             Write-ApplicationLog -Message "Advanced settings reset to defaults for $Provider" -Level "INFO"
         }
         
+        # Slider value change handlers for real-time value display
+        if ($Provider -eq "Azure") {
+            $advancedWindow.AZ_SpeechRate.add_ValueChanged{
+                $advancedWindow.AZ_SpeechRateValue.Content = "{0:F2}" -f $advancedWindow.AZ_SpeechRate.Value
+            }
+            $advancedWindow.AZ_Pitch.add_ValueChanged{
+                $value = [int]$advancedWindow.AZ_Pitch.Value
+                $advancedWindow.AZ_PitchValue.Content = if ($value -gt 0) { "+$value" } else { "$value" }
+            }
+            $advancedWindow.AZ_Volume.add_ValueChanged{
+                $advancedWindow.AZ_VolumeValue.Content = "{0:F0}%" -f $advancedWindow.AZ_Volume.Value
+            }
+        } elseif ($Provider -eq "CloudPronouncer") {
+            $advancedWindow.CP_SpeechRate.add_ValueChanged{
+                $advancedWindow.CP_SpeechRateValue.Content = "{0:F2}" -f $advancedWindow.CP_SpeechRate.Value
+            }
+            $advancedWindow.CP_Volume.add_ValueChanged{
+                $advancedWindow.CP_VolumeValue.Content = "{0:F0}%" -f $advancedWindow.CP_Volume.Value
+            }
+        } elseif ($Provider -eq "VoiceForge") {
+            $advancedWindow.VF_SpeechRate.add_ValueChanged{
+                $advancedWindow.VF_SpeechRateValue.Content = "{0:F2}" -f $advancedWindow.VF_SpeechRate.Value
+            }
+            $advancedWindow.VF_Pitch.add_ValueChanged{
+                $value = [int]$advancedWindow.VF_Pitch.Value
+                $advancedWindow.VF_PitchValue.Content = if ($value -gt 0) { "+$value" } else { "$value" }
+            }
+        }
+        
         # Show the dialog
         $result = Show-WPFWindow -Window $advancedWindow
         
@@ -2421,6 +2499,11 @@ function Load-AdvancedSettings {
                 $Window.AZ_Volume.Value = $global:azureAdvancedConfig.Volume ?? 50
                 $Window.AZ_EnableSSML.IsChecked = $global:azureAdvancedConfig.EnableSSML ?? $false
             }
+            # Update value labels
+            $Window.AZ_SpeechRateValue.Content = "{0:F2}" -f $Window.AZ_SpeechRate.Value
+            $value = [int]$Window.AZ_Pitch.Value
+            $Window.AZ_PitchValue.Content = if ($value -gt 0) { "+$value" } else { "$value" }
+            $Window.AZ_VolumeValue.Content = "{0:F0}%" -f $Window.AZ_Volume.Value
         }
         "Amazon Polly" {
             if ($global:awsAdvancedConfig) {
@@ -2444,6 +2527,9 @@ function Load-AdvancedSettings {
                 $Window.CP_EnableSSML.IsChecked = $global:cpAdvancedConfig.EnableSSML ?? $false
                 $Window.CP_HighQuality.IsChecked = $global:cpAdvancedConfig.HighQuality ?? $false
             }
+            # Update value labels
+            $Window.CP_SpeechRateValue.Content = "{0:F2}" -f $Window.CP_SpeechRate.Value
+            $Window.CP_VolumeValue.Content = "{0:F0}%" -f $Window.CP_Volume.Value
         }
         "Twilio" {
             if ($global:twAdvancedConfig) {
@@ -2464,6 +2550,10 @@ function Load-AdvancedSettings {
                 $Window.VF_EnableSSML.IsChecked = $global:vfAdvancedConfig.EnableSSML ?? $false
                 $Window.VF_HighQuality.IsChecked = $global:vfAdvancedConfig.HighQuality ?? $false
             }
+            # Update value labels
+            $Window.VF_SpeechRateValue.Content = "{0:F2}" -f $Window.VF_SpeechRate.Value
+            $value = [int]$Window.VF_Pitch.Value
+            $Window.VF_PitchValue.Content = if ($value -gt 0) { "+$value" } else { "$value" }
         }
     }
 }
@@ -2562,6 +2652,10 @@ function Reset-AdvancedSettings {
             $Window.AZ_EnableSSML.IsChecked = $false
             $Window.AZ_WordBoundary.IsChecked = $false
             $Window.AZ_CustomVoice.Text = "(Optional - leave blank for default)"
+            # Update value labels
+            $Window.AZ_SpeechRateValue.Content = "1.00"
+            $Window.AZ_PitchValue.Content = "0"
+            $Window.AZ_VolumeValue.Content = "50%"
         }
         "Amazon Polly" {
             $Window.AWS_Engine.SelectedIndex = 0
@@ -2586,6 +2680,9 @@ function Reset-AdvancedSettings {
             $Window.CP_SampleRate.SelectedIndex = 2
             $Window.CP_EnableSSML.IsChecked = $false
             $Window.CP_HighQuality.IsChecked = $false
+            # Update value labels
+            $Window.CP_SpeechRateValue.Content = "1.00"
+            $Window.CP_VolumeValue.Content = "50%"
         }
         "Twilio" {
             $Window.TW_Language.SelectedIndex = 0
@@ -2602,6 +2699,9 @@ function Reset-AdvancedSettings {
             $Window.VF_BitRate.SelectedIndex = 1
             $Window.VF_EnableSSML.IsChecked = $false
             $Window.VF_HighQuality.IsChecked = $false
+            # Update value labels
+            $Window.VF_SpeechRateValue.Content = "1.00"
+            $Window.VF_PitchValue.Content = "0"
         }
     }
 }
