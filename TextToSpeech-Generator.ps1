@@ -1438,7 +1438,7 @@ $advancedVoiceXaml = @"
                     </ComboBox>
                     
                     <!-- SSML Options -->
-                    <CheckBox x:Name="AZ_EnableSSML" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="Enable SSML Processing" Foreground="White" Margin="0,8"/>
+                    <CheckBox x:Name="AZ_EnableSSML" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="Enable SSML Processing" Foreground="White" Margin="0,20,0,8"/>
                     <CheckBox x:Name="AZ_WordBoundary" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Content="Word Boundary Events" Foreground="White" Margin="0,8"/>
                     
                     <!-- Custom Voice -->
@@ -1579,7 +1579,7 @@ $advancedVoiceXaml = @"
                         <ComboBoxItem Content="44100"/>
                     </ComboBox>
                     
-                    <CheckBox x:Name="CP_EnableSSML" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="Enable SSML Processing" Foreground="White" Margin="0,8"/>
+                    <CheckBox x:Name="CP_EnableSSML" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="Enable SSML Processing" Foreground="White" Margin="0,20,0,8"/>
                     <CheckBox x:Name="CP_HighQuality" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Content="High Quality Mode" Foreground="White" Margin="0,8"/>
                 </Grid>
             </GroupBox>
@@ -1679,7 +1679,7 @@ $advancedVoiceXaml = @"
                         <ComboBoxItem Content="32"/>
                     </ComboBox>
                     
-                    <CheckBox x:Name="VF_EnableSSML" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="Enable SSML Processing" Foreground="White" Margin="0,8"/>
+                    <CheckBox x:Name="VF_EnableSSML" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="Enable SSML Processing" Foreground="White" Margin="0,20,0,8"/>
                     <CheckBox x:Name="VF_HighQuality" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Content="High Quality Synthesis" Foreground="White" Margin="0,8"/>
                 </Grid>
             </GroupBox>
@@ -1692,8 +1692,8 @@ $advancedVoiceXaml = @"
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
-                <Button x:Name="ResetToDefaults" Grid.Column="1" Content="Reset to Defaults" Width="120" Height="30" Margin="0,0,8,0" Background="#FFD32F2F" Foreground="White"/>
-                <Button x:Name="SaveAdvanced" Grid.Column="2" Content="Save &amp; Close" Width="100" Height="30" Background="#FF2D7D32" Foreground="White"/>
+                <Button x:Name="SaveAdvanced" Grid.Column="1" Content="Save &amp; Close" Width="100" Height="30" Margin="0,0,8,0" Background="#FF2D7D32" Foreground="White"/>
+                <Button x:Name="ResetToDefaults" Grid.Column="2" Content="Reset to Defaults" Width="120" Height="30" Background="#FFD32F2F" Foreground="White"/>
             </Grid>
             
         </StackPanel>
@@ -2448,7 +2448,7 @@ function Show-AdvancedVoiceOptions {
         }
         
         # Slider value change handlers for real-time value display
-        if ($Provider -eq "Azure") {
+        if ($Provider -eq "Microsoft Azure") {
             $advancedWindow.AZ_SpeechRate.add_ValueChanged{
                 $advancedWindow.AZ_SpeechRateValue.Content = "{0:F2}" -f $advancedWindow.AZ_SpeechRate.Value
             }
