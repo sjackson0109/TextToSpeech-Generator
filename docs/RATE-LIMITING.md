@@ -296,10 +296,10 @@ function Get-EstimatedCost {
 
 ## Best Practices
 
-### 1. Batch Processing Optimization
-- **Chunk Size**: Optimize text chunks for maximum efficiency
+### 1. Batch Processing Optimisation
+- **Chunk Size**: Optimise text chunks for maximum efficiency
 - **Parallel Processing**: Use optimal thread count based on rate limits
-- **Request Grouping**: Group small requests to minimize API calls
+- **Request Grouping**: Group small requests to minimise API calls
 
 ### 2. Caching Strategy
 ```powershell

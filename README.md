@@ -119,7 +119,7 @@ If you have an existing installation with `TextToSpeech-Generator.xml` configura
 | **Azure Cognitive Services** | **Status**: Full production implementation with real API calls<br>**Quality**: Premium neural voices with natural prosody and SSML support<br>**Free Tier**: 5,000 transactions/month<br>**Languages**: 140+ languages, 400+ voices<br>**[Complete Setup Guide →](docs/AZURE-SETUP.md)** |
 | **Google Cloud Text-to-Speech** | **Status**: Full production implementation with real API calls<br>**Quality**: WaveNet technology for human-like speech with advanced options<br>**Free Tier**: 1M WaveNet characters/month<br>**Languages**: 40+ languages, 220+ voices<br>**[Complete Setup Guide →](docs/GOOGLE-SETUP.md)** |
 | **AWS Polly** | **Status**: Full production implementation with real API calls<br>**Quality**: Neural and standard voices with AWS Signature V4 authentication<br>**Free Tier**: 1M characters/month for speech synthesis<br>**Languages**: 60+ languages, 570+ voices including neural options<br>**[Complete Setup Guide →](docs/AWS-SETUP.md)** |
-| **CloudPronouncer** | **Status**: Full production implementation with real API calls<br>**Quality**: Specialized pronunciation accuracy for names and complex terms<br>**Features**: High-quality synthesis, SSML support, multiple audio formats<br>**Languages**: Multi-language support with pronunciation optimization<br>**[Complete Setup Guide →](docs/CLOUDPRONOUNCER-SETUP.md)** |
+| **CloudPronouncer** | **Status**: Full production implementation with real API calls<br>**Quality**: Specialised pronunciation accuracy for names and complex terms<br>**Features**: High-quality synthesis, SSML support, multiple audio formats<br>**Languages**: Multi-language support with pronunciation optimisation<br>**[Complete Setup Guide →](docs/CLOUDPRONOUNCER-SETUP.md)** |
 | **Twilio** | **Status**: Full production implementation with real API calls<br>**Quality**: TTS integration within telephony and IVR workflows<br>**Features**: TwiML generation, call API integration, multi-language support<br>**Languages**: 11+ languages with voice selection across providers<br>**[Complete Setup Guide →](docs/TWILIO-SETUP.md)** |
 | **VoiceForge** | **Status**: Full production implementation with real API calls<br>**Quality**: Character-style and novelty voices for creative applications<br>**Features**: High-quality synthesis, SSML processing, multiple audio formats<br>**Languages**: Multi-language support with specialized voice characters<br>**[Complete Setup Guide →](docs/VOICEFORGE-SETUP.md)** |
 
@@ -199,7 +199,7 @@ TextToSpeech-Generator/
 
 ## Default Configuration
 
-Configuration is stored in `config.json` with provider-specific settings organized by environment profiles (Development/Production/Testing). Each provider section contains authentication, voice selection, and audio format preferences.
+Configuration is stored in `config.json` with provider-specific settings organised by environment profiles (Development/Production/Testing). Each provider section contains authentication, voice selection, and audio format preferences.
 
 ### Audio Formats
 

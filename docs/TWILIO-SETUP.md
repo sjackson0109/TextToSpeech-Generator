@@ -13,7 +13,7 @@ Setup guide for Twilio Text-to-Speech integration with TextToSpeech Generator v3
 - ✅ **UI Configuration**: Complete configuration panel implemented
 - ✅ **TTS Processing**: Full production implementation with real API calls
 - ✅ **API Integration**: Complete Invoke-TwilioTTS function with authentication
-- ✅ **TwiML Generation**: Telephony-optimized TTS for communication workflows
+- ✅ **TwiML Generation**: Telephony-optimised TTS for communication workflows
 - ✅ **Production Ready**: Fully functional with comprehensive error handling
 
 **What Works Now:**
@@ -38,7 +38,7 @@ Twilio offers text-to-speech capabilities through their Voice API, providing hig
 
 ### Key Features (When Implemented)
 - **Polly Integration**: Powered by Amazon Polly voices
-- **Telephony Optimized**: Designed for phone call quality
+- **Telephony Optimised**: Designed for phone call quality
 - **Global Infrastructure**: Worldwide voice synthesis
 - **Developer Friendly**: Simple REST API integration
 - **Scalable Pricing**: Pay-per-use model

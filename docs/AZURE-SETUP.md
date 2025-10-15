@@ -82,7 +82,7 @@ Fill out the resource creation form:
 
 #### Network and Tags (Optional)
 - **Network**: Leave default (All networks) for simplicity
-- **Tags**: Add for organization (optional)
+- **Tags**: Add for organisation (optional)
 
 Click **Review + Create** → **Create**
 
@@ -307,7 +307,7 @@ Invoke-RestMethod -Uri $uri -Headers $headers
 4. **Monitor Quotas**: Set up alerts before hitting limits
 5. **Multiple Keys**: Use key rotation for zero-downtime updates
 
-### Performance Optimization
+### Performance Optimisation
 
 1. **Batch Requests**: Group multiple TTS requests when possible
 2. **Regional Deployment**: Use multiple regions for global applications

@@ -76,7 +76,7 @@ The application supports three deployment profiles:
 - Reduced performance monitoring
 
 #### Production Profile  
-- Optimized performance settings
+- Optimised performance settings
 - Encrypted API keys
 - Network paths supported
 - Comprehensive monitoring
@@ -132,11 +132,11 @@ $prodConfig | ConvertTo-Json -Depth 10 | Out-File -FilePath "config.json"
 - **User Accounts**: Run with least-privilege service accounts
 - **Audit Logging**: Enable comprehensive audit trails
 
-## Performance Optimization
+## Performance Optimisation
 
 ### Bulk Processing
 ```powershell
-# Optimize for bulk processing
+# Optimise for bulk processing
 $bulkConfig = @{
     MaxParallelJobs = [Environment]::ProcessorCount
     ChunkSize = 1000
@@ -145,12 +145,12 @@ $bulkConfig = @{
 }
 ```
 
-### Network Optimization
+### Network Optimisation
 - **Connection Pooling**: Reuse HTTP connections
 - **Retry Logic**: Implement exponential backoff
 - **Load Balancing**: Distribute requests across regions
 
-### Storage Optimization
+### Storage Optimisation
 - **SSD Storage**: Use SSDs for temporary files
 - **Network Storage**: Use high-speed network storage for outputs
 - **Cleanup Policies**: Implement automatic cleanup of temporary files
