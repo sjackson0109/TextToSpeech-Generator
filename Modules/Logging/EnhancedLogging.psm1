@@ -102,7 +102,7 @@ function Write-ApplicationLog {
     
     # Write to file log with structured format
     try {
-        if ($script:LogFilePath) {
+        if ($script:LogFilePath -and -not [string]::IsNullOrWhiteSpace($script:LogFilePath)) {
             # Check for log rotation
             if (Test-Path $script:LogFilePath) {
                 $logFile = Get-Item $script:LogFilePath

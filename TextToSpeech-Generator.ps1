@@ -1283,9 +1283,13 @@ function Write-ApplicationLog {
     
     # Write to file log with structured format
     try {
-        $logFile = Join-Path $PSScriptRoot "application.log"
-        $jsonEntry = $logEntry | ConvertTo-Json -Compress
-        Add-Content -Path $logFile -Value $jsonEntry -Encoding UTF8
+        if ($PSScriptRoot -and -not [string]::IsNullOrWhiteSpace($PSScriptRoot)) {
+            $logFile = Join-Path $PSScriptRoot "application.log"
+            if (-not [string]::IsNullOrWhiteSpace($logFile)) {
+                $jsonEntry = $logEntry | ConvertTo-Json -Compress
+                Add-Content -Path $logFile -Value $jsonEntry -Encoding UTF8
+            }
+        }
     }
     catch {
         Write-Host "Failed to write to log file: $($_.Exception.Message)" -ForegroundColor Red
