@@ -85,7 +85,7 @@ Each PowerShell provider module should be converted to TypeScript following this
 
 ```typescript
 // Reference: Modules/TTSProviders/AzureCognitive.psm1
-export class AzureTTSProvider implements TTSProvider {
+export class AzureTTSProvider implements TTSProvider { 
   // Convert PowerShell functions to TypeScript methods
   async generateSpeech(text: string, options: TTSOptions): Promise<AudioBuffer> {
     // Logic from Invoke-AzureTTS function

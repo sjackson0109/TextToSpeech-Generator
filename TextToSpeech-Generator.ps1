@@ -254,7 +254,7 @@ function Invoke-AzureTTS {
         
         # Format numeric values for SSML compliance
         $rateStr = if ($rate -is [string]) { $rate } else { "${rate}" }
-        $pitchStr = if ($pitch -eq 0) { "0Hz" } else { "${pitch}Hz" }
+        $pitchStr = if ($pitch -eq 0) { "0" } else { "${pitch}" }
         
         # Build SSML based on voice capabilities
         $ssml = if ($Voice -match "Neural") {
@@ -1370,8 +1370,8 @@ $advancedVoiceXaml = @"
    WindowStartupLocation="CenterOwner" 
    Background="#FF2D2D30" 
    ResizeMode="CanResize"
-   MinWidth="700" MinHeight="500"
-   MaxWidth="900" MaxHeight="800">
+   MinWidth="700" MinHeight="300"
+   MaxWidth="900" MaxHeight="600">
     
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
         <StackPanel Margin="16">
@@ -1400,34 +1400,61 @@ $advancedVoiceXaml = @"
                     
                     <!-- Speech Rate -->
                     <Label Grid.Row="0" Grid.Column="0" Content="Speech Rate:" Foreground="White" VerticalAlignment="Center"/>
-                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="5,2">
-                        <DockPanel>
-                            <Label DockPanel.Dock="Left" Content="0.5" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
-                            <Label DockPanel.Dock="Right" Content="2.0" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
-                            <Label x:Name="AZ_SpeechRateValue" DockPanel.Dock="Top" Content="1.00" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" FontSize="12" Padding="0"/>
-                        </DockPanel>
-                        <Slider x:Name="AZ_SpeechRate" Minimum="0.5" Maximum="2.0" Value="1.0" TickFrequency="0.1" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
-                    </StackPanel>
+                    <Grid Grid.Row="0" Grid.Column="1" Margin="5,2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!-- Slider (TOP ROW) -->
+                        <Slider x:Name="AZ_SpeechRate" Grid.Row="0" Minimum="0.5" Maximum="2.0" Value="1.0"
+                                TickFrequency="0.1" TickPlacement="BottomRight" IsSnapToTickEnabled="True" Margin="0,2,0,0"/>
+                        <!-- Scale Labels and Dynamic Value (BOTTOM ROW) -->
+                        <Canvas Grid.Row="2" Height="15" Margin="0,-5,0,0">
+                            <Label Content="0.5x" Foreground="Gray" FontSize="9" Padding="0" Canvas.Left="0" Canvas.Top="0"/>
+                            <Label Content="2.0x" Foreground="Gray" FontSize="9" Padding="0" Canvas.Right="0" Canvas.Top="0"/>
+                            <Label x:Name="AZ_SpeechRateValue" Content="1.00" Foreground="White" FontWeight="Bold" FontSize="11"
+                                   Canvas.Top="0" Padding="0" Background="#2D2D30"/>
+                        </Canvas>
+                    </Grid>
                     <Label Grid.Row="0" Grid.Column="2" Content="Pitch:" Foreground="White" VerticalAlignment="Center"/>
-                    <StackPanel Grid.Row="0" Grid.Column="3" Margin="5,2">
-                        <DockPanel>
-                            <Label DockPanel.Dock="Left" Content="-50" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
-                            <Label DockPanel.Dock="Right" Content="+50" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
-                            <Label x:Name="AZ_PitchValue" DockPanel.Dock="Top" Content="0" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" FontSize="12" Padding="0"/>
-                        </DockPanel>
-                        <Slider x:Name="AZ_Pitch" Minimum="-50" Maximum="50" Value="0" TickFrequency="5" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
-                    </StackPanel>
+                    <Grid Grid.Row="0" Grid.Column="3" Margin="5,2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="8"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!-- Slider (TOP ROW) -->
+                        <Slider x:Name="AZ_Pitch" Grid.Row="0" Minimum="-50" Maximum="50" Value="0"
+                                TickFrequency="5" TickPlacement="BottomRight" IsSnapToTickEnabled="True" Margin="0,2,0,0"/>
+                        <!-- Scale Labels and Dynamic Value (BOTTOM ROW) -->
+                        <Canvas Grid.Row="2" Height="15" Margin="0,-5,0,0">
+                            <Label Content="-50" Foreground="Gray" FontSize="9" Padding="0" Canvas.Left="0" Canvas.Top="0"/>
+                            <Label Content="+50" Foreground="Gray" FontSize="9" Padding="0" Canvas.Right="0" Canvas.Top="0"/>
+                            <Label x:Name="AZ_PitchValue" Content="0" Foreground="White" FontWeight="Bold" FontSize="11"
+                                   Canvas.Top="0" Padding="0" Background="#2D2D30"/>
+                        </Canvas>
+                    </Grid>
                     
                     <!-- Volume and Style -->
                     <Label Grid.Row="1" Grid.Column="0" Content="Volume:" Foreground="White" VerticalAlignment="Center"/>
-                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="5,2">
-                        <DockPanel>
-                            <Label DockPanel.Dock="Left" Content="0%" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
-                            <Label DockPanel.Dock="Right" Content="100%" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
-                            <Label x:Name="AZ_VolumeValue" DockPanel.Dock="Top" Content="50%" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" FontSize="12" Padding="0"/>
-                        </DockPanel>
-                        <Slider x:Name="AZ_Volume" Minimum="0" Maximum="100" Value="50" TickFrequency="10" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
-                    </StackPanel>
+                    <Grid Grid.Row="1" Grid.Column="1" Margin="5,2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="8"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!-- Slider (TOP ROW) -->
+                        <Slider x:Name="AZ_Volume" Grid.Row="0" Minimum="0" Maximum="100" Value="50"
+                                TickFrequency="10" TickPlacement="BottomRight" IsSnapToTickEnabled="True" Margin="0,2,0,0"/>
+                        <!-- Scale Labels and Dynamic Value (BOTTOM ROW) -->
+                        <Canvas Grid.Row="2" Height="15" Margin="0,-5,0,0">
+                            <Label Content="0dB" Foreground="Gray" FontSize="9" Padding="0" Canvas.Left="0" Canvas.Top="0"/>
+                            <Label Content="100dB" Foreground="Gray" FontSize="9" Padding="0" Canvas.Right="0" Canvas.Top="0"/>
+                            <Label x:Name="AZ_VolumeValue" Content="50" Foreground="White" FontWeight="Bold" FontSize="11"
+                                   Canvas.Top="0" Padding="0" Background="#2D2D30"/>
+                        </Canvas>
+                    </Grid>
                     <Label Grid.Row="1" Grid.Column="2" Content="Style:" Foreground="White" VerticalAlignment="Center"/>
                     <ComboBox x:Name="AZ_Style" Grid.Row="1" Grid.Column="3" Height="23" Margin="5,2">
                         <ComboBoxItem Content="neutral" IsSelected="True"/>
@@ -1511,12 +1538,61 @@ $advancedVoiceXaml = @"
                     </Grid.ColumnDefinitions>
                     
                     <Label Grid.Row="0" Grid.Column="0" Content="Speaking Rate:" Foreground="White" VerticalAlignment="Center"/>
-                    <Slider x:Name="GC_SpeakingRate" Grid.Row="0" Grid.Column="1" Minimum="0.25" Maximum="4.0" Value="1.0" Margin="5,2"/>
+                    <Grid Grid.Row="0" Grid.Column="1" Margin="5,2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="8"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!-- Slider (TOP ROW) -->
+                        <Slider x:Name="GC_SpeakingRate" Grid.Row="0" Minimum="0.25" Maximum="4.0" Value="1.0" 
+                                TickFrequency="0.25" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
+                        <!-- Scale Labels and Dynamic Value (BOTTOM ROW) -->
+                        <Canvas Grid.Row="2" Height="20">
+                            <Label Content="0.25x" Foreground="Gray" FontSize="9" Padding="0" Canvas.Left="0" Canvas.Top="0"/>
+                            <Label Content="4.0x" Foreground="Gray" FontSize="9" Padding="0" Canvas.Right="0" Canvas.Top="0"/>
+                            <Label x:Name="GC_SpeakingRateValue" Content="1.00" Foreground="White" FontWeight="Bold" FontSize="11" 
+                                   Canvas.Top="0" Background="#AA000000" Padding="4,2" 
+                                   BorderBrush="White" BorderThickness="1"/>
+                        </Canvas>
+                    </Grid>
                     <Label Grid.Row="0" Grid.Column="2" Content="Pitch:" Foreground="White" VerticalAlignment="Center"/>
-                    <Slider x:Name="GC_Pitch" Grid.Row="0" Grid.Column="3" Minimum="-20" Maximum="20" Value="0" Margin="5,2"/>
+                    <Grid Grid.Row="0" Grid.Column="3" Margin="5,2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="8"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!-- Slider (TOP ROW) -->
+                        <Slider x:Name="GC_Pitch" Grid.Row="0" Minimum="-20" Maximum="20" Value="0"
+                                TickFrequency="5" TickPlacement="BottomRight" IsSnapToTickEnabled="True" Margin="0,2,0,0"/>
+                        <!-- Scale Labels and Dynamic Value (BOTTOM ROW) -->
+                        <Canvas Grid.Row="2" Height="15" Margin="0,-5,0,0">
+                            <Label Content="-20st" Foreground="Gray" FontSize="9" Padding="0" Canvas.Left="0" Canvas.Top="0"/>
+                            <Label Content="+20st" Foreground="Gray" FontSize="9" Padding="0" Canvas.Right="0" Canvas.Top="0"/>
+                            <Label x:Name="GC_PitchValue" Content="0st" Foreground="White" FontWeight="Bold" FontSize="11"
+                                   Canvas.Top="0" Padding="0" Background="#2D2D30"/>
+                        </Canvas>
+                    </Grid>
                     
                     <Label Grid.Row="1" Grid.Column="0" Content="Volume Gain:" Foreground="White" VerticalAlignment="Center"/>
-                    <Slider x:Name="GC_VolumeGain" Grid.Row="1" Grid.Column="1" Minimum="-96" Maximum="16" Value="0" Margin="5,2"/>
+                    <Grid Grid.Row="1" Grid.Column="1" Margin="5,2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="8"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!-- Slider (TOP ROW) -->
+                        <Slider x:Name="GC_VolumeGain" Grid.Row="0" Minimum="-96" Maximum="16" Value="0"
+                                TickFrequency="8" TickPlacement="BottomRight" IsSnapToTickEnabled="True" Margin="0,2,0,0"/>
+                        <!-- Scale Labels and Dynamic Value (BOTTOM ROW) -->
+                        <Canvas Grid.Row="2" Height="15" Margin="0,-5,0,0">
+                            <Label Content="-96dB" Foreground="Gray" FontSize="9" Padding="0" Canvas.Left="0" Canvas.Top="0"/>
+                            <Label Content="+16dB" Foreground="Gray" FontSize="9" Padding="0" Canvas.Right="0" Canvas.Top="0"/>
+                            <Label x:Name="GC_VolumeGainValue" Content="0dB" Foreground="White" FontWeight="Bold" FontSize="11"
+                                   Canvas.Top="0" Padding="0" Background="#2D2D30"/>
+                        </Canvas>
+                    </Grid>
                     <Label Grid.Row="1" Grid.Column="2" Content="Audio Encoding:" Foreground="White" VerticalAlignment="Center"/>
                     <ComboBox x:Name="GC_AudioEncoding" Grid.Row="1" Grid.Column="3" Height="23" Margin="5,2">
                         <ComboBoxItem Content="MP3" IsSelected="True"/>
@@ -1526,7 +1602,7 @@ $advancedVoiceXaml = @"
                         <ComboBoxItem Content="ALAW"/>
                     </ComboBox>
                     
-                    <CheckBox x:Name="GC_EnableTimePointing" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="Enable Timepointing" Foreground="White" Margin="0,8"/>
+                    <CheckBox x:Name="GC_EnableTimePointing" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="Enable Timepointing" Foreground="White" Margin="0,20,0,8"/>
                     <CheckBox x:Name="GC_CustomVoice" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Content="Use Custom Voice Model" Foreground="White" Margin="0,8"/>
                 </Grid>
             </GroupBox>
@@ -1547,32 +1623,44 @@ $advancedVoiceXaml = @"
                     </Grid.ColumnDefinitions>
                     
                     <Label Grid.Row="0" Grid.Column="0" Content="Speech Rate:" Foreground="White" VerticalAlignment="Center"/>
-                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="5,2">
-                        <DockPanel>
-                            <Label DockPanel.Dock="Left" Content="0.5" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
-                            <Label DockPanel.Dock="Right" Content="2.0" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
-                            <Label x:Name="CP_SpeechRateValue" DockPanel.Dock="Top" Content="1.00" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" FontSize="12" Padding="0"/>
-                        </DockPanel>
-                        <Slider x:Name="CP_SpeechRate" Minimum="0.5" Maximum="2.0" Value="1.0" TickFrequency="0.1" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
-                    </StackPanel>
+                    <Grid Grid.Row="0" Grid.Column="1" Margin="5,2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="8"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!-- Slider (TOP ROW) -->
+                        <Slider x:Name="CP_SpeechRate" Grid.Row="0" Minimum="0.5" Maximum="2.0" Value="1.0"
+                                TickFrequency="0.1" TickPlacement="BottomRight" IsSnapToTickEnabled="True" Margin="0,2,0,0"/>
+                        <!-- Scale Labels and Dynamic Value (BOTTOM ROW) -->
+                        <Canvas Grid.Row="2" Height="15" Margin="0,-5,0,0">
+                            <Label Content="0.5x" Foreground="Gray" FontSize="9" Padding="0" Canvas.Left="0" Canvas.Top="0"/>
+                            <Label Content="2.0x" Foreground="Gray" FontSize="9" Padding="0" Canvas.Right="0" Canvas.Top="0"/>
+                            <Label x:Name="CP_SpeechRateValue" Content="1.00" Foreground="White" FontWeight="Bold" FontSize="11"
+                                   Canvas.Top="0" Padding="0" Background="#2D2D30"/>
+                        </Canvas>
+                    </Grid>
                     <Label Grid.Row="0" Grid.Column="2" Content="Volume:" Foreground="White" VerticalAlignment="Center"/>
-                    <StackPanel Grid.Row="0" Grid.Column="3" Margin="5,2">
-                        <DockPanel>
-                            <Label DockPanel.Dock="Left" Content="0%" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
-                            <Label DockPanel.Dock="Right" Content="100%" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
-                            <Label x:Name="CP_VolumeValue" DockPanel.Dock="Top" Content="50%" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" FontSize="12" Padding="0"/>
-                        </DockPanel>
-                        <Slider x:Name="CP_Volume" Minimum="0" Maximum="100" Value="50" TickFrequency="10" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
-                    </StackPanel>
+                    <Grid Grid.Row="0" Grid.Column="3" Margin="5,2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="8"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!-- Slider (TOP ROW) -->
+                        <Slider x:Name="CP_Volume" Grid.Row="0" Minimum="0" Maximum="100" Value="50"
+                                TickFrequency="10" TickPlacement="BottomRight" IsSnapToTickEnabled="True" Margin="0,2,0,0"/>
+                        <!-- Scale Labels and Dynamic Value (BOTTOM ROW) -->
+                        <Canvas Grid.Row="2" Height="15" Margin="0,-5,0,0">
+                            <Label Content="0dB" Foreground="Gray" FontSize="9" Padding="0" Canvas.Left="0" Canvas.Top="0"/>
+                            <Label Content="100dB" Foreground="Gray" FontSize="9" Padding="0" Canvas.Right="0" Canvas.Top="0"/>
+                            <Label x:Name="CP_VolumeValue" Content="50" Foreground="White" FontWeight="Bold" FontSize="11"
+                                   Canvas.Top="0" Padding="0" Background="#2D2D30"/>
+                        </Canvas>
+                    </Grid>
                     
-                    <Label Grid.Row="1" Grid.Column="0" Content="Audio Format:" Foreground="White" VerticalAlignment="Center"/>
-                    <ComboBox x:Name="CP_AudioFormat" Grid.Row="1" Grid.Column="1" Height="23" Margin="5,2">
-                        <ComboBoxItem Content="mp3" IsSelected="True"/>
-                        <ComboBoxItem Content="wav"/>
-                        <ComboBoxItem Content="ogg"/>
-                    </ComboBox>
-                    <Label Grid.Row="1" Grid.Column="2" Content="Sample Rate:" Foreground="White" VerticalAlignment="Center"/>
-                    <ComboBox x:Name="CP_SampleRate" Grid.Row="1" Grid.Column="3" Height="23" Margin="5,2">
+                    <Label Grid.Row="1" Grid.Column="0" Content="Sample Rate:" Foreground="White" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="CP_SampleRate" Grid.Row="1" Grid.Column="1" Height="23" Margin="5,2">
                         <ComboBoxItem Content="8000"/>
                         <ComboBoxItem Content="16000"/>
                         <ComboBoxItem Content="22050" IsSelected="True"/>
@@ -1645,23 +1733,41 @@ $advancedVoiceXaml = @"
                     </Grid.ColumnDefinitions>
                     
                     <Label Grid.Row="0" Grid.Column="0" Content="Speech Rate:" Foreground="White" VerticalAlignment="Center"/>
-                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="5,2">
-                        <DockPanel>
-                            <Label DockPanel.Dock="Left" Content="0.5" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
-                            <Label DockPanel.Dock="Right" Content="2.0" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
-                            <Label x:Name="VF_SpeechRateValue" DockPanel.Dock="Top" Content="1.00" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" FontSize="12" Padding="0"/>
-                        </DockPanel>
-                        <Slider x:Name="VF_SpeechRate" Minimum="0.5" Maximum="2.0" Value="1.0" TickFrequency="0.1" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
-                    </StackPanel>
+                    <Grid Grid.Row="0" Grid.Column="1" Margin="5,2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="8"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!-- Slider (TOP ROW) -->
+                        <Slider x:Name="VF_SpeechRate" Grid.Row="0" Minimum="0.5" Maximum="2.0" Value="1.0"
+                                TickFrequency="0.1" TickPlacement="BottomRight" IsSnapToTickEnabled="True" Margin="0,2,0,0"/>
+                        <!-- Scale Labels and Dynamic Value (BOTTOM ROW) -->
+                        <Canvas Grid.Row="2" Height="15" Margin="0,-5,0,0">
+                            <Label Content="0.5x" Foreground="Gray" FontSize="9" Padding="0" Canvas.Left="0" Canvas.Top="0"/>
+                            <Label Content="2.0x" Foreground="Gray" FontSize="9" Padding="0" Canvas.Right="0" Canvas.Top="0"/>
+                            <Label x:Name="VF_SpeechRateValue" Content="1.00" Foreground="White" FontWeight="Bold" FontSize="11"
+                                   Canvas.Top="0" Padding="0" Background="#2D2D30"/>
+                        </Canvas>
+                    </Grid>
                     <Label Grid.Row="0" Grid.Column="2" Content="Pitch:" Foreground="White" VerticalAlignment="Center"/>
-                    <StackPanel Grid.Row="0" Grid.Column="3" Margin="5,2">
-                        <DockPanel>
-                            <Label DockPanel.Dock="Left" Content="-50" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
-                            <Label DockPanel.Dock="Right" Content="+50" Foreground="Gray" FontSize="10" Padding="0" VerticalAlignment="Center"/>
-                            <Label x:Name="VF_PitchValue" DockPanel.Dock="Top" Content="0" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" FontSize="12" Padding="0"/>
-                        </DockPanel>
-                        <Slider x:Name="VF_Pitch" Minimum="-50" Maximum="50" Value="0" TickFrequency="5" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
-                    </StackPanel>
+                    <Grid Grid.Row="0" Grid.Column="3" Margin="5,2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="8"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!-- Slider (TOP ROW) -->
+                        <Slider x:Name="VF_Pitch" Grid.Row="0" Minimum="-50" Maximum="50" Value="0"
+                                TickFrequency="5" TickPlacement="BottomRight" IsSnapToTickEnabled="True" Margin="0,2,0,0"/>
+                        <!-- Scale Labels and Dynamic Value (BOTTOM ROW) -->
+                        <Canvas Grid.Row="2" Height="15" Margin="0,-5,0,0">
+                            <Label Content="-50" Foreground="Gray" FontSize="9" Padding="0" Canvas.Left="0" Canvas.Top="0"/>
+                            <Label Content="+50" Foreground="Gray" FontSize="9" Padding="0" Canvas.Right="0" Canvas.Top="0"/>
+                            <Label x:Name="VF_PitchValue" Content="0" Foreground="White" FontWeight="Bold" FontSize="11"
+                                   Canvas.Top="0" Padding="0" Background="#2D2D30"/>
+                        </Canvas>
+                    </Grid>
                     
                     <Label Grid.Row="1" Grid.Column="0" Content="Audio Format:" Foreground="White" VerticalAlignment="Center"/>
                     <ComboBox x:Name="VF_AudioFormat" Grid.Row="1" Grid.Column="1" Height="23" Margin="5,2">
@@ -1708,7 +1814,7 @@ $apiConfigXaml = @"
    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    Title="API Configuration" 
-   SizeToContent="WidthAndHeight"
+   Width="720" Height="500"
    WindowStartupLocation="CenterOwner" 
    Background="#FF2D2D30" 
    ResizeMode="CanResize"
@@ -1739,9 +1845,9 @@ $apiConfigXaml = @"
                     </Grid.ColumnDefinitions>
                     
                     <Label Grid.Row="0" Grid.Column="0" Content="API Key:" Foreground="White" VerticalAlignment="Center"/>
-                    <TextBox x:Name="API_MS_KEY" Grid.Row="0" Grid.Column="1" Height="25" Margin="5,2"/>
+                    <TextBox x:Name="API_MS_KEY" Grid.Row="0" Grid.Column="1" Height="25" Margin="5,2" VerticalAlignment="Center"/>
                     <Label Grid.Row="0" Grid.Column="2" Content="Region:" Foreground="White" VerticalAlignment="Center"/>
-                    <ComboBox x:Name="API_MS_Region" Grid.Row="0" Grid.Column="3" Height="25" Margin="5,2" IsEditable="True">
+                    <ComboBox x:Name="API_MS_Region" Grid.Row="0" Grid.Column="3" Height="25" Margin="5,2" VerticalAlignment="Center" IsEditable="True">
                         <!-- North America -->
                         <ComboBoxItem Content="eastus"/>
                         <ComboBoxItem Content="eastus2"/>
@@ -2129,10 +2235,10 @@ $xaml = @"
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="65"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="110"/>
                     </Grid.ColumnDefinitions>
                     
                     <!-- Provider Selection Row -->
@@ -2145,8 +2251,8 @@ $xaml = @"
                         <ComboBoxItem Content="Twilio" Tag="TW"/>
                         <ComboBoxItem Content="VoiceForge" Tag="VF"/>
                     </ComboBox>
-                    <Button x:Name="TestAPI" Grid.Row="0" Grid.Column="2" Content="Test API" Height="25" Margin="5,2" Background="#FF28A745" Foreground="White"/>
-                    <Button x:Name="ConfigureAPI" Grid.Row="0" Grid.Column="3" Content="⚙️ API Config" Height="25" Margin="5,2" Background="#FF0E639C" Foreground="White"/>
+                    <Button x:Name="ConfigureAPI" Grid.Row="0" Grid.Column="2" Content="⚙️ API Config" Height="25" Margin="5,2" Background="#FF0E639C" Foreground="White"/>
+                    <Button x:Name="TestAPI" Grid.Row="0" Grid.Column="3" Content="Test API" Height="25" Margin="5,2" Background="#FF28A745" Foreground="White"/>
                     
                     <!-- Status Row -->
                     <TextBlock x:Name="APIConnectionStatus" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Status: Not Connected" Foreground="#FFFFAA00" Margin="0,5,0,0" VerticalAlignment="Center"/>
@@ -2163,11 +2269,11 @@ $xaml = @"
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="65"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="65"/>
+                        <ColumnDefinition Width="1.1*"/>
+                        <ColumnDefinition Width="110"/>
                     </Grid.ColumnDefinitions>
                     
                     <!-- Voice Selection Row -->
@@ -2187,13 +2293,14 @@ $xaml = @"
                     </ComboBox>
                     <Button x:Name="AdvancedVoice" Grid.Row="0" Grid.Column="4" Content="🔧 Advanced" Height="25" Margin="5,2" Background="#FF6F42C1" Foreground="White"/>
                     
-                    <!-- Audio Format Row -->
-                    <Label Grid.Row="1" Grid.Column="0" Content="Format:" Foreground="White" VerticalAlignment="Center"/>
-                    <ComboBox x:Name="AudioFormatSelect" Grid.Row="1" Grid.Column="1" Height="25" Margin="5,2">
-                        <ComboBoxItem Content="MP3 16kHz" IsSelected="True"/>
-                        <ComboBoxItem Content="MP3 24kHz"/>
-                        <ComboBoxItem Content="WAV 16kHz"/>
-                        <ComboBoxItem Content="OGG Vorbis"/>
+                    <!-- Voice Speed Row -->
+                    <Label Grid.Row="1" Grid.Column="0" Content="Speed:" Foreground="White" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="VoiceSpeedSelect" Grid.Row="1" Grid.Column="1" Height="25" Margin="5,2">
+                        <ComboBoxItem Content="Very Slow"/>
+                        <ComboBoxItem Content="Slow"/>
+                        <ComboBoxItem Content="Normal" IsSelected="True"/>
+                        <ComboBoxItem Content="Fast"/>
+                        <ComboBoxItem Content="Very Fast"/>
                     </ComboBox>
                     <Label Grid.Row="1" Grid.Column="2" Content="Quality:" Foreground="White" VerticalAlignment="Center"/>
                     <ComboBox x:Name="QualitySelect" Grid.Row="1" Grid.Column="3" Height="25" Margin="5,2">
@@ -2202,6 +2309,7 @@ $xaml = @"
                         <ComboBoxItem Content="Neural"/>
                         <ComboBoxItem Content="Ultra"/>
                     </ComboBox>
+                    <Button x:Name="PreviewVoice" Grid.Row="1" Grid.Column="4" Content="🎵 Preview" Height="25" Margin="5,2" Background="#FF17A2B8" Foreground="White"/>
                 </Grid>
             </GroupBox>
 
@@ -2257,18 +2365,19 @@ $xaml = @"
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="65"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
                     <!-- Progress Bar with Label -->
-                    <ProgressBar x:Name="ProgressBar" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Height="22" Margin="0,0,0,8"/>
-                    <Label x:Name="ProgressLabel" Grid.Row="1" Grid.Column="0" Content="Ready - Select provider and configure settings to begin" Foreground="#FFDDDDDD" FontSize="11" Margin="0,-5,0,0"/>
+                    <ProgressBar x:Name="ProgressBar" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Height="22" Margin="5,0,5,8"/>
+                    <Label x:Name="ProgressLabel" Grid.Row="1" Grid.Column="1" Content="Ready - Select provider and configure settings to begin" Foreground="#FFDDDDDD" FontSize="11" Margin="5,-5,0,0"/>
                     
                     <!-- Status Indicators -->
-                    <TextBlock x:Name="APIStatus" Grid.Row="1" Grid.Column="1" Text="API: Not Tested" Foreground="#FFFFAA00" FontSize="11" Margin="10,-5,10,0"/>
-                    <TextBlock x:Name="ConfigStatus" Grid.Row="1" Grid.Column="2" Text="Config: Default" Foreground="#FFFFAA00" FontSize="11" Margin="0,-5,0,0"/>
+                    <TextBlock x:Name="APIStatus" Grid.Row="1" Grid.Column="2" Text="API: Not Tested" Foreground="#FFFFAA00" FontSize="11" Margin="10,-5,10,0"/>
+                    <TextBlock x:Name="ConfigStatus" Grid.Row="1" Grid.Column="3" Text="Config: Default" Foreground="#FFFFAA00" FontSize="11" Margin="0,-5,5,0"/>
                 </Grid>
             </GroupBox>
 
@@ -2435,6 +2544,43 @@ function Show-AdvancedVoiceOptions {
         # Load current advanced settings
         Load-AdvancedSettings -Window $advancedWindow -Provider $Provider
         
+        # Initialize slider positions after window loads
+        $advancedWindow.add_Loaded{
+            $advancedWindow.Dispatcher.BeginInvoke([System.Windows.Threading.DispatcherPriority]::Background, [System.Action]{
+                if ($Provider -eq "Microsoft Azure") {
+                    $valueText = "{0:F2}" -f $advancedWindow.AZ_SpeechRate.Value
+                    Update-SliderValueLabel -Slider $advancedWindow.AZ_SpeechRate -ValueLabel $advancedWindow.AZ_SpeechRateValue -ValueText $valueText
+                    $value = [int]$advancedWindow.AZ_Pitch.Value
+                    $valueText = if ($value -gt 0) { "+{0}" -f $value } else { "{0}" -f $value }
+                    Update-SliderValueLabel -Slider $advancedWindow.AZ_Pitch -ValueLabel $advancedWindow.AZ_PitchValue -ValueText $valueText
+                    $valueText = "{0:F0}" -f $advancedWindow.AZ_Volume.Value
+                    Update-SliderValueLabel -Slider $advancedWindow.AZ_Volume -ValueLabel $advancedWindow.AZ_VolumeValue -ValueText $valueText
+                }
+                elseif ($Provider -eq "Google Cloud") {
+                    $valueText = "{0:F2}" -f $advancedWindow.GC_SpeakingRate.Value
+                    Update-SliderValueLabel -Slider $advancedWindow.GC_SpeakingRate -ValueLabel $advancedWindow.GC_SpeakingRateValue -ValueText $valueText
+                    $value = [int]$advancedWindow.GC_Pitch.Value
+                    $valueText = if ($value -gt 0) { "+{0}" -f $value } else { "{0}" -f $value }
+                    Update-SliderValueLabel -Slider $advancedWindow.GC_Pitch -ValueLabel $advancedWindow.GC_PitchValue -ValueText $valueText
+                    $valueText = "{0:F1}" -f $advancedWindow.GC_VolumeGain.Value
+                    Update-SliderValueLabel -Slider $advancedWindow.GC_VolumeGain -ValueLabel $advancedWindow.GC_VolumeGainValue -ValueText $valueText
+                }
+                elseif ($Provider -eq "CloudPronouncer") {
+                    $valueText = "{0:F2}" -f $advancedWindow.CP_SpeechRate.Value
+                    Update-SliderValueLabel -Slider $advancedWindow.CP_SpeechRate -ValueLabel $advancedWindow.CP_SpeechRateValue -ValueText $valueText
+                    $valueText = "{0:F0}" -f $advancedWindow.CP_Volume.Value
+                    Update-SliderValueLabel -Slider $advancedWindow.CP_Volume -ValueLabel $advancedWindow.CP_VolumeValue -ValueText $valueText
+                }
+                elseif ($Provider -eq "VoiceForge") {
+                    $valueText = "{0:F2}" -f $advancedWindow.VF_SpeechRate.Value
+                    Update-SliderValueLabel -Slider $advancedWindow.VF_SpeechRate -ValueLabel $advancedWindow.VF_SpeechRateValue -ValueText $valueText
+                    $value = [int]$advancedWindow.VF_Pitch.Value
+                    $valueText = if ($value -gt 0) { "+{0}" -f $value } else { "{0}" -f $value }
+                    Update-SliderValueLabel -Slider $advancedWindow.VF_Pitch -ValueLabel $advancedWindow.VF_PitchValue -ValueText $valueText
+                }
+            })
+        }
+        
         # Button handlers
         $advancedWindow.SaveAdvanced.add_Click{
             Save-AdvancedSettings -Window $advancedWindow -Provider $Provider
@@ -2447,32 +2593,94 @@ function Show-AdvancedVoiceOptions {
             Write-ApplicationLog -Message "Advanced settings reset to defaults for $Provider" -Level "INFO"
         }
         
-        # Slider value change handlers for real-time value display
+        # Helper function to calculate slider thumb position and update value label
+        function Update-SliderValueLabel {
+            param($Slider, $ValueLabel, $ValueText)
+            try {
+                # Get the slider's actual width and add 8px for proper alignment
+                $sliderWidth = $Slider.ActualWidth + 8
+                if ($sliderWidth -le 8) { $sliderWidth = 158 }  # Fallback width (150 + 8)
+                
+                # Calculate percentage of slider position
+                $percentage = ($Slider.Value - $Slider.Minimum) / ($Slider.Maximum - $Slider.Minimum)
+                
+                # Align with the actual min/max label edges
+                $labelWidth = 25  # Dynamic label width estimate
+                $minLabelWidth = 20  # Approximate width of min label (e.g., "0.5x")
+                $maxLabelWidth = 17  # Approximate width of max label (e.g., "2.00") - decreased by 8px to move right edge further right
+                
+                # Calculate track width to align with outer edges of min/max labels
+                $leftEdge = $minLabelWidth / 2  # Start from center of min label
+                $rightEdge = $sliderWidth - ($maxLabelWidth / 2)  # End at center of max label
+                $trackWidth = $rightEdge - $leftEdge
+                
+                # Calculate thumb center position aligned with min/max labels
+                $thumbCenterX = $leftEdge + ($percentage * $trackWidth)
+                
+                # Center the dynamic label on the thumb
+                $position = $thumbCenterX - ($labelWidth / 2)
+                
+                # Ensure label stays within reasonable bounds
+                $minPosition = 0
+                $maxPosition = $sliderWidth - $labelWidth
+                $position = [Math]::Max($minPosition, [Math]::Min($position, $maxPosition))
+                
+                # Set the dynamic position
+                [System.Windows.Controls.Canvas]::SetLeft($ValueLabel, $position)
+                $ValueLabel.Content = $ValueText
+            } catch { 
+                $ValueLabel.Content = $ValueText 
+            }
+        }
+
+        # Slider value change handlers for real-time value display with positioning
         if ($Provider -eq "Microsoft Azure") {
             $advancedWindow.AZ_SpeechRate.add_ValueChanged{
-                $advancedWindow.AZ_SpeechRateValue.Content = "{0:F2}" -f $advancedWindow.AZ_SpeechRate.Value
+                $valueText = "{0:F2}" -f $advancedWindow.AZ_SpeechRate.Value
+                Update-SliderValueLabel -Slider $advancedWindow.AZ_SpeechRate -ValueLabel $advancedWindow.AZ_SpeechRateValue -ValueText $valueText
             }
             $advancedWindow.AZ_Pitch.add_ValueChanged{
                 $value = [int]$advancedWindow.AZ_Pitch.Value
-                $advancedWindow.AZ_PitchValue.Content = if ($value -gt 0) { "+$value" } else { "$value" }
+                $valueText = if ($value -gt 0) { "+{0}" -f $value } else { "{0}" -f $value }
+                Update-SliderValueLabel -Slider $advancedWindow.AZ_Pitch -ValueLabel $advancedWindow.AZ_PitchValue -ValueText $valueText
             }
             $advancedWindow.AZ_Volume.add_ValueChanged{
-                $advancedWindow.AZ_VolumeValue.Content = "{0:F0}%" -f $advancedWindow.AZ_Volume.Value
+                $valueText = "{0:F0}" -f $advancedWindow.AZ_Volume.Value
+                Update-SliderValueLabel -Slider $advancedWindow.AZ_Volume -ValueLabel $advancedWindow.AZ_VolumeValue -ValueText $valueText
+            }
+        } elseif ($Provider -eq "Google Cloud") {
+            $advancedWindow.GC_SpeakingRate.add_ValueChanged{
+                $valueText = "{0:F2}" -f $advancedWindow.GC_SpeakingRate.Value
+                Update-SliderValueLabel -Slider $advancedWindow.GC_SpeakingRate -ValueLabel $advancedWindow.GC_SpeakingRateValue -ValueText $valueText
+            }
+            $advancedWindow.GC_Pitch.add_ValueChanged{
+                $value = [int]$advancedWindow.GC_Pitch.Value
+                $valueText = if ($value -gt 0) { "+{0}st" -f $value } else { "{0}st" -f $value }
+                Update-SliderValueLabel -Slider $advancedWindow.GC_Pitch -ValueLabel $advancedWindow.GC_PitchValue -ValueText $valueText
+            }
+            $advancedWindow.GC_VolumeGain.add_ValueChanged{
+                $value = [int]$advancedWindow.GC_VolumeGain.Value
+                $valueText = if ($value -gt 0) { "+{0}dB" -f $value } else { "{0}dB" -f $value }
+                Update-SliderValueLabel -Slider $advancedWindow.GC_VolumeGain -ValueLabel $advancedWindow.GC_VolumeGainValue -ValueText $valueText
             }
         } elseif ($Provider -eq "CloudPronouncer") {
             $advancedWindow.CP_SpeechRate.add_ValueChanged{
-                $advancedWindow.CP_SpeechRateValue.Content = "{0:F2}" -f $advancedWindow.CP_SpeechRate.Value
+                $valueText = "{0:F2}" -f $advancedWindow.CP_SpeechRate.Value
+                Update-SliderValueLabel -Slider $advancedWindow.CP_SpeechRate -ValueLabel $advancedWindow.CP_SpeechRateValue -ValueText $valueText
             }
             $advancedWindow.CP_Volume.add_ValueChanged{
-                $advancedWindow.CP_VolumeValue.Content = "{0:F0}%" -f $advancedWindow.CP_Volume.Value
+                $valueText = "{0:F0}" -f $advancedWindow.CP_Volume.Value
+                Update-SliderValueLabel -Slider $advancedWindow.CP_Volume -ValueLabel $advancedWindow.CP_VolumeValue -ValueText $valueText
             }
         } elseif ($Provider -eq "VoiceForge") {
             $advancedWindow.VF_SpeechRate.add_ValueChanged{
-                $advancedWindow.VF_SpeechRateValue.Content = "{0:F2}" -f $advancedWindow.VF_SpeechRate.Value
+                $valueText = "{0:F2}" -f $advancedWindow.VF_SpeechRate.Value
+                Update-SliderValueLabel -Slider $advancedWindow.VF_SpeechRate -ValueLabel $advancedWindow.VF_SpeechRateValue -ValueText $valueText
             }
             $advancedWindow.VF_Pitch.add_ValueChanged{
                 $value = [int]$advancedWindow.VF_Pitch.Value
-                $advancedWindow.VF_PitchValue.Content = if ($value -gt 0) { "+$value" } else { "$value" }
+                $valueText = if ($value -gt 0) { "+{0}" -f $value } else { "{0}" -f $value }
+                Update-SliderValueLabel -Slider $advancedWindow.VF_Pitch -ValueLabel $advancedWindow.VF_PitchValue -ValueText $valueText
             }
         }
         
@@ -2499,11 +2707,11 @@ function Load-AdvancedSettings {
                 $Window.AZ_Volume.Value = $global:azureAdvancedConfig.Volume ?? 50
                 $Window.AZ_EnableSSML.IsChecked = $global:azureAdvancedConfig.EnableSSML ?? $false
             }
-            # Update value labels
+            # Update value labels with units
             $Window.AZ_SpeechRateValue.Content = "{0:F2}" -f $Window.AZ_SpeechRate.Value
             $value = [int]$Window.AZ_Pitch.Value
-            $Window.AZ_PitchValue.Content = if ($value -gt 0) { "+$value" } else { "$value" }
-            $Window.AZ_VolumeValue.Content = "{0:F0}%" -f $Window.AZ_Volume.Value
+            $Window.AZ_PitchValue.Content = if ($value -gt 0) { "+{0}" -f $value } else { "{0}" -f $value }
+            $Window.AZ_VolumeValue.Content = "{0:F0}" -f $Window.AZ_Volume.Value
         }
         "Amazon Polly" {
             if ($global:awsAdvancedConfig) {
@@ -2517,19 +2725,25 @@ function Load-AdvancedSettings {
                 $Window.GC_Pitch.Value = $global:gcAdvancedConfig.Pitch ?? 0
                 $Window.GC_VolumeGain.Value = $global:gcAdvancedConfig.VolumeGain ?? 0
             }
+            # Update value labels with units
+            $Window.GC_SpeakingRateValue.Content = "{0:F2}" -f $Window.GC_SpeakingRate.Value
+            $value = [int]$Window.GC_Pitch.Value
+            $Window.GC_PitchValue.Content = if ($value -gt 0) { "+{0}st" -f $value } else { "{0}st" -f $value }
+            $gainValue = [int]$Window.GC_VolumeGain.Value
+            $Window.GC_VolumeGainValue.Content = if ($gainValue -gt 0) { "+{0}dB" -f $gainValue } else { "{0}dB" -f $gainValue }
         }
         "CloudPronouncer" {
             if ($global:cpAdvancedConfig) {
                 $Window.CP_SpeechRate.Value = $global:cpAdvancedConfig.SpeechRate ?? 1.0
                 $Window.CP_Volume.Value = $global:cpAdvancedConfig.Volume ?? 50
-                if ($global:cpAdvancedConfig.AudioFormatIndex) { $Window.CP_AudioFormat.SelectedIndex = $global:cpAdvancedConfig.AudioFormatIndex }
+
                 if ($global:cpAdvancedConfig.SampleRateIndex) { $Window.CP_SampleRate.SelectedIndex = $global:cpAdvancedConfig.SampleRateIndex }
                 $Window.CP_EnableSSML.IsChecked = $global:cpAdvancedConfig.EnableSSML ?? $false
                 $Window.CP_HighQuality.IsChecked = $global:cpAdvancedConfig.HighQuality ?? $false
             }
-            # Update value labels
+            # Update value labels with units
             $Window.CP_SpeechRateValue.Content = "{0:F2}" -f $Window.CP_SpeechRate.Value
-            $Window.CP_VolumeValue.Content = "{0:F0}%" -f $Window.CP_Volume.Value
+            $Window.CP_VolumeValue.Content = "{0:F0}" -f $Window.CP_Volume.Value
         }
         "Twilio" {
             if ($global:twAdvancedConfig) {
@@ -2550,10 +2764,10 @@ function Load-AdvancedSettings {
                 $Window.VF_EnableSSML.IsChecked = $global:vfAdvancedConfig.EnableSSML ?? $false
                 $Window.VF_HighQuality.IsChecked = $global:vfAdvancedConfig.HighQuality ?? $false
             }
-            # Update value labels
+            # Update value labels with units
             $Window.VF_SpeechRateValue.Content = "{0:F2}" -f $Window.VF_SpeechRate.Value
             $value = [int]$Window.VF_Pitch.Value
-            $Window.VF_PitchValue.Content = if ($value -gt 0) { "+$value" } else { "$value" }
+            $Window.VF_PitchValue.Content = if ($value -gt 0) { "+{0}" -f $value } else { "{0}" -f $value }
         }
     }
 }
@@ -2602,8 +2816,7 @@ function Save-AdvancedSettings {
             $global:cpAdvancedConfig = @{
                 SpeechRate = $Window.CP_SpeechRate.Value
                 Volume = $Window.CP_Volume.Value
-                AudioFormat = $Window.CP_AudioFormat.SelectedItem.Content
-                AudioFormatIndex = $Window.CP_AudioFormat.SelectedIndex
+
                 SampleRate = $Window.CP_SampleRate.SelectedItem.Content
                 SampleRateIndex = $Window.CP_SampleRate.SelectedIndex
                 EnableSSML = $Window.CP_EnableSSML.IsChecked
@@ -2655,7 +2868,7 @@ function Reset-AdvancedSettings {
             # Update value labels
             $Window.AZ_SpeechRateValue.Content = "1.00"
             $Window.AZ_PitchValue.Content = "0"
-            $Window.AZ_VolumeValue.Content = "50%"
+            $Window.AZ_VolumeValue.Content = "50"
         }
         "Amazon Polly" {
             $Window.AWS_Engine.SelectedIndex = 0
@@ -2672,17 +2885,21 @@ function Reset-AdvancedSettings {
             $Window.GC_AudioEncoding.SelectedIndex = 0
             $Window.GC_EnableTimePointing.IsChecked = $false
             $Window.GC_CustomVoice.IsChecked = $false
+            # Update value labels
+            $Window.GC_SpeakingRateValue.Content = "1.00"
+            $Window.GC_PitchValue.Content = "0st"
+            $Window.GC_VolumeGainValue.Content = "0dB"
         }
         "CloudPronouncer" {
             $Window.CP_SpeechRate.Value = 1.0
             $Window.CP_Volume.Value = 50
-            $Window.CP_AudioFormat.SelectedIndex = 0
+
             $Window.CP_SampleRate.SelectedIndex = 2
             $Window.CP_EnableSSML.IsChecked = $false
             $Window.CP_HighQuality.IsChecked = $false
             # Update value labels
             $Window.CP_SpeechRateValue.Content = "1.00"
-            $Window.CP_VolumeValue.Content = "50%"
+            $Window.CP_VolumeValue.Content = "50"
         }
         "Twilio" {
             $Window.TW_Language.SelectedIndex = 0
@@ -2888,7 +3105,7 @@ function Update-VoiceOptions {
     # Clear current options
     $global:window.VoiceSelect.Items.Clear()
     $global:window.LanguageSelect.Items.Clear()
-    $global:window.AudioFormatSelect.Items.Clear()
+
     $global:window.QualitySelect.Items.Clear()
     if ($global:window.MS_Datacenter) { $global:window.MS_Datacenter.Items.Clear() }
     
@@ -2914,12 +3131,12 @@ function Update-VoiceOptions {
             }
             
             # Formats
-            $formats = @("MP3 16kHz", "MP3 24kHz", "WAV 16kHz", "WAV 24kHz")
+            $formats = @("MP3 16k", "MP3 24k", "WAV 16k", "WAV 24k")
             foreach ($format in $formats) {
                 $item = New-Object System.Windows.Controls.ComboBoxItem
                 $item.Content = $format
-                if ($format -eq "MP3 16kHz") { $item.IsSelected = $true }
-                $global:window.AudioFormatSelect.Items.Add($item)
+                if ($format -eq "MP3 16k") { $item.IsSelected = $true }
+
             }
             
             # Quality
@@ -2977,7 +3194,7 @@ function Update-VoiceOptions {
                 $item = New-Object System.Windows.Controls.ComboBoxItem
                 $item.Content = $format
                 if ($format -eq "MP3") { $item.IsSelected = $true }
-                $global:window.AudioFormatSelect.Items.Add($item)
+
             }
             
             # Quality
@@ -3033,7 +3250,7 @@ function Update-VoiceOptions {
                 $item = New-Object System.Windows.Controls.ComboBoxItem
                 $item.Content = $format
                 if ($format -eq "MP3") { $item.IsSelected = $true }
-                $global:window.AudioFormatSelect.Items.Add($item)
+
             }
             
             # Quality
@@ -3069,7 +3286,7 @@ function Update-VoiceOptions {
                 $item = New-Object System.Windows.Controls.ComboBoxItem
                 $item.Content = $format
                 if ($format -eq "MP3") { $item.IsSelected = $true }
-                $global:window.AudioFormatSelect.Items.Add($item)
+
             }
             
             $qualities = @("Standard", "Premium")
@@ -3183,7 +3400,7 @@ function Validate-APICredentials {
     
     switch ($Provider) {
         "Microsoft Azure" {
-            if ([string]::IsNullOrWhiteSpace($Window.API_MS_APIKey.Text)) {
+            if ([string]::IsNullOrWhiteSpace($Window.API_MS_KEY.Text)) {
                 $result.Message = "API Key is required"
                 return $result
             }
@@ -3611,6 +3828,77 @@ try {
         $selectedProvider = $window.ProviderSelect.SelectedItem.Content
         Write-ApplicationLog -Message "Opening advanced voice options for: $selectedProvider" -Level "INFO"
         Show-AdvancedVoiceOptions -Provider $selectedProvider
+    }
+    
+    # Preview Voice Handler
+    $window.PreviewVoice.add_Click{
+        $selectedProvider = $window.ProviderSelect.SelectedItem.Content
+        $selectedVoice = $window.VoiceSelect.SelectedItem.Content
+        $selectedLanguage = $window.LanguageSelect.SelectedItem.Content
+
+        $selectedQuality = $window.QualitySelect.SelectedItem.Content
+        
+        Write-ApplicationLog -Message "Previewing voice: $selectedVoice ($selectedProvider)" -Level "INFO"
+        
+        # Generate preview with current settings
+        $previewText = "Welcome to the Text to Speech Generator"
+        $outputPath = Join-Path $env:TEMP "tts_preview.mp3"
+        
+        try {
+            # Get advanced settings for the current provider
+            $advancedOptions = @{}
+            switch ($selectedProvider) {
+                "Microsoft Azure" {
+                    if ($global:azureAdvancedConfig) { $advancedOptions = $global:azureAdvancedConfig }
+                }
+                "Google Cloud" {
+                    if ($global:gcAdvancedConfig) { $advancedOptions = $global:gcAdvancedConfig }
+                }
+                "CloudPronouncer" {
+                    if ($global:cpAdvancedConfig) { $advancedOptions = $global:cpAdvancedConfig }
+                }
+                "VoiceForge" {
+                    if ($global:vfAdvancedConfig) { $advancedOptions = $global:vfAdvancedConfig }
+                }
+            }
+            
+            # Call the appropriate TTS function
+            $result = switch ($selectedProvider) {
+                "Microsoft Azure" {
+                    Invoke-AzureTTS -Text $previewText -Voice $selectedVoice -Language $selectedLanguage -Format $selectedFormat -OutputPath $outputPath -AdvancedOptions $advancedOptions
+                }
+                "Amazon Polly" {
+                    Invoke-PollyTTS -Text $previewText -Voice $selectedVoice -Language $selectedLanguage -Format $selectedFormat -OutputPath $outputPath -AdvancedOptions $advancedOptions
+                }
+                "Google Cloud" {
+                    Invoke-GoogleCloudTTS -Text $previewText -Voice $selectedVoice -Language $selectedLanguage -Format $selectedFormat -OutputPath $outputPath -AdvancedOptions $advancedOptions
+                }
+                "CloudPronouncer" {
+                    Invoke-CloudPronouncerTTS -Text $previewText -Voice $selectedVoice -Language $selectedLanguage -Format $selectedFormat -OutputPath $outputPath -AdvancedOptions $advancedOptions
+                }
+                "Twilio" {
+                    Invoke-TwilioTTS -Text $previewText -Voice $selectedVoice -Language $selectedLanguage -Format $selectedFormat -OutputPath $outputPath -AdvancedOptions $advancedOptions
+                }
+                "VoiceForge" {
+                    Invoke-VoiceForgeTTS -Text $previewText -Voice $selectedVoice -Language $selectedLanguage -Format $selectedFormat -OutputPath $outputPath -AdvancedOptions $advancedOptions
+                }
+            }
+            
+            if ($result.Success) {
+                Write-ApplicationLog -Message "Preview generated successfully" -Level "INFO"
+                # Play the preview audio
+                if (Test-Path $outputPath) {
+                    Start-Process -FilePath $outputPath -Verb Open
+                    Write-ApplicationLog -Message "Playing preview audio" -Level "INFO"
+                }
+            } else {
+                Write-ApplicationLog -Message "Preview failed: $($result.Error)" -Level "ERROR"
+                [System.Windows.MessageBox]::Show("Preview failed: $($result.Error)", "Preview Error", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Error)
+            }
+        } catch {
+            Write-ApplicationLog -Message "Preview error: $($_.Exception.Message)" -Level "ERROR"
+            [System.Windows.MessageBox]::Show("Preview error: $($_.Exception.Message)", "Preview Error", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Error)
+        }
     }
     
     # Mode Selection Handlers
