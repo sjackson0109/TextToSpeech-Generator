@@ -22,7 +22,7 @@ function Get-CloudPronouncerAvailableVoices {
 		return @('Cloudy', 'Stormy', 'Sunny')
 	}
 }
-Import-Module (Resolve-Path (Join-Path $PSScriptRoot '..\Logging\EnhancedLogging.psm1')).Path -Force
+Import-Module (Resolve-Path (Join-Path $PSScriptRoot '..\..\Logging\EnhancedLogging.psm1')).Path -Force
 class CloudPronouncerTTSProvider {
 	[hashtable]$Configuration
 

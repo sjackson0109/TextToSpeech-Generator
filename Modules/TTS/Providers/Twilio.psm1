@@ -1,4 +1,4 @@
-Import-Module (Resolve-Path (Join-Path $PSScriptRoot '..\Logging\EnhancedLogging.psm1')).Path -Force
+Import-Module (Resolve-Path (Join-Path $PSScriptRoot '..\..\Logging\EnhancedLogging.psm1')).Path -Force
 
 function New-TwilioTTSProvider {
     param([hashtable]$config = $null)

@@ -13,12 +13,12 @@ $script:ProviderModules = @()
 
 # Pre-defined provider module names (in load order)
 $script:KnownProviders = @(
-    "AzureProvider.psm1",
-    "GoogleCloudProvider.psm1",
-    "AWSPollyProvider.psm1",
-    "CloudPronouncerProvider.psm1",
-    "TwilioProvider.psm1",
-    "VoiceForgeProvider.psm1"
+    "AWSPolly.psm1",
+    "Azure.psm1",
+    "GoogleCloud.psm1",
+    "Twilio.psm1",
+    "VoiceForge.psm1",
+    "VoiceWare.psm1"
 )
 
 function Import-TTSProviderModule {
@@ -81,24 +81,25 @@ function Initialize-TTSProviders {
         $providerPath = Join-Path $ProvidersPath $providerFile
         
         if (Test-Path $providerPath) {
-            $providerName = $providerFile -replace "Provider\.psm1$", ""
+            # Extract provider name from filename
+            $providerName = $providerFile -replace "\.psm1$", "" -replace "^DECOM-", ""
             $providerName = switch ($providerName) {
+                "AWSPolly" { "AWS Polly" }
                 "Azure" { "Microsoft Azure" }
                 "GoogleCloud" { "Google Cloud" }
-                "AWSPolly" { "AWS Polly" }
-                "CloudPronouncer" { "CloudPronouncer" }
                 "Twilio" { "Twilio" }
                 "VoiceForge" { "VoiceForge" }
+                "VoiceWare" { "VoiceWare" }
                 default { $providerName }
             }
             
             if (Import-TTSProviderModule -ModulePath $providerPath -ProviderName $providerName) {
                 $loadedCount++
-                Write-Host "  ✓ Loaded provider: $providerName" -ForegroundColor Green
+                Write-Host "  OK Loaded provider: $providerName" -ForegroundColor Green
             }
             else {
                 $failedCount++
-                Write-Host "  ✗ Failed to load: $providerName" -ForegroundColor Red
+                Write-Host "  FAILED to load: $providerName" -ForegroundColor Red
             }
         }
         else {
@@ -107,15 +108,15 @@ function Initialize-TTSProviders {
     }
     
     # Discover any additional provider modules not in the known list
-    $additionalProviders = Get-ChildItem -Path $ProvidersPath -Filter "*Provider.psm1" -ErrorAction SilentlyContinue |
-        Where-Object { $_.Name -notin $script:KnownProviders }
+    $additionalProviders = Get-ChildItem -Path $ProvidersPath -Filter "*.psm1" -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -notin $script:KnownProviders -and $_.Name -notmatch "^DECOM-" }
     
     foreach ($providerFile in $additionalProviders) {
-        $providerName = $providerFile.BaseName -replace "Provider$", ""
+        $providerName = $providerFile.BaseName
         
         if (Import-TTSProviderModule -ModulePath $providerFile.FullName -ProviderName $providerName) {
             $loadedCount++
-            Write-Host "  ✓ Loaded additional provider: $providerName" -ForegroundColor Cyan
+            Write-Host "  OK Loaded additional provider: $providerName" -ForegroundColor Cyan
         }
         else {
             $failedCount++
@@ -124,12 +125,12 @@ function Initialize-TTSProviders {
     
     Write-ApplicationLog -Message "TTS Providers initialized: $loadedCount loaded, $failedCount failed" -Level "INFO"
     
-        return @{
-            LoadedCount = $loadedCount
-            FailedCount = $failedCount
-            Providers = $script:LoadedProviders.Keys
-        }
+    return @{
+        LoadedCount = $loadedCount
+        FailedCount = $failedCount
+        Providers = $script:LoadedProviders.Keys
     }
+}
 
 function Test-TTSProviderCapabilities {
     <#
@@ -173,7 +174,7 @@ function Test-TTSProviderCapabilities {
     }
     
     # Add any providers that failed to load
-    $allProviderNames = @("Microsoft Azure", "Google Cloud", "AWS Polly", "CloudPronouncer", "Twilio", "VoiceForge")
+    $allProviderNames = @("AWS Polly", "Microsoft Azure", "Google Cloud", "Twilio", "VoiceForge", "VoiceWare")
     foreach ($providerName in $allProviderNames) {
         if (-not $results.ContainsKey($providerName)) {
             $results[$providerName] = @{
@@ -257,13 +258,12 @@ if ($initResult.LoadedCount -eq 0) {
     Write-Host "`nTo add TTS providers, create provider modules in:" -ForegroundColor Yellow
     Write-Host "  $ProvidersPath" -ForegroundColor Gray
     Write-Host "`nExample provider files:" -ForegroundColor Yellow
-    Write-Host "  - AzureProvider.psm1" -ForegroundColor Gray
-    Write-Host "  - GoogleCloudProvider.psm1" -ForegroundColor Gray
-    Write-Host "  - AWSPollyProvider.psm1" -ForegroundColor Gray
+    Write-Host "  - Azure.psm1" -ForegroundColor Gray
+    Write-Host "  - GoogleCloud.psm1" -ForegroundColor Gray
+    Write-Host "  - AWSPolly.psm1" -ForegroundColor Gray
 }
 else {
-    Write-Host "`n✓ Successfully loaded $($initResult.LoadedCount) TTS provider(s)" -ForegroundColor Green
-}
+    Write-Host "`nSuccessfully loaded $($initResult.LoadedCount) TTS provider(s)" -ForegroundColor Green
 }
 
 # Export functions
@@ -275,5 +275,3 @@ Export-ModuleMember -Function @(
     'Get-ProviderStatus',
     'Import-TTSProviderModule'
 )
-
-Write-ApplicationLog -Message "AllProviders module loaded successfully" -Level "INFO"
