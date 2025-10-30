@@ -27,7 +27,7 @@ All 6 providers now support:
 
 | Provider | Status | Specialization | Setup Guide |
 |----------|--------|----------------|-------------|
-| **Microsoft Azure** | ✅ **PRODUCTION** | Neural voices, enterprise integration | [AZURE-SETUP.md](AZURE-SETUP.md) |
+| **Azure Cognitive Services** | ✅ **PRODUCTION** | Neural voices, enterprise integration | [AZURE-SETUP.md](AZURE-SETUP.md) |
 | **Google Cloud** | ✅ **PRODUCTION** | WaveNet voices, advanced features | [GOOGLE-SETUP.md](GOOGLE-SETUP.md) |
 | **Amazon Polly** | ✅ **PRODUCTION** | Neural voices, AWS ecosystem | [AWS-SETUP.md](AWS-SETUP.md) |
 | **CloudPronouncer** | ✅ **PRODUCTION** | Pronunciation accuracy, complex terms | [CLOUDPRONOUNCER-SETUP.md](CLOUDPRONOUNCER-SETUP.md) |

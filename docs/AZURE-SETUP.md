@@ -1,4 +1,4 @@
-# Microsoft Azure Cognitive Services TTS Setup Guide
+# Azure Cognitive Services TTS Setup Guide
 
 **Updated: October 2025** | **Status: ✅ PRODUCTION READY**
 
@@ -10,7 +10,7 @@ Complete setup and configuration guide for Azure Cognitive Services Text-to-Spee
 
 ## 🔵 Overview
 
-Microsoft Azure Cognitive Services Text-to-Speech delivers industry-leading neural voices with natural prosody and clear articulation. As of October 2025, Azure offers **490+ voices across 140+ languages** with advanced neural capabilities, making it the most comprehensive TTS solution available.
+Azure Cognitive Services Text-to-Speech delivers industry-leading neural voices with natural prosody and clear articulation. As of October 2025, Azure offers **490+ voices across 140+ languages** with advanced neural capabilities, making it the most comprehensive TTS solution available.
 
 **✅ Full Implementation Status**: This provider is **completely implemented** in TextToSpeech Generator v2.0 with real API calls, SSML support, and enterprise-grade error handling.
 
@@ -339,5 +339,34 @@ Invoke-RestMethod -Uri $uri -Headers $headers
 - **Documentation**: See `docs/TROUBLESHOOTING.md` for common problems
 
 ---
+
+
+## API Configuration: Two Secure Methods
+
+All providers in TextToSpeech Generator support two secure ways to supply credentials and configuration:
+
+**1. Configuration File/GUI (Default):**
+  - Enter your Speech Key and Region in the GUI or JSON config file.
+
+**2. Environment Variables (Recommended for Testing/Security):**
+
+## Required Environment Variables
+
+| Variable              | Description                       |
+|-----------------------|-----------------------------------|
+| `AZURE_SPEECH_KEY`    | Your Azure API key                |
+| `AZURE_SPEECH_REGION` | The Azure region (e.g. uksouth)   |
+| `AZURE_SPEECH_VOICE`  | The Azure voice name (e.g. en-GB-RyanNeural) |
+
+**Example (PowerShell):**
+```powershell
+$env:AZURE_SPEECH_KEY    = 'your-speech-key'
+$env:AZURE_SPEECH_REGION = 'uksouth'
+$env:AZURE_SPEECH_VOICE  = 'en-GB-RyanNeural'
+```
+
+> **Important:**
+> - Your API key and region must match your Azure subscription.
+> - You must select a valid Azure voice or TTS generation will fail.
 
 **Next Steps**: After setting up Azure, refer to the main [README.md](../README.md) for application usage instructions or [CSV-FORMAT.md](CSV-FORMAT.md) for bulk processing guidance.

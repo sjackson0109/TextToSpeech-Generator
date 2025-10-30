@@ -53,11 +53,12 @@ Both original and derivative works are licensed under the **MIT License**, allow
 
 ## Requirements
 
-- **Operating System**: Windows 10/11 or Windows Server 2016+
-- **PowerShell**: Version 5.1 or higher
-- **.NET Framework**: 4.7.2 or higher
-- **API Access**: Valid API keys for chosen TTS provider(s)
-- **Subscription/Billing**: The ability to pay for your consumption of the TTS providers API. Ensure you read the chosen providers documentation. 
+**Operating System**: Windows 10/11 or Windows Server 2016+
+**PowerShell**: Version 5.1 or higher
+**.NET Framework**: 4.7.2 or higher (required for GUI/XAML support; PowerShell 5.1 uses .NET Framework by default)
+   - For full GUI functionality and XAML window rendering, you must run on Windows with .NET Framework 4.7.2 or newer. WPF/XAML features are not available on PowerShell Core or non-Windows environments.
+**API Access**: Valid API keys for chosen TTS provider(s)
+**Subscription/Billing**: The ability to pay for your consumption of the TTS providers API. Ensure you read the chosen providers documentation. 
 
 Note: Simon Jackson and Luca Vitali will not be held responsible for you not understanding that there are sometimes costs involved with using external APIs.
 
@@ -86,14 +87,14 @@ Note: Simon Jackson and Luca Vitali will not be held responsible for you not und
 
 3. **Run Application**:
    ```powershell
-   .\StartModularTTS.ps1
+   .\StartTTS.ps1
    ```
    
    **Advanced Options:**
    ```powershell
-   .\StartModularTTS.ps1 -TestMode                    # System validation only
-   .\StartModularTTS.ps1 -RunTests -GenerateReport   # Run tests with reporting
-   .\StartModularTTS.ps1 -ConfigProfile "Production" # Use production settings
+   .\StartTTS.ps1 -TestMode                    # System validation only
+   .\StartTTS.ps1 -RunTests -GenerateReport   # Run tests with reporting
+   .\StartTTS.ps1 -ConfigProfile "Production" # Use production settings
    ```
 
 ### **Upgrading from v3.1 or Earlier**
@@ -112,15 +113,61 @@ If you have an existing installation with `TextToSpeech-Generator.xml` configura
 
 3. **Verify Migration**:
    ```powershell
-   .\StartModularTTS.ps1 -TestMode
+   .\StartTTS.ps1 -TestMode
    ```
 
 4. **Update Your Workflow**:
-   - Use `.\StartModularTTS.ps1` instead of `.\TextToSpeech-Generator.ps1`
+   - Use `.\StartTTS.ps1` instead of `.\TextToSpeech-Generator.ps1`
    - Configure providers using the new JSON-based system
    - Take advantage of multi-environment profiles (Development/Production/Testing)
 
+
 ## API Configuration
+
+All providers support two secure methods for supplying credentials and configuration:
+
+1. **Configuration File (Default.json/config.json):**
+   - Enter credentials in the GUI or JSON config file (not recommended for sensitive production keys).
+2. **Environment Variables (Recommended for Testing/Security):**
+   - Set environment variables in your PowerShell session before launching the app. No credentials are ever written to disk.
+
+### Supported Environment Variables
+
+| Provider         | Required Environment Variables                          |
+|------------------|--------------------------------------------------------|
+| **Azure**        | `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION`              |
+| **AWS Polly**    | `AWS_POLLY_ACCESS_KEY`, `AWS_POLLY_SECRET_KEY`, `AWS_POLLY_REGION` |
+| **Google Cloud** | `GOOGLE_CLOUD_API_KEY`                                 |
+| **Twilio**       | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`              |
+| **VoiceForge**   | `VOICEFORGE_API_KEY`                                   |
+| **VoiceWare**    | `VOICEWARE_API_KEY`, `VOICEWARE_REGION`, `VOICEWARE_VOICE` |
+
+**Example (PowerShell):**
+```powershell
+$env:AZURE_SPEECH_KEY = 'your-azure-key'
+$env:AZURE_SPEECH_REGION = 'your-azure-region'
+$env:AWS_POLLY_ACCESS_KEY = 'your-aws-access-key'
+$env:AWS_POLLY_SECRET_KEY = 'your-aws-secret-key'
+$env:AWS_POLLY_REGION = 'your-aws-region'
+$env:GOOGLE_CLOUD_API_KEY = 'your-google-api-key'
+$env:TWILIO_ACCOUNT_SID = 'your-twilio-sid'
+$env:TWILIO_AUTH_TOKEN = 'your-twilio-token'
+$env:VOICEFORGE_API_KEY = 'your-voiceforge-key'
+$env:VOICEWARE_API_KEY = 'your-voiceware-key'
+$env:VOICEWARE_REGION = 'your-voiceware-region'
+$env:VOICEWARE_VOICE = 'your-voiceware-voice'
+```
+> **Compatibility Note:** All code in this project is designed to work with both PowerShell v5 and v7. If you encounter any compatibility issues, please report them via GitHub Issues.
+
+Set these variables in your session before running `.\StartTTS.ps1`. The app will automatically use them if config fields are missing or empty.
+
+> **Important:**
+> - For **Azure**, your API key and region must match, and you must select a valid Azure voice or TTS generation will fail.
+> - For **AWS Polly**, your access/secret keys and region must match, and you must select a valid Polly voice or TTS generation will fail.
+> - For **Google Cloud**, your API key, region, and voice must be valid and match your project setup.
+> - For **Twilio**, you must provide a valid account SID, auth token, and select a supported Twilio voice.
+> - For **VoiceForge**, you must provide a valid API key and select a supported VoiceForge voice.
+> - For **VoiceWare**, your API key must match the selected region, and you must select a valid VoiceWare voice or TTS generation will fail.
 
 | Provider | Details |
 |----------|---------|
@@ -130,6 +177,11 @@ If you have an existing installation with `TextToSpeech-Generator.xml` configura
 | **CloudPronouncer** | **Status**: Full production implementation with real API calls<br>**Quality**: Specialised pronunciation accuracy for names and complex terms<br>**Features**: High-quality synthesis, SSML support, multiple audio formats<br>**Languages**: Multi-language support with pronunciation optimisation<br>**[Complete Setup Guide →](docs/CLOUDPRONOUNCER-SETUP.md)** |
 | **Twilio** | **Status**: Full production implementation with real API calls<br>**Quality**: TTS integration within telephony and IVR workflows<br>**Features**: TwiML generation, call API integration, multi-language support<br>**Languages**: 11+ languages with voice selection across providers<br>**[Complete Setup Guide →](docs/TWILIO-SETUP.md)** |
 | **VoiceForge** | **Status**: Full production implementation with real API calls<br>**Quality**: Character-style and novelty voices for creative applications<br>**Features**: High-quality synthesis, SSML processing, multiple audio formats<br>**Languages**: Multi-language support with specialized voice characters<br>**[Complete Setup Guide →](docs/VOICEFORGE-SETUP.md)** |
+| **VoiceWare** | **Status**: Experimental integration<br>**Quality**: Neural and expressive voices<br>**Features**: SSML support, multiple audio formats, regional selection<br>**Languages**: Multi-language support<br>**[Complete Setup Guide →](docs/VOICEWARE-SETUP.md)** |
+> **Important:**
+> - Your VoiceWare API key must match the selected region, or authentication will fail.
+> - You must select a valid VoiceWare voice in your configuration/profile, or TTS generation will fail.
+| **VoiceWare** | **Status**: Experimental integration<br>**Quality**: Neural and expressive voices<br>**Features**: SSML support, multiple audio formats, regional selection<br>**Languages**: Multi-language support<br>**[Complete Setup Guide →](docs/VOICEWARE-SETUP.md)** |
 
 ## Usage Guide
 
@@ -183,7 +235,7 @@ The application offers secure API key storage using Windows Credential Manager:
 
 ```
 TextToSpeech-Generator/
-├─ StartModularTTS.ps1                      # Main application launcher (v3.2+)
+├─ StartTTS.ps1                      # Main application launcher (v3.2+)
 ├─ config.json                              # Modern JSON configuration
 ├─ MigrateLegacyConfig.ps1                  # XML to JSON migration utility
 ├─ TextToSpeech-Generator.ps1               # Legacy GUI component (transitional)
@@ -238,7 +290,7 @@ Configuration is stored in `config.json` with provider-specific settings organis
 **Authentication Errors**:
 - Verify API key is correct and active
 - Check datacenter region matches your subscription  
-- See provider-specific setup: [Azure Cognitive Services](docs/AZURE-SETUP.md) | [Google Cloud](docs/GOOGLE-SETUP.md) | [AWS Polly](docs/AWS-SETUP.md) | [CloudPronouncer](docs/CLOUDPRONOUNCER-SETUP.md) | [Twilio](docs/TWILIO-SETUP.md) | [VoiceForge](docs/VOICEFORGE-SETUP.md)
+- See provider-specific setup: [Azure Cognitive Services](docs/AZURE-SETUP.md) | [Google Cloud](docs/GOOGLE-SETUP.md) | [AWS Polly](docs/AWS-SETUP.md) | [CloudPronouncer](docs/CLOUDPRONOUNCER-SETUP.md) | [Twilio](docs/TWILIO-SETUP.md) | [VoiceForge](docs/VOICEFORGE-SETUP.md) | [VoiceWare](docs/VOICEWARE-SETUP.md)
 
 **File Processing Errors**:
 - Validate CSV format - see [CSV Format Guide](docs/CSV-FORMAT.md)

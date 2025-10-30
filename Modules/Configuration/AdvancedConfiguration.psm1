@@ -46,7 +46,7 @@ $script:ConfigurationTemplates = @{
     "AzureBasic" = @{
         Name = "Azure Basic Setup"
         Description = "Basic Azure configuration for personal use"
-        Provider = "Microsoft Azure"
+    Provider = "Azure Cognitive Services"
         Configuration = @{
             Region = "eastus"
             Voice = "en-US-JennyNeural"
@@ -152,7 +152,7 @@ function Test-ConfigurationValid {
     Write-ApplicationLog -Message "Validating configuration for $Provider" -Level "DEBUG"
     
     switch ($Provider) {
-        "Microsoft Azure" {
+    "Azure Cognitive Services" {
             # API Key validation
             if ([string]::IsNullOrWhiteSpace($Configuration.APIKey)) {
                 $validationResult.Errors += "Azure API Key is required"
@@ -243,7 +243,7 @@ function Test-APIConnectivity {
     
     try {
         switch ($Provider) {
-            "Microsoft Azure" {
+            "Azure Cognitive Services" {
                 if ($Configuration.Region) {
                     $testUrl = "https://$($Configuration.Region).tts.speech.microsoft.com/cognitiveservices/voices/list"
                     $headers = @{
@@ -329,7 +329,7 @@ function Get-ProviderConfiguration {
 
 function Get-AvailableProviders {
     return @(
-        "Microsoft Azure",
+    "Azure Cognitive Services",
         "Google Cloud", 
         "AWS Polly",
         "CloudPronouncer",

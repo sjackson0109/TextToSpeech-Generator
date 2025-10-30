@@ -67,15 +67,42 @@ Amazon Polly offers high-quality text-to-speech with advanced neural voices and 
 3. **Attach Policy**: 
    - Search for `AmazonPollyFullAccess`
    - Attach the policy to user
-4. **Download Credentials**: Save Access Key ID and Secret Access Key
+4. **Download Credentials**: 
+   - Navigate into the user, select `Security credentials` tab, and click `Create access key`
+   - Choose CLI/Console, tick accept and click finish.
+   - On the final page, save the `Access Key` and `Secret Access Key`.
 
 ### Step 3: Configure TextToSpeech Generator
 
-1. **Launch Application**: Run `TextToSpeech-Generator.ps1`
-2. **Select AWS**: Choose "Amazon Polly" from provider dropdown
-3. **Enter Credentials**:
-   - **Access Key**: Your AWS Access Key ID (starts with AKIA)
-   - **Secret Key**: Your AWS Secret Access Key (secure field)
+## API Configuration: Two Secure Methods
+
+All providers in TextToSpeech Generator support two secure ways to supply credentials and configuration:
+
+**1. Configuration File/GUI (Default):**
+   - Enter your Access Key, Secret Key, and Region in the GUI or JSON config file.
+
+**2. Environment Variables (Recommended for Testing/Security):**
+
+## Required Environment Variables
+
+| Variable                | Description                       |
+|-------------------------|-----------------------------------|
+| `AWS_POLLY_ACCESS_KEY`  | Your AWS access key               |
+| `AWS_POLLY_SECRET_KEY`  | Your AWS secret key               |
+| `AWS_POLLY_REGION`      | The AWS region (e.g. eu-west-2)   |
+| `AWS_POLLY_VOICE`       | The AWS Polly voice (e.g. Joanna) |
+
+**Example (PowerShell):**
+```powershell
+$env:AWS_POLLY_ACCESS_KEY = 'your-access-key'
+$env:AWS_POLLY_SECRET_KEY = 'your-secret-key'
+$env:AWS_POLLY_REGION     = 'eu-west-2'
+$env:AWS_POLLY_VOICE      = 'Joanna'
+```
+
+> **Important:**
+> - Your access/secret keys and region must match your AWS account.
+> - You must select a valid Polly voice or TTS generation will fail.
    - **Region**: Choose AWS region (us-east-1, us-west-2, eu-west-1)
 4. **Select Voice**: Choose from available voices
 

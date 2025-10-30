@@ -100,13 +100,13 @@ if (Test-Path $XmlConfigPath) {
         Write-Host "`n=== Next Steps ===" -ForegroundColor Cyan
         Write-Host "1. Review the new configuration: $OutputPath" -ForegroundColor White
         Write-Host "2. Update any API keys or settings as needed" -ForegroundColor White
-        Write-Host "3. Test with: .\StartModularTTS.ps1 -TestMode" -ForegroundColor White
+        Write-Host "3. Test with: .\StartTTS.ps1 -TestMode" -ForegroundColor White
         Write-Host "4. Consider removing the old XML file when satisfied" -ForegroundColor White
         
         Write-Host "`n=== Deprecation Notice ===" -ForegroundColor Yellow
         Write-Host "• TextToSpeech-Generator.xml is now LEGACY" -ForegroundColor Red
         Write-Host "• TextToSpeech-Generator.ps1 will be modularized in future versions" -ForegroundColor Yellow
-        Write-Host "• StartModularTTS.ps1 is the new recommended launcher" -ForegroundColor Green
+        Write-Host "• StartTTS.ps1 is the new recommended launcher" -ForegroundColor Green
     }
 } else {
     Write-Host "No legacy XML configuration found at: $XmlConfigPath" -ForegroundColor Gray

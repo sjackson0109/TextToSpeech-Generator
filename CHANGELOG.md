@@ -17,7 +17,7 @@
 - **Advanced Configuration Management**: 
   - **Multi-Environment Profiles**: Development, Production, and Testing configurations
   - **JSON-based Configuration**: Modern config.json replacing legacy XML format
-  - **All 6 TTS Providers**: Complete configuration templates for Microsoft Azure, AWS Polly, Google Cloud TTS, CloudPronouncer, Twilio, and VoiceForge
+  - **All 6 TTS Providers**: Complete configuration templates for Azure Cognitive Services, AWS Polly, Google Cloud TTS, CloudPronouncer, Twilio, and VoiceForge
   - **GUI Integration Functions**: `Get-ProviderConfiguration()` and `Update-ProviderConfiguration()` for seamless GUI integration
 
 - **Enterprise Security Framework**:
@@ -47,7 +47,7 @@
   - **Configuration Validation**: Ensures data integrity during migration process
 
 ### Changed 🔄
-- **Application Launcher**: New `StartModularTTS.ps1` replaces monolithic approach with modular initialization
+- **Application Launcher**: New `StartTTS.ps1` replaces monolithic approach with modular initialization
 - **Configuration Format**: Migrated from XML to JSON-based configuration with full provider support
 - **System Architecture**: Transformed from single-file application to enterprise-grade modular system
 - **PowerShell Compatibility**: Fixed PowerShell 5.1+ compatibility issues (null-coalescing operators)
@@ -132,7 +132,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Rate Limiting Protection**: Built-in delays to prevent API throttling
 
 ### **Provider Implementation Status**
-- **Microsoft Azure**: **PRODUCTION READY** - Full API implementation with SSML support
+- **Azure Cognitive Services**: **PRODUCTION READY** - Full API implementation with SSML support
 - **Google Cloud**: **PRODUCTION READY** - Full JSON API implementation with advanced options
 - **Amazon Polly**: **PRODUCTION READY** - Complete AWS Signature V4 authentication and TTS processing
 - **CloudPronouncer**: **PRODUCTION READY** - Full API implementation with advanced voice options

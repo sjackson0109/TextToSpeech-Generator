@@ -71,14 +71,18 @@ To configure your CloudPronouncer account:
 
 ### Step 3: Configure Application
 
-Enter your credentials in the configuration panel:
+You can supply credentials in two ways:
 
-- **Username**: Your CloudPronouncer account username
-- **Password**: Your CloudPronouncer account password
-- **Voice**: Select from available voice options:
-  - Emma (Female, US)
-  - Brian (Male, US)
-  - Amy (Female, UK)
+**A. Configuration File/GUI (Default):**
+  - Enter your Username and Password in the GUI or JSON config file.
+
+**B. Environment Variables (Recommended for Testing/Security):**
+  - Set these in your PowerShell session before launching:
+    ```powershell
+    $env:CLOUDPRONOUNCER_USERNAME = 'your-username'
+    $env:CLOUDPRONOUNCER_PASSWORD = 'your-password'
+    ```
+  - The app will use these if config fields are missing or empty. No credentials are written to disk.
   - Joanna (Female, AU)
 - **Format**: Choose audio format:
   - MP3 22kHz (Recommended)
@@ -154,12 +158,28 @@ CloudPronouncer implementation depends on:
 4. **Contribute**: Submit pull requests with implementation
 5. **Sponsor**: Consider sponsoring development
 
+
+## API Configuration: Two Secure Methods
+
+All providers in TextToSpeech Generator support two secure ways to supply credentials and configuration:
+
+**1. Configuration File/GUI (Default):**
+  - Enter your Username and Password in the GUI or JSON config file.
+
+**2. Environment Variables (Recommended for Testing/Security):**
+  - Set these in your PowerShell session before launching:
+    ```powershell
+    $env:CLOUDPRONOUNCER_USERNAME = 'your-username'
+    $env:CLOUDPRONOUNCER_PASSWORD = 'your-password'
+    ```
+  - The app will use these if config fields are missing or empty. No credentials are written to disk.
+
 ## 🔗 Alternative Solutions
 
 While waiting for CloudPronouncer implementation:
 
 ### Currently Available Providers
-- **Microsoft Azure**: ✅ Full implementation with 490+ voices
+- **Azure Cognitive Services**: ✅ Full implementation with 490+ voices
 - **Google Cloud**: ✅ Full implementation with WaveNet technology
 
 ### Setup Guides for Working Providers

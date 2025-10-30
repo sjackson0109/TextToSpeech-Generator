@@ -43,7 +43,7 @@ SOFTWARE.
 
 #### **Major Feature Additions:**
 - ✅ **Multi-Provider Support**: Extended from Azure-only to 6 TTS providers:
-  - Microsoft Azure Cognitive Services (enhanced from original)
+  - Azure Cognitive Services (enhanced from original)
   - Amazon Polly (new)
   - Google Cloud Text-to-Speech (new)
   - CloudPronouncer (new)

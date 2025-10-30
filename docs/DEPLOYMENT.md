@@ -31,7 +31,7 @@ cd TextToSpeech-Generator
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 # Run initial setup
-.\StartModularTTS.ps1 -TestMode
+.\StartTTS.ps1 -TestMode
 ```
 
 ### Method 2: Automated Deployment Script
@@ -51,7 +51,7 @@ Copy-Item -Path ".\*" -Destination `$InstallPath -Recurse -Force
 `$WshShell = New-Object -comObject WScript.Shell
 `$Shortcut = `$WshShell.CreateShortcut("`$env:PUBLIC\Desktop\TTS Generator.lnk")
 `$Shortcut.TargetPath = "powershell.exe"
-`$Shortcut.Arguments = "-ExecutionPolicy Bypass -File ```"`$InstallPath\StartModularTTS.ps1```""
+`$Shortcut.Arguments = "-ExecutionPolicy Bypass -File ```"`$InstallPath\StartTTS.ps1```""
 `$Shortcut.Save()
 "@
 
@@ -160,7 +160,7 @@ $bulkConfig = @{
 ### Application Monitoring
 ```powershell
 # Enable comprehensive monitoring
-.\StartModularTTS.ps1 -EnablePerformanceMonitoring -GenerateReport
+.\StartTTS.ps1 -EnablePerformanceMonitoring -GenerateReport
 ```
 
 ### Log Management
@@ -186,7 +186,7 @@ Monitor these key metrics:
 ### Diagnostic Commands
 ```powershell
 # System diagnostics
-.\StartModularTTS.ps1 -TestMode -RunTests
+.\StartTTS.ps1 -TestMode -RunTests
 
 # Configuration validation
 Test-ModuleConfiguration -ConfigPath "config.json"
@@ -219,7 +219,7 @@ Copy-Item -Path "application.log" -Destination "$backupPath\application.log.bak"
 $adGroup = "TTS-Operators"
 if ((Get-ADGroupMember -Identity $adGroup).SamAccountName -contains $env:USERNAME) {
     # Allow access
-    .\StartModularTTS.ps1
+    .\StartTTS.ps1
 } else {
     Write-Error "Access denied. Contact administrator."
 }
@@ -227,7 +227,7 @@ if ((Get-ADGroupMember -Identity $adGroup).SamAccountName -contains $env:USERNAM
 
 ### SCCM Deployment
 For System Center Configuration Manager deployment:
-1. Create application package with StartModularTTS.ps1
+1. Create application package with StartTTS.ps1
 2. Configure detection rules for installed version
 3. Set deployment requirements (OS version, PowerShell version)
 4. Configure user experience settings

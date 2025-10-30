@@ -2,45 +2,11 @@
   "ConfigVersion": "3.2",
   "MigratedFrom": "TextToSpeech-Generator.xml",
   "Profiles": {
-    "Development": {
-      "Processing": {
-        "OutputPath": "C:\\Users\\Administrator\\Desktop\\TESTING\\Output",
-        "InputFile": "C:\\Users\\Administrator\\Desktop\\TESTING\\test.csv",
-        "Timeout": 30,
-        "MaxParallelJobs": 2
-      },
+    "Default": {
       "Providers": {
-        "Azure Cognitive Services": {
-          "Datacenter": "eastus",
-          "AudioFormat": "audio-16khz-32kbitrate-mono-mp3",
-          "ApiKey": "ENCRYPTED:test-key-12345",
-          "AdvancedOptions": {
-            "SpeechRate": "medium",
-            "Pitch": "medium",
-            "Volume": "medium",
-            "Style": "neutral",
-            "Emphasis": "moderate"
-          },
-          "Enabled": true,
-          "DefaultVoice": "en-US-JennyNeural"
-        },
-        "AWS Polly": {
-          "Region": "us-west-2",
-          "AdvancedOptions": {
-            "Engine": "neural",
-            "SampleRate": "22050",
-            "OutputFormat": "mp3",
-            "TextType": "text",
-            "LexiconNames": []
-          },
-          "SecretKey": "ENCRYPTED:secret123",
-          "Enabled": true,
-          "AccessKey": "ENCRYPTED:AKIA...",
-          "DefaultVoice": "Matthew"
-        },
         "Google Cloud TTS": {
-          "Enabled": false,
-          "ApiKey": "",
+          "Enabled": true,
+          "ApiKey": "demo-key",
           "DefaultVoice": "en-US-Wavenet-D",
           "AdvancedOptions": {
             "SpeakingRate": 1.0,
@@ -50,35 +16,26 @@
             "SampleRateHertz": 22050
           }
         },
-        "CloudPronouncer": {
-          "Enabled": false,
-          "ApiKey": "",
-          "Username": "",
-          "DefaultVoice": "claire",
+        "AWS Polly": {
+          "Enabled": true,
+          "AccessKey": "demo-access",
+          "SecretKey": "demo-secret",
+          "Region": "us-east-1",
+          "DefaultVoice": "Joanna",
           "AdvancedOptions": {
-            "Speed": 150,
-            "Pitch": 100,
-            "Volume": 100,
-            "Format": "mp3",
-            "SampleRate": "22050"
-          }
-        },
-        "Twilio": {
-          "Enabled": false,
-          "AccountSid": "",
-          "AuthToken": "",
-          "DefaultVoice": "Polly.Joanna",
-          "AdvancedOptions": {
-            "Language": "en-US",
-            "StatusCallback": "",
-            "StatusCallbackMethod": "POST"
+            "Engine": "neural",
+            "SampleRate": "22050",
+            "OutputFormat": "mp3",
+            "TextType": "text",
+            "LexiconNames": []
           }
         },
         "VoiceForge": {
-          "Enabled": false,
-          "ApiKey": "",
-          "Username": "",
-          "DefaultVoice": "julie",
+          "Enabled": true,
+          "ApiKey": "demo-key",
+          "Username": "demo-user",
+          "DefaultVoice": "Frank",
+          "Quality": "Standard",
           "AdvancedOptions": {
             "Speed": 150,
             "Pitch": 100,
@@ -87,12 +44,26 @@
             "SampleRate": "22050",
             "Quality": "high"
           }
+        },
+        "Twilio": {
+          "Enabled": true,
+          "AccountSid": "demo-sid",
+          "AuthToken": "demo-token",
+          "DefaultVoice": "Polly.Joanna",
+          "AdvancedOptions": {
+            "Language": "en-US",
+            "StatusCallback": "",
+            "StatusCallbackMethod": "POST"
+          }
         }
       },
-      "Logging": {
-        "Level": "INFO",
-        "EnableDetailedLogging": true
-      }
+      "Processing": {
+        "BulkMode": false,
+        "InputText": "Enter your text here for single mode processing...",
+        "OutputDirectory": "C:\\temp\\output",
+        "OutputFormat": "MP3"
+      },
+      "SelectedProvider": "Amazon Polly"
     },
     "Production": {
       "Processing": {
@@ -102,12 +73,12 @@
         "MaxParallelJobs": 4
       },
       "Providers": {
-        "Microsoft Azure": {
-          "Enabled": true,
+        "Azure Cognitive Services": {
+          "Enabled": false,
           "ApiKey": "",
-          "Datacenter": "uksouth",
-          "AudioFormat": "audio-24khz-48kbitrate-mono-mp3",
-          "DefaultVoice": "Microsoft Server Speech Text to Speech Voice (en-US, SaraNeural)",
+          "Datacenter": "eastus",
+          "AudioFormat": "audio-16khz-32kbitrate-mono-mp3",
+          "DefaultVoice": "en-US-AriaNeural",
           "AdvancedOptions": {
             "SpeechRate": "medium",
             "Pitch": "medium",
@@ -140,19 +111,6 @@
             "VolumeGain": 0.0,
             "AudioEncoding": "MP3",
             "SampleRateHertz": 22050
-          }
-        },
-        "CloudPronouncer": {
-          "Enabled": false,
-          "ApiKey": "",
-          "Username": "",
-          "DefaultVoice": "claire",
-          "AdvancedOptions": {
-            "Speed": 150,
-            "Pitch": 100,
-            "Volume": 100,
-            "Format": "mp3",
-            "SampleRate": "22050"
           }
         },
         "Twilio": {
@@ -194,7 +152,7 @@
         "MaxParallelJobs": 1
       },
       "Providers": {
-        "Microsoft Azure": {
+        "Azure Cognitive Services": {
           "Enabled": true,
           "ApiKey": "",
           "Datacenter": "uksouth",
@@ -232,19 +190,6 @@
             "VolumeGain": 0.0,
             "AudioEncoding": "MP3",
             "SampleRateHertz": 22050
-          }
-        },
-        "CloudPronouncer": {
-          "Enabled": false,
-          "ApiKey": "",
-          "Username": "",
-          "DefaultVoice": "claire",
-          "AdvancedOptions": {
-            "Speed": 150,
-            "Pitch": 100,
-            "Volume": 100,
-            "Format": "mp3",
-            "SampleRate": "22050"
           }
         },
         "Twilio": {

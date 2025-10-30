@@ -63,7 +63,7 @@ class AdvancedErrorRecovery {
             param($context)
             Write-ApplicationLog -Message "Google Cloud quota exceeded - checking alternative providers" -Level "WARNING"
             # Switch to backup provider if available
-            $backupProviders = @("Microsoft Azure", "AWS Polly")
+            $backupProviders = @("Azure Cognitive Services", "AWS Polly")
             foreach ($provider in $backupProviders) {
                 if ($context.AvailableProviders -contains $provider) {
                     return @{ Success = $true; Action = "Switch to backup provider"; BackupProvider = $provider }

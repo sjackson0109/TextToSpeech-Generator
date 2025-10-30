@@ -159,7 +159,7 @@ Help prioritize Twilio implementation:
 For immediate TTS needs, consider these implemented providers:
 
 ### Production-Ready Options
-- **Microsoft Azure**: ✅ 490+ voices, enterprise features
+- **Azure Cognitive Services**: ✅ 490+ voices, enterprise features
 - **Google Cloud**: ✅ WaveNet technology, advanced options
 
 ### Telephony-Specific Needs
@@ -257,6 +257,34 @@ function Invoke-TwilioTTS {
 - You need advanced voice customization
 
 ---
+
+
+## API Configuration: Two Secure Methods
+
+All providers in TextToSpeech Generator support two secure ways to supply credentials and configuration:
+
+**1. Configuration File/GUI (Default):**
+    - Enter your Account SID and Auth Token in the GUI or JSON config file.
+
+**2. Environment Variables (Recommended for Testing/Security):**
+
+## Required Environment Variables
+
+| Variable              | Description                       |
+|-----------------------|-----------------------------------|
+| `TWILIO_ACCOUNT_SID`  | Your Twilio account SID           |
+| `TWILIO_AUTH_TOKEN`   | Your Twilio auth token            |
+| `TWILIO_VOICE`        | The Twilio voice (e.g. alice)     |
+
+**Example (PowerShell):**
+```powershell
+$env:TWILIO_ACCOUNT_SID = 'your-twilio-sid'
+$env:TWILIO_AUTH_TOKEN  = 'your-twilio-token'
+$env:TWILIO_VOICE       = 'alice'
+```
+
+> **Important:**
+> - You must provide a valid account SID, auth token, and select a supported Twilio voice.
 
 **Status**: Configuration interface ready, API implementation pending  
 **Immediate Alternative**: Use Azure or Google Cloud for production TTS needs  

@@ -480,4 +480,32 @@ $audioBytes = [System.Convert]::FromBase64String($response.audioContent)
 
 ---
 
+
+## API Configuration: Two Secure Methods
+
+All providers in TextToSpeech Generator support two secure ways to supply credentials and configuration:
+
+**1. Configuration File/GUI (Default):**
+  - Enter your API Key in the GUI or JSON config file.
+
+**2. Environment Variable (Recommended for Testing/Security):**
+
+## Required Environment Variables
+
+| Variable                | Description                       |
+|-------------------------|-----------------------------------|
+| `GOOGLE_CLOUD_API_KEY`  | Your Google Cloud API key         |
+| `GOOGLE_CLOUD_REGION`   | The Google Cloud region (e.g. us-central1) |
+| `GOOGLE_CLOUD_VOICE`    | The Google Cloud voice (e.g. en-US-Wavenet-D) |
+
+**Example (PowerShell):**
+```powershell
+$env:GOOGLE_CLOUD_API_KEY = 'your-google-api-key'
+$env:GOOGLE_CLOUD_REGION  = 'us-central1'
+$env:GOOGLE_CLOUD_VOICE   = 'en-US-Wavenet-D'
+```
+
+> **Important:**
+> - Your API key, region, and voice must be valid and match your project setup.
+
 **Next Steps**: After setting up Google Cloud TTS, return to the main [README.md](../README.md) for application usage instructions or check [CSV-FORMAT.md](CSV-FORMAT.md) for bulk processing guidance.

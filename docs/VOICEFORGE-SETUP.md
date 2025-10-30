@@ -73,12 +73,32 @@ While full implementation is pending, you can configure VoiceForge settings in t
 
 ### Step 3: Configure Application
 
-Enter your credentials in the TextToSpeech Generator:
+You can supply credentials in two ways:
 
-1. **Launch Application**: Run `TextToSpeech-Generator.ps1`
-2. **Select Provider**: Choose "VoiceForge" from the provider dropdown
-3. **Enter Settings**:
-   - **API Key**: Your VoiceForge API authentication key
+## API Configuration: Two Secure Methods
+
+All providers in TextToSpeech Generator support two secure ways to supply credentials and configuration:
+
+**1. Configuration File/GUI (Default):**
+    - Enter your API Key in the GUI or JSON config file.
+
+**B. Environment Variable (Recommended for Testing/Security):**
+
+## Required Environment Variables
+
+| Variable              | Description                       |
+|-----------------------|-----------------------------------|
+| `VOICEFORGE_API_KEY`  | Your VoiceForge API key           |
+| `VOICEFORGE_VOICE`    | The VoiceForge voice (e.g. Robot) |
+
+**Example (PowerShell):**
+```powershell
+$env:VOICEFORGE_API_KEY = 'your-voiceforge-key'
+$env:VOICEFORGE_VOICE   = 'Robot'
+```
+
+> **Important:**
+> - You must provide a valid API key and select a supported VoiceForge voice.
    - **Endpoint**: API endpoint URL (pre-filled: https://api.voiceforge.com/v1/)
 4. **Voice Selection**: Choose from available voices:
    - Jennifer (Female, Professional)
@@ -169,7 +189,7 @@ Help prioritize VoiceForge implementation:
 For immediate professional TTS needs:
 
 ### Production-Ready High-Quality Options
-- **Microsoft Azure**: ✅ Premium neural voices, enterprise features
+- **Azure Cognitive Services**: ✅ Premium neural voices, enterprise features
 - **Google Cloud**: ✅ WaveNet technology, professional quality
 
 ### Custom Voice Alternatives
