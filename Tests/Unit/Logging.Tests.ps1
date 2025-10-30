@@ -9,8 +9,8 @@ Describe "Logging Module Tests" {
         # Create test log path
         $script:TestLogPath = "$PSScriptRoot\test-logging.log"
         
-        # Initialize logging system
-        Initialize-LoggingSystem -LogPath $script:TestLogPath -Level "DEBUG"
+        # Initialise logging system
+        Initialise-LoggingSystem -LogPath $script:TestLogPath -Level "DEBUG"
     }
     
     AfterAll {
@@ -147,7 +147,7 @@ Describe "Logging Module Tests" {
                 Start-Job -ScriptBlock {
                     param($ModulePath, $LogPath, $ThreadId)
                     Import-Module $ModulePath -Force
-                    Initialize-LoggingSystem -LogPath $LogPath -Level "INFO"
+                    Initialise-LoggingSystem -LogPath $LogPath -Level "INFO"
                     
                     for ($i = 0; $i -lt 20; $i++) {
                         Write-ApplicationLog -Message "Thread $ThreadId message $i" -Level "INFO" -Category "Concurrency"

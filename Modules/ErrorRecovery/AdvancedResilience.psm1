@@ -45,7 +45,7 @@ class CircuitBreaker {
 # Global circuit breakers for each provider
 $script:CircuitBreakers = @{}
 
-function Initialize-CircuitBreaker {
+function Initialise-CircuitBreaker {
     <#
     .SYNOPSIS
     Initializes circuit breaker for a TTS provider
@@ -79,7 +79,7 @@ function Test-CircuitBreakerState {
     )
     
     if (-not $script:CircuitBreakers.ContainsKey($ProviderId)) {
-        Initialize-CircuitBreaker -ProviderId $ProviderId
+        Initialise-CircuitBreaker -ProviderId $ProviderId
     }
     
     $breaker = $script:CircuitBreakers[$ProviderId]
@@ -162,7 +162,7 @@ function Set-CircuitBreakerFailure {
     )
     
     if (-not $script:CircuitBreakers.ContainsKey($ProviderId)) {
-        Initialize-CircuitBreaker -ProviderId $ProviderId
+        Initialise-CircuitBreaker -ProviderId $ProviderId
     }
     
     $breaker = $script:CircuitBreakers[$ProviderId]
@@ -449,7 +449,7 @@ function Test-ProviderRateLimit {
 
 # Export functions and classes
 Export-ModuleMember -Function @(
-    'Initialize-CircuitBreaker',
+    'Initialise-CircuitBreaker',
     'Test-CircuitBreakerState',
     'Set-CircuitBreakerSuccess', 
     'Set-CircuitBreakerFailure',

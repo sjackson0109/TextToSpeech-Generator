@@ -7,8 +7,8 @@ Describe "Performance Tests" {
         Import-Module "$PSScriptRoot\..\..\Modules\Configuration\AdvancedConfiguration.psm1" -Force
         Import-Module "$PSScriptRoot\..\..\Modules\Logging\EnhancedLogging.psm1" -Force
         
-        # Initialize logging for tests
-        Initialize-LoggingSystem -LogPath "$PSScriptRoot\performance-test.log" -Level "INFO"
+        # Initialise logging for tests
+        Initialise-LoggingSystem -LogPath "$PSScriptRoot\performance-test.log" -Level "INFO"
         
         # Create test configuration
         $script:TestConfig = @{
@@ -66,7 +66,7 @@ Describe "Performance Tests" {
                 Start-Job -ScriptBlock {
                     param($ModulePath, $LogPath, $Iteration)
                     Import-Module $ModulePath -Force
-                    Initialize-LoggingSystem -LogPath $LogPath -Level "INFO"
+                    Initialise-LoggingSystem -LogPath $LogPath -Level "INFO"
                     
                     for ($i = 0; $i -lt 50; $i++) {
                         Write-ApplicationLog -Message "Concurrent log entry $Iteration-$i" -Level "INFO" -Category "Concurrency"

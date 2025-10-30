@@ -9,9 +9,9 @@ Describe "Integration Tests" {
         Import-Module "$PSScriptRoot\..\..\Modules\TTSProviders\TTSProviders.psm1" -Force
         Import-Module "$PSScriptRoot\..\..\Modules\Security\EnhancedSecurity.psm1" -Force
         
-        # Initialize systems for integration testing
-        Initialize-LoggingSystem -LogPath "$PSScriptRoot\integration-test.log" -Level "DEBUG"
-        Initialize-SecuritySystem
+        # Initialise systems for integration testing
+        Initialise-LoggingSystem -LogPath "$PSScriptRoot\integration-test.log" -Level "DEBUG"
+        Initialise-SecuritySystem
         
         $script:TestConfigPath = "$PSScriptRoot\integration-test-config.json"
     }

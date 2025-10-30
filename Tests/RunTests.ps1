@@ -16,7 +16,7 @@ if (-not (Get-Module -Name Pester -ListAvailable)) {
 
 Import-Module Pester -Force
 
-# Initialize test environment
+# Initialise test environment
 $TestRoot = $PSScriptRoot
 $ModuleRoot = Split-Path $TestRoot -Parent
 $OutputDirectory = Join-Path $TestRoot $OutputPath

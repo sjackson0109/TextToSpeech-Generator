@@ -110,15 +110,15 @@ try {
     
     Write-Host "All modules loaded" -ForegroundColor Green
     
-    # Initialize systems
+    # Initialise systems
     Write-Host "Initializing systems..." -ForegroundColor Yellow
     
     $logPath = Join-Path $PSScriptRoot "application.log"
-    Initialize-LoggingSystem -LogPath $logPath -Level $LogLevel -MaxSizeMB 10 -MaxFiles 5
+    Initialise-LoggingSystem -LogPath $logPath -Level $LogLevel -MaxSizeMB 10 -MaxFiles 5
     Write-ApplicationLog -Message "TextToSpeech Generator v3.2 starting" -Level "INFO"
     
     if ($EnableSecureStorage) {
-        Initialize-SecuritySystem -EnableSecureStorage $true
+        Initialise-SecuritySystem -EnableSecureStorage $true
         Write-ApplicationLog -Message "Security system initialized" -Level "INFO"
     }
     
@@ -285,7 +285,7 @@ try {
     
 }
 catch {
-    Write-Host "Failed to initialize application: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "Failed to Initialise application: $($_.Exception.Message)" -ForegroundColor Red
     
     try {
         Write-ApplicationLog -Message "Application initialization failed: $($_.Exception.Message)" -Level "ERROR"

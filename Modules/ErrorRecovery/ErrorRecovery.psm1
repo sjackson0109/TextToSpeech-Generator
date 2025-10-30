@@ -127,7 +127,7 @@ class AdvancedErrorRecovery {
     }
     
     [void] InitializeCircuitBreakers() {
-        # Initialize circuit breakers for each TTS provider
+        # Initialise circuit breakers for each TTS provider
         $providers = @("Azure", "AWSPolly", "GoogleCloud", "CloudPronouncer", "Twilio", "VoiceForge")
         
         foreach ($provider in $providers) {
@@ -136,7 +136,7 @@ class AdvancedErrorRecovery {
             
             $this.CircuitBreakers[$provider] = $circuitBreaker
             
-            # Initialize health monitor for each provider
+            # Initialise health monitor for each provider
             $healthMonitor = @{
                 Provider = $provider
                 LastHealthCheck = $null

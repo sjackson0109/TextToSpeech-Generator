@@ -124,7 +124,7 @@ function New-AdvancedConfigurationManager {
         }
     }
     
-    # Initialize the manager
+    # Initialise the manager
     $manager.LoadConfiguration()
     
     return $manager

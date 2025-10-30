@@ -7,7 +7,7 @@ $script:LogLevel = "INFO"
 $script:MaxLogSize = 10MB
 $script:MaxLogFiles = 5
 
-function Initialize-LoggingSystem {
+function Initialise-LoggingSystem {
     <#
     .SYNOPSIS
     Initializes the logging system with configuration options
@@ -290,7 +290,7 @@ function Get-LogStatistics {
 
 # Export functions
 Export-ModuleMember -Function @(
-    'Initialize-LoggingSystem',
+    'Initialise-LoggingSystem',
     'Write-ApplicationLog', 
     'Write-PerformanceLog',
     'Write-ErrorLog',

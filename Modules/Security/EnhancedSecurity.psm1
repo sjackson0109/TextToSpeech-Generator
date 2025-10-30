@@ -20,11 +20,11 @@ class SecureConfigurationManager {
     SecureConfigurationManager([string]$configPath) {
         $this.ConfigPath = $configPath
         $this.SecureStorage = @{}
-        $this.Initialize()
+        $this.Initialise()
     }
     
-    [void] Initialize() {
-        # Initialize secure storage and certificate
+    [void] Initialise() {
+        # Initialise secure storage and certificate
         $this.EnsureEncryptionCertificate()
         $this.LoadSecureConfiguration()
     }
@@ -190,7 +190,7 @@ class SecureConfigurationManager {
     }
 }
 
-function Initialize-SecuritySystem {
+function Initialise-SecuritySystem {
     <#
     .SYNOPSIS
     Initializes the security system with configuration options
@@ -316,7 +316,7 @@ function Test-SecurityConfiguration {
         $certTest.Status = "Fail"
         $certTest.Details = "No encryption certificate found"
         $results.OverallStatus = "Fail"
-        $results.Recommendations += "Create encryption certificate using Initialize-SecuritySystem"
+        $results.Recommendations += "Create encryption certificate using Initialise-SecuritySystem"
     } else {
         $certTest.Details = "Certificate found: $($certs[0].Thumbprint)"
     }
@@ -436,7 +436,7 @@ function Invoke-SecureDecryption {
 
 # Export functions
 Export-ModuleMember -Function @(
-    'Initialize-SecuritySystem',
+    'Initialise-SecuritySystem',
     'New-SecureConfigurationManager', 
     'Protect-SensitiveData',
     'Unprotect-SensitiveData',

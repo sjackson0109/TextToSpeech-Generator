@@ -31,7 +31,7 @@ public class ConnectionPool
         _activeConnections = new ConcurrentDictionary<string, Connection>();
         _currentPoolSize = 0;
         
-        // Initialize minimum connections
+        // Initialise minimum connections
         for (int i = 0; i < _minPoolSize; i++)
         {
             var connection = CreateConnection();
@@ -207,7 +207,7 @@ class PerformanceOptimizer {
     }
     
     [void] InitializeConnectionPools() {
-        # Initialize connection pools for major TTS providers
+        # Initialise connection pools for major TTS providers
         $providers = @{
             "Azure" = @{ MinSize = 2; MaxSize = 8 }
             "AWSPolly" = @{ MinSize = 2; MaxSize = 6 }
@@ -225,13 +225,13 @@ class PerformanceOptimizer {
                 
                 Write-ApplicationLog -Message "Initialized connection pool for $provider (Min: $($config.MinSize), Max: $($config.MaxSize))" -Level "INFO"
             } catch {
-                Write-ApplicationLog -Message "Failed to initialize connection pool for $provider`: $_" -Level "ERROR"
+                Write-ApplicationLog -Message "Failed to Initialise connection pool for $provider`: $_" -Level "ERROR"
             }
         }
     }
     
     [void] InitializeCacheManager() {
-        # Initialize intelligent caching system
+        # Initialise intelligent caching system
         $this.CacheManager = @{
             AudioCache = @{
                 MaxSizeGB = 2
@@ -268,7 +268,7 @@ class PerformanceOptimizer {
             $this.AsyncOperations["Manager"] = [AsyncOperationManager]::new($this.MaxConcurrentRequests)
             Write-ApplicationLog -Message "Initialized async operation manager (Max Concurrency: $($this.MaxConcurrentRequests))" -Level "INFO"
         } catch {
-            Write-ApplicationLog -Message "Failed to initialize async operation manager: $_" -Level "ERROR"
+            Write-ApplicationLog -Message "Failed to Initialise async operation manager: $_" -Level "ERROR"
         }
     }
     

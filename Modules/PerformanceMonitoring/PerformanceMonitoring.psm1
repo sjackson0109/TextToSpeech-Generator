@@ -14,10 +14,10 @@ class PerformanceMonitor {
         $this.PerformanceCounters = @{}
         $this.StartTime = Get-Date
         $this.IsMonitoring = $false
-        $this.Initialize()
+        $this.Initialise()
     }
     
-    [void] Initialize() {
+    [void] Initialise() {
         $this.InitializePerformanceCounters()
         $this.IsMonitoring = $true
         Write-ApplicationLog -Message "Performance monitor initialized" -Level "INFO"
@@ -32,7 +32,7 @@ class PerformanceMonitor {
                 DiskQueue = Get-Counter -Counter "\PhysicalDisk(_Total)\Current Disk Queue Length" -MaxSamples 1 -ErrorAction SilentlyContinue
             }
         } catch {
-            Write-ApplicationLog -Message "Could not initialize performance counters: $($_.Exception.Message)" -Level "WARNING"
+            Write-ApplicationLog -Message "Could not Initialise performance counters: $($_.Exception.Message)" -Level "WARNING"
         }
     }
     

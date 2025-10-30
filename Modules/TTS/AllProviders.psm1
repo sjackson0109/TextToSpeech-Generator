@@ -58,7 +58,7 @@ function Import-TTSProviderModule {
     }
 }
 
-function Initialize-TTSProviders {
+function Initialise-TTSProviders {
     <#
     .SYNOPSIS
     Discovers and loads all TTS provider modules
@@ -249,9 +249,9 @@ function Get-ProviderStatus {
     return $status
 }
 
-# Initialize providers on module load
+# Initialise providers on module load
 Write-Host "`nInitializing TTS Providers..." -ForegroundColor Cyan
-$initResult = Initialize-TTSProviders
+$initResult = Initialise-TTSProviders
 
 if ($initResult.LoadedCount -eq 0) {
     Write-Warning "No TTS provider modules were loaded!"
