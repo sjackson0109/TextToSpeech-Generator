@@ -1,12 +1,16 @@
 # GUIModule.psm1 - Unified GUI module for TextToSpeech Generator
 # Consolidates all GUI logic, event handlers, configuration, and provider setup dialogs
 
-
-
+# Ensure required WPF and Forms assemblies are loaded for GUI support
+Add-Type -AssemblyName PresentationFramework -ErrorAction SilentlyContinue
+Add-Type -AssemblyName System.Windows.Forms -ErrorAction SilentlyContinue
+Add-Type -AssemblyName System.Windows.Markup -ErrorAction SilentlyContinue
 
 # Unified GUI class and all supporting functions
 # (Migrated from GUI.psm1, ModernGUI.psm1, and all legacy GUI/*.psm1)
-Import-Module (Resolve-Path (Join-Path $PSScriptRoot '..\Logging\EnhancedLogging.psm1')).Path -Force
+if (-not (Get-Module -Name 'Logging')) {
+	Import-Module (Resolve-Path (Join-Path $PSScriptRoot '../Logging.psm1')).Path
+}
 
 class GUI {
 	[string]$CurrentProfile
@@ -289,7 +293,9 @@ class GUI {
 			Add-Type -AssemblyName PresentationFramework -ErrorAction Stop
 			$wpfAvailable = $true
 		} catch {}
-		if (-not $wpfAvailable -or (-not ([type]::GetType('Windows.Markup.XamlReader', $false))) -or (-not ([type]::GetType('System.Windows.Window', $false))) ) {
+		$xamlReaderType = [System.Type]::GetType('System.Windows.Markup.XamlReader')
+		$windowType = [System.Type]::GetType('System.Windows.Window')
+		if (-not $wpfAvailable -or $null -eq $xamlReaderType -or $null -eq $windowType) {
 			$this.WriteSafeLog("ERROR: WPF types not available in this environment. GUI will not be shown.", "ERROR")
 			return $null
 		}

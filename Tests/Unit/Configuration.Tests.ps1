@@ -4,11 +4,11 @@
 Describe "Configuration Module Tests" {
     BeforeAll {
         # Import required modules
-        Import-Module "$PSScriptRoot\..\..\Modules\Configuration\AdvancedConfiguration.psm1" -Force
-        Import-Module "$PSScriptRoot\..\..\Modules\Logging\EnhancedLogging.psm1" -Force
+        Import-Module "$PSScriptRoot\..\..\Modules\Configuration.psm1" -Force
+        Import-Module "$PSScriptRoot\..\..\Modules\Logging.psm1" -Force
         
         # Initialise logging for tests
-        Initialise-LoggingSystem -LogPath "$PSScriptRoot\config-test.log" -Level "DEBUG"
+    Initialize-LoggingSystem -LogPath "$PSScriptRoot\config-test.log" -Level "DEBUG"
         
         # Create test configuration file path
         $script:TestConfigPath = "$PSScriptRoot\test-config.json"

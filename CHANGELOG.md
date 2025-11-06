@@ -6,7 +6,7 @@
 
 ### Added ✨
 - **Modular Architecture**: Complete 6-module enterprise architecture with proper separation of concerns
-  - `EnhancedLogging.psm1`: Structured JSON logging with rotation and thread-safe operations
+  - `Logging.psm1`: Structured JSON logging with rotation and thread-safe operations
   - `EnhancedSecurity.psm1`: Certificate-based encryption and secure configuration management
   - `AdvancedConfiguration.psm1`: Multi-environment profile system with schema validation
   - `TTSProviders.psm1`: Modular TTS provider implementations with enhanced error handling

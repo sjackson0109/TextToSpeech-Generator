@@ -1,3 +1,6 @@
+if (-not (Get-Module -Name 'Logging')) {
+	Import-Module (Resolve-Path (Join-Path $PSScriptRoot '..\..\Logging.psm1')).Path
+}
 function New-VoiceWaveTTSProvider {
     param($Config)
     $obj = [PSCustomObject]@{

@@ -145,9 +145,9 @@ function Invoke-WithStandardErrorHandling {
     $attempt = 0
     do {
         try {
-            Write-ApplicationLog -Message "Starting operation: $OperationName (Attempt $($attempt + 1))" -Level "DEBUG"
+            Add-ApplicationLog -Message "Starting operation: $OperationName (Attempt $($attempt + 1))" -Level "DEBUG"
             $result = & $Operation
-            Write-ApplicationLog -Message "Operation completed successfully: $OperationName" -Level "DEBUG"
+            Add-ApplicationLog -Message "Operation completed successfully: $OperationName" -Level "DEBUG"
             return $result
         }
         catch {
@@ -156,8 +156,8 @@ function Invoke-WithStandardErrorHandling {
             
             $standardError = New-StandardError -Type $errorType -Message $_.Exception.Message -Operation $OperationName -Context $Context -Exception $_.Exception
             
-            Write-ApplicationLog -Message "Error in $OperationName`: $($_.Exception.Message)" -Level "ERROR" -Category "Error"
-            Write-ErrorLog -Operation $OperationName -Exception $_.Exception
+            Add-ApplicationLog -Message "Error in $OperationName`: $($_.Exception.Message)" -Level "ERROR" -Category "Error"
+            Add-ErrorLog -Operation $OperationName -Exception $_.Exception
             
             # Execute custom error handler if provided
             if ($OnError) {
@@ -167,7 +167,7 @@ function Invoke-WithStandardErrorHandling {
             # Retry logic
             if ($attempt -lt ($MaxRetries + 1)) {
                 $delay = $RetryDelay * [Math]::Pow(2, $attempt - 1)  # Exponential backoff
-                Write-ApplicationLog -Message "Retrying operation $OperationName in $delay ms (Attempt $attempt of $($MaxRetries + 1))" -Level "WARNING"
+                Add-ApplicationLog -Message "Retrying operation $OperationName in $delay ms (Attempt $attempt of $($MaxRetries + 1))" -Level "WARNING"
                 Start-Sleep -Milliseconds $delay
                 continue
             }
@@ -217,7 +217,7 @@ function Write-StandardError {
         $logMessage += " | $contextString"
     }
     
-    Write-ApplicationLog -Message $logMessage -Level $LogLevel -Category $Error.Category
+    Add-ApplicationLog -Message $logMessage -Level $LogLevel -Category $Error.Category
     
     # For critical errors, also write to event log
     if ($LogLevel -eq "CRITICAL") {

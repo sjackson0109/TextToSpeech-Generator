@@ -1,4 +1,6 @@
-Import-Module (Resolve-Path (Join-Path $PSScriptRoot '..\..\Logging\EnhancedLogging.psm1')).Path -Force
+if (-not (Get-Module -Name 'Logging')) {
+	Import-Module (Resolve-Path (Join-Path $PSScriptRoot '..\..\Logging.psm1')).Path
+}
 function ApplyConfigurationToGUI {
     param(
         [Parameter(Mandatory=$true)][hashtable]$Configuration,

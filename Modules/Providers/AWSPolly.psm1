@@ -1,4 +1,6 @@
-Import-Module (Resolve-Path (Join-Path $PSScriptRoot '..\..\Logging\EnhancedLogging.psm1')).Path -Force
+if (-not (Get-Module -Name 'Logging')) {
+	Import-Module (Resolve-Path (Join-Path $PSScriptRoot '..\..\Logging.psm1')).Path
+}
 function ApplyConfigurationToGUI {
 	param(
 		[Parameter(Mandatory=$true)][hashtable]$Configuration,
@@ -16,18 +18,18 @@ function Test-PollyCredentials {
 	)
 	# Validate AWS Access Key format
 	if (-not $Config.AccessKey -or $Config.AccessKey -notmatch '^AKIA[0-9A-Z]{16}$') {
-		Write-ApplicationLog -Message "Polly Validate-PollyCredentials: Invalid AccessKey" -Level "WARNING"
+	Add-ApplicationLog -Module "AWSPolly" -Message "Polly Validate-PollyCredentials: Invalid AccessKey" -Level "WARNING"
 		return $false
 	}
 	# Validate AWS Secret Key format
 	if (-not $Config.SecretKey -or $Config.SecretKey.Length -ne 40) {
-		Write-ApplicationLog -Message "Polly Validate-PollyCredentials: Invalid SecretKey" -Level "WARNING"
+	Add-ApplicationLog -Module "AWSPolly" -Message "Polly Validate-PollyCredentials: Invalid SecretKey" -Level "WARNING"
 		return $false
 	}
 	# Validate AWS region
 	$validRegions = @('us-east-1','us-west-2','us-west-1','eu-west-1','eu-central-1','ap-southeast-1','ap-northeast-1','ap-southeast-2','ap-northeast-2','sa-east-1','ca-central-1','eu-west-2','eu-west-3','eu-north-1','ap-east-1','me-south-1','af-south-1','eu-south-1','ap-south-1')
 	if (-not $Config.Region -or ($validRegions -notcontains $Config.Region)) {
-		Write-ApplicationLog -Message "Polly Validate-PollyCredentials: Invalid Region" -Level "WARNING"
+	Add-ApplicationLog -Module "AWSPolly" -Message "Polly Validate-PollyCredentials: Invalid Region" -Level "WARNING"
 		return $false
 	}
 	return $true
@@ -104,26 +106,26 @@ class TTSProvider {
 		$this.Configuration = @{}
 	}
 	[hashtable] ProcessTTS([string]$text, [hashtable]$options) {
-		Write-ApplicationLog -Message "PollyTTSProvider.ProcessTTS: Entry, text length $($text.Length)" -Level "DEBUG"
+	Add-ApplicationLog -Module "AWSPolly" -Message "PollyTTSProvider.ProcessTTS: Entry, text length $($text.Length)" -Level "DEBUG"
 		try {
 			# ...actual implementation...
-			Write-ApplicationLog -Message "PollyTTSProvider.ProcessTTS: Success" -Level "INFO"
+			Add-ApplicationLog -Module "AWSPolly" -Message "PollyTTSProvider.ProcessTTS: Success" -Level "INFO"
 			return @{ Success = $true }
 		} catch {
-			Write-ApplicationLog -Message "PollyTTSProvider.ProcessTTS: Exception $($_.Exception.Message)" -Level "ERROR"
+			Add-ApplicationLog -Module "AWSPolly" -Message "PollyTTSProvider.ProcessTTS: Exception $($_.Exception.Message)" -Level "ERROR"
 			return @{ Success = $false; Error = $_.Exception.Message }
 		}
 	}
 	[array] GetAvailableVoices() {
 		if (-not $this.Configuration -or -not $this.Configuration.AccessKey) {
-			Write-ApplicationLog -Message "Polly GetAvailableVoices: No config, returning empty list" -Level "DEBUG"
+			Add-ApplicationLog -Module "AWSPolly" -Message "Polly GetAvailableVoices: No config, returning empty list" -Level "DEBUG"
 			return @()
 		}
 		try {
 			# ...actual API call...
 			return @('Matthew') # Placeholder
 		} catch {
-			Write-ApplicationLog -Message "Polly GetAvailableVoices: Exception $($_.Exception.Message)" -Level "ERROR"
+			Add-ApplicationLog -Module "AWSPolly" -Message "Polly GetAvailableVoices: Exception $($_.Exception.Message)" -Level "ERROR"
 			return @()
 		}
 	}
@@ -148,12 +150,12 @@ class PollyTTSProvider : TTSProvider {
 	[hashtable] ProcessTTS([string]$text, [hashtable]$options) {
 		try {
 			if (-not $options.AccessKey -or -not $options.SecretKey -or -not $options.Region) {
-				Write-ApplicationLog -Message "PollyTTSProvider: Missing AWS credentials or region in options." -Level "ERROR"
+				Add-ApplicationLog -Module "AWSPolly" -Message "PollyTTSProvider: Missing AWS credentials or region in options." -Level "ERROR"
 				throw "Missing AWS credentials or region."
 			}
 			return Invoke-PollyTTS @options
 		} catch {
-			Write-ApplicationLog -Message "PollyTTSProvider.ProcessTTS error: $($_.Exception.Message)" -Level "ERROR"
+			Add-ApplicationLog -Module "AWSPolly" -Message "PollyTTSProvider.ProcessTTS error: $($_.Exception.Message)" -Level "ERROR"
 			return @{ Success = $false; ErrorMessage = $_.Exception.Message }
 		}
 	}
@@ -167,7 +169,7 @@ class PollyTTSProvider : TTSProvider {
 			if (-not $secretKey) { $secretKey = $env:AWS_POLLY_SECRET_KEY }
 			if (-not $region) { $region = $env:AWS_POLLY_REGION }
 			if (-not $accessKey -or -not $secretKey -or -not $region) {
-				Write-ApplicationLog -Message "Polly GetAvailableVoices: No config or env vars, returning demo voices" -Level "DEBUG"
+				Add-ApplicationLog -Module "AWSPolly" -Message "Polly GetAvailableVoices: No config or env vars, returning demo voices" -Level "DEBUG"
 				return @('Joanna', 'Matthew', 'Amy')
 			}
 			$endpoint = "https://polly.$region.amazonaws.com/v1/voices"
@@ -217,11 +219,11 @@ class PollyTTSProvider : TTSProvider {
 					return @('Joanna', 'Matthew', 'Amy')
 				}
 			} catch {
-				Write-ApplicationLog -Message "Polly GetAvailableVoices: Exception $($_.Exception.Message)" -Level "ERROR"
+				Add-ApplicationLog -Module "AWSPolly" -Message "Polly GetAvailableVoices: Exception $($_.Exception.Message)" -Level "ERROR"
 				return @('Joanna', 'Matthew', 'Amy')
 			}
 		} catch {
-			Write-ApplicationLog -Message "PollyTTSProvider.GetAvailableVoices error: $($_.Exception.Message)" -Level "ERROR"
+			Add-ApplicationLog -Module "AWSPolly" -Message "PollyTTSProvider.GetAvailableVoices error: $($_.Exception.Message)" -Level "ERROR"
 			return @()
 		}
 	}
@@ -251,7 +253,7 @@ function Invoke-PollyTTS {
 		# Native REST API call to AWS Polly will be implemented here (SigV4 signing required)
 		throw "Native AWS Polly REST API call not yet implemented."
 	} catch {
-		Write-ApplicationLog -Message "AWS Polly TTS failed: $($_.Exception.Message)" -Level "ERROR"
+	Add-ApplicationLog -Module "AWSPolly" -Message "AWS Polly TTS failed: $($_.Exception.Message)" -Level "ERROR"
 		$placeholderContent = "AWS Polly TTS fallback - API error occurred`nText: $Text`nVoice: $Voice"
 		Set-Content -Path $OutputPath -Value $placeholderContent -Encoding UTF8
 		return @{ Success = $false; Error = $_.Exception.Message; Message = "Using fallback due to API error" }

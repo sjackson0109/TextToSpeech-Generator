@@ -240,7 +240,7 @@ TextToSpeech-Generator/
 ├─ MigrateLegacyConfig.ps1                  # XML to JSON migration utility
 ├─ TextToSpeech-Generator.ps1               # Legacy GUI component (transitional)
 ├─ Modules/                                 # Modular architecture
-│  ├─ Logging/EnhancedLogging.psm1          # Enterprise logging system
+│  ├─ Logging/Logging.psm1          # Enterprise logging system
 │  ├─ Security/EnhancedSecurity.psm1        # Certificate-based encryption
 │  ├─ Configuration/AdvancedConfiguration.psm1 # Multi-environment profiles
 │  ├─ TTSProviders/TTSProviders.psm1        # Modular TTS provider implementations

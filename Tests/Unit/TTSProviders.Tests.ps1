@@ -10,11 +10,11 @@
 Describe "TTS Providers Module Tests" {
     BeforeAll {
         # Import required modules
-        Import-Module "$PSScriptRoot\..\..\Modules\TTSProviders\TTSProviders.psm1" -Force
-        Import-Module "$PSScriptRoot\..\..\Modules\Logging\EnhancedLogging.psm1" -Force
+        Import-Module "$PSScriptRoot\...\Modules\Providers.psm1" -Force
+        Import-Module "$PSScriptRoot\..\Modules\Logging.psm1" -Force
         
         # Initialise logging for tests
-        Initialise-LoggingSystem -LogPath "$PSScriptRoot\tts-test.log" -Level "DEBUG"
+    Initialize-LoggingSystem -LogPath "$PSScriptRoot\tts-test.log" -Level "DEBUG"
     }
     
     AfterAll {

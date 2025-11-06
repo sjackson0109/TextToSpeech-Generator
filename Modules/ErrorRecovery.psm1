@@ -1,9 +1,8 @@
+using module .\CircuitBreaker.psm1
+using module .\ErrorHandling.psm1
 # Advanced Error Recovery Module for TextToSpeech Generator v3.2
 # Provider-specific recovery strategies and intelligent error handling
 # Integrated with AdvancedResilience for enterprise-grade error handling
-
-# Import the AdvancedResilience module for circuit breaker functionality
-using module .\AdvancedResilience.psm1
 
 class AdvancedErrorRecovery {
     [hashtable] $RecoveryStrategies
@@ -310,7 +309,7 @@ class AdvancedErrorRecovery {
                     Arguments = @($context)
                 }
                 
-                $result = Invoke-AdvancedRetry @retryParams
+                $result = Start-AdvancedRetry @retryParams
                 
                 # Record the result with circuit breaker
                 if ($this.CircuitBreakers.ContainsKey($provider)) {

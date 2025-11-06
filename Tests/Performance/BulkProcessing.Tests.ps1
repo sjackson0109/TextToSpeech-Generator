@@ -4,11 +4,11 @@
 Describe "Performance Tests" {
     BeforeAll {
         # Import required modules
-        Import-Module "$PSScriptRoot\..\..\Modules\Configuration\AdvancedConfiguration.psm1" -Force
-        Import-Module "$PSScriptRoot\..\..\Modules\Logging\EnhancedLogging.psm1" -Force
+        Import-Module "$PSScriptRoot\..\..\Modules\Configuration.psm1" -Force
+        Import-Module "$PSScriptRoot\..\..\Modules\Logging.psm1" -Force
         
         # Initialise logging for tests
-        Initialise-LoggingSystem -LogPath "$PSScriptRoot\performance-test.log" -Level "INFO"
+    Initialize-LoggingSystem -LogPath "$PSScriptRoot\performance-test.log" -Level "INFO"
         
         # Create test configuration
         $script:TestConfig = @{
@@ -45,9 +45,9 @@ Describe "Performance Tests" {
             for ($i = 0; $i -lt 300; $i++) {
                 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
                 
-                Write-ApplicationLog -Message "Short log message" -Level "INFO" -Category "Performance"
-                Write-ApplicationLog -Message "Medium length log message with some additional context information" -Level "INFO" -Category "Performance"
-                Write-ApplicationLog -Message "Very long log message with extensive details about the operation including performance metrics, error codes, stack traces, and detailed diagnostic information that might be encountered in production environments" -Level "INFO" -Category "Performance"
+                    Write-ApplicationLog -Module "BulkProcessing.Tests" -Message "Short log message" -Level "INFO" -Category "Performance"
+                    Write-ApplicationLog -Module "BulkProcessing.Tests" -Message "Medium length log message with some additional context information" -Level "INFO" -Category "Performance"
+                    Write-ApplicationLog -Module "BulkProcessing.Tests" -Message "Very long log message with extensive details about the operation including performance metrics, error codes, stack traces, and detailed diagnostic information that might be encountered in production environments" -Level "INFO" -Category "Performance"
                 
                 $stopwatch.Stop()
                 $times += $stopwatch.Elapsed.TotalMilliseconds
@@ -66,12 +66,12 @@ Describe "Performance Tests" {
                 Start-Job -ScriptBlock {
                     param($ModulePath, $LogPath, $Iteration)
                     Import-Module $ModulePath -Force
-                    Initialise-LoggingSystem -LogPath $LogPath -Level "INFO"
+                    Initialize-LoggingSystem -LogPath $LogPath -Level "INFO"
                     
                     for ($i = 0; $i -lt 50; $i++) {
-                        Write-ApplicationLog -Message "Concurrent log entry $Iteration-$i" -Level "INFO" -Category "Concurrency"
+                            Write-ApplicationLog -Module "BulkProcessing.Tests" -Message "Concurrent log entry $Iteration-$i" -Level "INFO" -Category "Concurrency"
                     }
-                } -ArgumentList "$PSScriptRoot\..\..\Modules\Logging\EnhancedLogging.psm1", "$PSScriptRoot\concurrent-test.log", $_
+                } -ArgumentList "$PSScriptRoot\..\..\Modules\Logging.psm1", "$PSScriptRoot\concurrent-test.log", $_
             }
             
             $jobs | Wait-Job | Remove-Job

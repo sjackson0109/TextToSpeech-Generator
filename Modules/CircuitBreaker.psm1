@@ -45,7 +45,7 @@ class CircuitBreaker {
 # Global circuit breakers for each provider
 $script:CircuitBreakers = @{}
 
-function Initialise-CircuitBreaker {
+function Initialize-CircuitBreaker {
     <#
     .SYNOPSIS
     Initializes circuit breaker for a TTS provider
@@ -79,7 +79,7 @@ function Test-CircuitBreakerState {
     )
     
     if (-not $script:CircuitBreakers.ContainsKey($ProviderId)) {
-        Initialise-CircuitBreaker -ProviderId $ProviderId
+    Initialize-CircuitBreaker -ProviderId $ProviderId
     }
     
     $breaker = $script:CircuitBreakers[$ProviderId]
@@ -162,7 +162,7 @@ function Set-CircuitBreakerFailure {
     )
     
     if (-not $script:CircuitBreakers.ContainsKey($ProviderId)) {
-        Initialise-CircuitBreaker -ProviderId $ProviderId
+    Initialize-CircuitBreaker -ProviderId $ProviderId
     }
     
     $breaker = $script:CircuitBreakers[$ProviderId]
@@ -180,7 +180,7 @@ function Set-CircuitBreakerFailure {
         Write-ApplicationLog -Message "Circuit breaker for $ProviderId opened due to $($breaker.FailureCount) failures" -Level "WARNING"
         
         # Trigger alert for operations team
-        Write-OperationalAlert -AlertType "CircuitBreakerOpen" -ProviderId $ProviderId -Message "Provider $ProviderId circuit breaker opened after $($breaker.FailureCount) failures"
+    Send-OperationalAlert -AlertType "CircuitBreakerOpen" -ProviderId $ProviderId -Message "Provider $ProviderId circuit breaker opened after $($breaker.FailureCount) failures"
     }
     
     Write-ApplicationLog -Message "Failure recorded for $($ProviderId): $($ErrorMessage) (Failures: $($breaker.FailureCount))" -Level "DEBUG"
@@ -210,7 +210,7 @@ function Get-CircuitBreakerStatus {
     return $status
 }
 
-function Write-OperationalAlert {
+function Send-OperationalAlert {
     <#
     .SYNOPSIS
     Writes operational alerts for monitoring systems
@@ -244,7 +244,7 @@ function Write-OperationalAlert {
 }
 
 # Advanced retry logic with jitter and backoff strategies
-function Invoke-AdvancedRetry {
+function Start-AdvancedRetry {
     <#
     .SYNOPSIS
     Advanced retry logic with circuit breaker integration and multiple backoff strategies
@@ -449,14 +449,14 @@ function Test-ProviderRateLimit {
 
 # Export functions and classes
 Export-ModuleMember -Function @(
-    'Initialise-CircuitBreaker',
+    'Initialize-CircuitBreaker',
     'Test-CircuitBreakerState',
     'Set-CircuitBreakerSuccess', 
     'Set-CircuitBreakerFailure',
     'Get-CircuitBreakerStatus',
-    'Invoke-AdvancedRetry',
+    'Start-AdvancedRetry',
     'Test-ProviderHealth',
-    'Write-OperationalAlert'
+    'Send-OperationalAlert'
 )
 
 # Export the CircuitBreaker class

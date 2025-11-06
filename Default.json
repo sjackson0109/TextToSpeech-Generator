@@ -67,7 +67,7 @@
     },
     "Production": {
       "Processing": {
-        "OutputPath": "C:\\TTS\\Output",
+        "OutputPath": "C:\\\\Output",
         "InputFile": "C:\\TTS\\Input\\batch.csv",
         "Timeout": 60,
         "MaxParallelJobs": 4

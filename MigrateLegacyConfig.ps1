@@ -14,7 +14,7 @@ function Convert-LegacyXmlToModularConfig {
     )
     
     if (-not (Test-Path $XmlPath)) {
-        Write-Warning "XML configuration file not found: $XmlPath"
+    Write-ApplicationLog -Module "MigrateLegacyConfig" -Message "XML configuration file not found: $XmlPath" -Level "WARNING"
         return $false
     }
     
@@ -64,7 +64,7 @@ function Convert-LegacyXmlToModularConfig {
         return $true
         
     } catch {
-        Write-Error "Failed to migrate configuration: $($_.Exception.Message)"
+    Write-ApplicationLog -Module "MigrateLegacyConfig" -Message "Failed to migrate configuration: $($_.Exception.Message)" -Level "ERROR"
         return $false
     }
 }

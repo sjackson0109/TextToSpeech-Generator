@@ -18,12 +18,12 @@ class PerformanceMonitor {
     }
     
     [void] Initialise() {
-        $this.InitializePerformanceCounters()
+        $this.InitialisePerformanceCounters()
         $this.IsMonitoring = $true
-        Write-ApplicationLog -Message "Performance monitor initialized" -Level "INFO"
+    Add-ApplicationLog -Message "Performance monitor initialised" -Level "INFO"
     }
     
-    [void] InitializePerformanceCounters() {
+    [void] InitialisePerformanceCounters() {
         try {
             # System performance counters
             $this.PerformanceCounters = @{
@@ -32,7 +32,7 @@ class PerformanceMonitor {
                 DiskQueue = Get-Counter -Counter "\PhysicalDisk(_Total)\Current Disk Queue Length" -MaxSamples 1 -ErrorAction SilentlyContinue
             }
         } catch {
-            Write-ApplicationLog -Message "Could not Initialise performance counters: $($_.Exception.Message)" -Level "WARNING"
+            Add-ApplicationLog -Message "Could not Initialise performance counters: $($_.Exception.Message)" -Level "WARNING"
         }
     }
     
@@ -50,7 +50,7 @@ class PerformanceMonitor {
         $operationKey = "$operationName-$(Get-Random)"
         $this.Metrics[$operationKey] = $operation
         
-        Write-ApplicationLog -Message "Started monitoring operation: $operationName" -Level "DEBUG" -Category "Performance"
+    Add-ApplicationLog -Message "Started monitoring operation: $operationName" -Level "DEBUG" -Category "Performance"
     }
     
     [hashtable] EndOperation([string]$operationName) {
@@ -71,7 +71,7 @@ class PerformanceMonitor {
         }
         
         if (-not $operationKey) {
-            Write-ApplicationLog -Message "No active operation found for: $operationName" -Level "WARNING"
+            Add-ApplicationLog -Message "No active operation found for: $operationName" -Level "WARNING"
             return @{ Success = $false; Message = "Operation not found" }
         }
         
@@ -101,7 +101,7 @@ class PerformanceMonitor {
             $this.OperationHistory[$operationName] = $this.OperationHistory[$operationName] | Select-Object -Last 100
         }
         
-        Write-ApplicationLog -Message "Operation $operationName completed in $($duration.TotalSeconds.ToString('F2'))s, Memory delta: $($operation.MemoryDeltaMB)MB" -Level "DEBUG" -Category "Performance"
+    Add-ApplicationLog -Message "Operation $operationName completed in $($duration.TotalSeconds.ToString('F2'))s, Memory delta: $($operation.MemoryDeltaMB)MB" -Level "DEBUG" -Category "Performance"
         
         return @{
             Success = $true
@@ -198,12 +198,12 @@ class PerformanceMonitor {
         
         # Memory threshold alerts
         if ($currentMetrics.ProcessMemoryMB -gt 1000) {
-            Write-ApplicationLog -Message "HIGH MEMORY USAGE: Process using $($currentMetrics.ProcessMemoryMB)MB" -Level "WARNING" -Category "Performance"
+            Add-ApplicationLog -Message "HIGH MEMORY USAGE: Process using $($currentMetrics.ProcessMemoryMB)MB" -Level "WARNING" -Category "Performance"
         }
         
         # CPU threshold alerts (if available)
         if ($currentMetrics.CPUUsagePercent -and $currentMetrics.CPUUsagePercent -gt 90) {
-            Write-ApplicationLog -Message "HIGH CPU USAGE: $($currentMetrics.CPUUsagePercent)%" -Level "WARNING" -Category "Performance"
+            Add-ApplicationLog -Message "HIGH CPU USAGE: $($currentMetrics.CPUUsagePercent)%" -Level "WARNING" -Category "Performance"
         }
         
         # Garbage collection alerts
@@ -211,7 +211,7 @@ class PerformanceMonitor {
         if ($recentOperations.Count -gt 0) {
             $avgMemoryDelta = ($recentOperations | ForEach-Object { $_.MemoryDeltaMB } | Measure-Object -Average).Average
             if ($avgMemoryDelta -gt 100) {
-                Write-ApplicationLog -Message "HIGH MEMORY ALLOCATION RATE: Average $([Math]::Round($avgMemoryDelta, 2))MB per operation" -Level "WARNING" -Category "Performance"
+                Add-ApplicationLog -Message "HIGH MEMORY ALLOCATION RATE: Average $([Math]::Round($avgMemoryDelta, 2))MB per operation" -Level "WARNING" -Category "Performance"
             }
         }
     }
@@ -231,7 +231,7 @@ function Optimize-MemoryUsage {
     $beforeMemory = [System.GC]::GetTotalMemory($false)
     $beforeProcessMemory = (Get-Process -Id $PID).WorkingSet64
     
-    Write-ApplicationLog -Message "Starting memory optimization - Current: $([Math]::Round($beforeMemory / 1MB, 2))MB" -Level "INFO"
+    Add-ApplicationLog -Message "Starting memory optimization - Current: $([Math]::Round($beforeMemory / 1MB, 2))MB" -Level "INFO"
     
     if ($ForceCollection -or ($beforeMemory / 1MB) -gt $MaxMemoryMB) {
         # Force garbage collection
@@ -248,7 +248,7 @@ function Optimize-MemoryUsage {
     $memoryFreed = $beforeMemory - $afterMemory
     $processMemoryFreed = $beforeProcessMemory - $afterProcessMemory
     
-    Write-ApplicationLog -Message "Memory optimization complete - Freed: $([Math]::Round($memoryFreed / 1MB, 2))MB managed, $([Math]::Round($processMemoryFreed / 1MB, 2))MB process" -Level "INFO"
+    Add-ApplicationLog -Message "Memory optimization complete - Freed: $([Math]::Round($memoryFreed / 1MB, 2))MB managed, $([Math]::Round($processMemoryFreed / 1MB, 2))MB process" -Level "INFO"
     
     return @{
         BeforeMemoryMB = [Math]::Round($beforeMemory / 1MB, 2)
@@ -371,7 +371,7 @@ class IntelligentCache {
             }
             
             if ($lruKey) {
-                Write-ApplicationLog -Message "Evicting cache item: $lruKey" -Level "DEBUG"
+                Add-ApplicationLog -Message "Evicting cache item: $lruKey" -Level "DEBUG"
                 $this.Remove($lruKey)
             } else {
                 break
@@ -489,7 +489,7 @@ function Clear-PerformanceCache {
     Clears the performance cache
     #>
     $Global:IntelligentCache.Clear()
-    Write-ApplicationLog -Message "Performance cache cleared" -Level "INFO"
+    Add-ApplicationLog -Message "Performance cache cleared" -Level "INFO"
 }
 
 # Export functions

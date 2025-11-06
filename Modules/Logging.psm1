@@ -1,4 +1,4 @@
-# Enhanced Logging Module for TextToSpeech Generator v3.2
+# Logging Module for TextToSpeech Generator
 # Provides structured logging with performance monitoring and log rotation
 
 # Global variables for logging configuration
@@ -7,10 +7,10 @@ $script:LogLevel = "INFO"
 $script:MaxLogSize = 10MB
 $script:MaxLogFiles = 5
 
-function Initialise-LoggingSystem {
+function New-LoggingSystem {
     <#
     .SYNOPSIS
-    Initializes the logging system with configuration options
+    Initialises the logging system with configuration options
     
     .DESCRIPTION
     Sets up the logging system with specified configuration including log file path,
@@ -34,10 +34,10 @@ function Initialise-LoggingSystem {
         New-Item -ItemType Directory -Path $logDir -Force | Out-Null
     }
     
-    Write-ApplicationLog -Message "Logging system initialized - Level: $Level, Path: $LogPath" -Level "INFO"
+    Add-ApplicationLog -Module "Logging" -Message "Logging system initialised - Path: " + $LogPath -Level "Info"
 }
 
-function Write-ApplicationLog {
+function Add-ApplicationLog {
     <#
     .SYNOPSIS
     Enhanced logging with structured format and performance metrics
@@ -49,9 +49,16 @@ function Write-ApplicationLog {
     param(
         [Parameter(Mandatory=$true)][string]$Message,
         [ValidateSet("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")][string]$Level = "INFO",
-        [hashtable]$Properties = @{},
-        [string]$Category = "General"
+        $Properties = @{},
+        [string]$Module = "General"
     )
+    # Coerce Properties to hashtable if not already
+    if ($null -eq $Properties) {
+        $Properties = @{}
+    } elseif (-not ($Properties -is [hashtable])) {
+        Write-Host "[WARNING] [Logging] Properties parameter was not a hashtable. Coercing to hashtable." -ForegroundColor Yellow
+        $Properties = @{ Value = $Properties }
+    }
     
     # Check if we should log this level
     $levelPriority = @{
@@ -66,25 +73,51 @@ function Write-ApplicationLog {
         return
     }
     
+
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
     $processId = $PID
     $threadId = [Threading.Thread]::CurrentThread.ManagedThreadId
-    
-    # Create structured log entry
+
+    # Determine module or filename for traceability
+    $invocation = $MyInvocation
+    $moduleName = $null
+    if ($invocation.MyCommand.Module) {
+        $moduleName = $invocation.MyCommand.Module.Name
+    } elseif ($invocation.ScriptName) {
+        $moduleName = [System.IO.Path]::GetFileName($invocation.ScriptName)
+    } else {
+        $moduleName = "UnknownModule"
+    }
+
+    # Recursively convert nested hashtables/arrays in $Properties to strings
+    function Convert-FlatProperty($value) {
+        if ($null -eq $value) { return $null }
+        elseif ($value -is [hashtable]) {
+            return ($value.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ", "
+        } elseif ($value -is [array]) {
+            return ($value | ForEach-Object { Convert-FlatProperty $_ }) -join ", "
+        } else {
+            return $value
+        }
+    }
+    $flatProperties = @{}
+    foreach ($key in $Properties.Keys) {
+        $flatProperties[$key] = Convert-FlatProperty $Properties[$key]
+    }
     $logEntry = @{
         Timestamp = $timestamp
         Level = $Level
-        Category = $Category
+        Category = $moduleName
         Message = $Message
         ProcessId = $processId
         ThreadId = $threadId
-        Properties = $Properties
+        Properties = $flatProperties
         MachineName = $env:COMPUTERNAME
         UserName = $env:USERNAME
     }
-    
+
     # Format for console output
-    $consoleEntry = "[$timestamp] [$Level] [$Category] $Message"
+    $consoleEntry = "[$timestamp] [$Level] [$moduleName] $Message"
     if ($Properties.Count -gt 0) {
         $propsString = ($Properties.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ", "
         $consoleEntry += " | $propsString"
@@ -107,7 +140,7 @@ function Write-ApplicationLog {
             if (Test-Path $script:LogFilePath) {
                 $logFile = Get-Item $script:LogFilePath
                 if ($logFile.Length -gt $script:MaxLogSize) {
-                    Invoke-LogRotation
+                    Start-LogRotation
                 }
             }
             
@@ -132,7 +165,7 @@ function Write-ApplicationLog {
     }
 }
 
-function Write-PerformanceLog {
+function Add-PerformanceLog {
     <#
     .SYNOPSIS
     Logs performance metrics for operations
@@ -154,10 +187,10 @@ function Write-PerformanceLog {
         $properties[$key] = $Metrics[$key]
     }
     
-    Write-ApplicationLog -Message "Performance: $Operation completed in $([Math]::Round($Duration.TotalSeconds, 2))s" -Level "INFO" -Category "Performance" -Properties $properties
+    Add-ApplicationLog -Module "Logging" -Message "Performance: $Operation completed in $([Math]::Round($Duration.TotalSeconds, 2))s" -Level "INFO" -Category "Performance" -Properties $properties
 }
 
-function Write-ErrorLog {
+function Add-ErrorLog {
     <#
     .SYNOPSIS
     Enhanced error logging with exception details and context
@@ -186,10 +219,10 @@ function Write-ErrorLog {
         $properties["ProcessorCount"] = [Environment]::ProcessorCount
     }
     
-    Write-ApplicationLog -Message "Error in $Operation`: $($Exception.Message)" -Level "ERROR" -Category "Error" -Properties $properties
+    Add-ApplicationLog -Module "Logging" -Message "Error in $Operation`: $($Exception.Message)" -Level "ERROR" -Category "Error" -Properties $properties
 }
 
-function Write-SecurityLog {
+function Add-SecurityLog {
     <#
     .SYNOPSIS
     Logs security-related events with enhanced tracking
@@ -213,10 +246,10 @@ function Write-SecurityLog {
         $properties[$key] = $Details[$key]
     }
     
-    Write-ApplicationLog -Message "Security: $Action - $Event" -Level "WARNING" -Category "Security" -Properties $properties
+    Add-ApplicationLog -Module "Logging" -Message "Security: $Action - $Event" -Level "WARNING" -Category "Security" -Properties $properties
 }
 
-function Invoke-LogRotation {
+function Start-LogRotation {
     <#
     .SYNOPSIS
     Rotates log files when they exceed maximum size
@@ -247,14 +280,14 @@ function Invoke-LogRotation {
         $rotatedFile = Join-Path $logDir "$logBaseName.1$logExtension"
         Move-Item $script:LogFilePath $rotatedFile
         
-        Write-ApplicationLog -Message "Log rotation completed - archived to $rotatedFile" -Level "INFO"
+    Add-ApplicationLog -Module "Logging" -Message "Log rotation completed - archived to $rotatedFile" -Level "INFO"
     }
     catch {
         Write-Host "Failed to rotate log files: $($_.Exception.Message)" -ForegroundColor Red
     }
 }
 
-function Get-LogStatistics {
+function Show-LogStatistics {
     <#
     .SYNOPSIS
     Returns statistics about the logging system
@@ -290,11 +323,11 @@ function Get-LogStatistics {
 
 # Export functions
 Export-ModuleMember -Function @(
-    'Initialise-LoggingSystem',
-    'Write-ApplicationLog', 
-    'Write-PerformanceLog',
-    'Write-ErrorLog',
-    'Write-SecurityLog',
-    'Invoke-LogRotation',
-    'Get-LogStatistics'
+    'New-LoggingSystem',
+    'Add-ApplicationLog',
+    'Add-PerformanceLog',
+    'Add-ErrorLog',
+    'Add-SecurityLog',
+    'Start-LogRotation',
+    'Show-LogStatistics'
 )

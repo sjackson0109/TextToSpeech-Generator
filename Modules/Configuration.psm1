@@ -98,9 +98,9 @@ function New-AdvancedConfigurationManager {
         param([string]$ProfileName)
         if ($this.Profiles.ContainsKey($ProfileName)) {
             $this.CurrentProfile = $ProfileName
-            Write-ApplicationLog -Message "Configuration profile set to: $ProfileName" -Level "INFO"
+            Add-ApplicationLog -Message "Configuration profile set to: $ProfileName" -Level "INFO"
         } else {
-            Write-ApplicationLog -Message "Profile '$ProfileName' not found, using Development" -Level "WARNING"
+            Add-ApplicationLog -Message "Profile '$ProfileName' not found, using Development" -Level "WARNING"
             $this.CurrentProfile = "Development"
         }
     }
@@ -116,10 +116,10 @@ function New-AdvancedConfigurationManager {
                         $this.CurrentConfiguration[$_.Name] = $_.Value
                     }
                 }
-                Write-ApplicationLog -Message "Configuration loaded from $($this.ConfigPath)" -Level "INFO"
+                Add-ApplicationLog -Message "Configuration loaded from $($this.ConfigPath)" -Level "INFO"
             }
             catch {
-                Write-ApplicationLog -Message "Failed to load configuration: $($_.Exception.Message)" -Level "WARNING"
+                Add-ApplicationLog -Message "Failed to load configuration: $($_.Exception.Message)" -Level "WARNING"
             }
         }
     }
@@ -149,7 +149,7 @@ function Test-ConfigurationValid {
         Provider = $Provider
     }
     
-    Write-ApplicationLog -Message "Validating configuration for $Provider" -Level "DEBUG"
+    Add-ApplicationLog -Message "Validating configuration for $Provider" -Level "DEBUG"
     
     switch ($Provider) {
     "Azure Cognitive Services" {
@@ -212,7 +212,7 @@ function Test-ConfigurationValid {
     $errorCount = $validationResult.Errors.Count
     $warningCount = $validationResult.Warnings.Count
     
-    Write-ApplicationLog -Message "$Provider validation: Valid=$($validationResult.IsValid), Errors=$errorCount, Warnings=$warningCount" -Level $logLevel
+    Add-ApplicationLog -Message "$Provider validation: Valid=$($validationResult.IsValid), Errors=$errorCount, Warnings=$warningCount" -Level $logLevel
     
     return $validationResult
 }
@@ -237,7 +237,7 @@ function Test-APIConnectivity {
         Provider = $Provider
     }
     
-    Write-ApplicationLog -Message "Testing connectivity for $Provider" -Level "INFO"
+    Add-ApplicationLog -Message "Testing connectivity for $Provider" -Level "INFO"
     
     $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
     
@@ -282,7 +282,7 @@ function Test-APIConnectivity {
     
     # Log connectivity results
     $logLevel = if ($connectivityResult.IsConnected) { "INFO" } else { "ERROR" }
-    Write-ApplicationLog -Message "$Provider connectivity: Connected=$($connectivityResult.IsConnected), ResponseTime=$($connectivityResult.ResponseTime)ms" -Level $logLevel
+    Add-ApplicationLog -Message "$Provider connectivity: Connected=$($connectivityResult.IsConnected), ResponseTime=$($connectivityResult.ResponseTime)ms" -Level $logLevel
     
     return $connectivityResult
 }
@@ -302,17 +302,17 @@ function Update-ProviderConfiguration {
         [Parameter(Mandatory=$true)][hashtable]$Configuration
     )
     
-    Write-ApplicationLog -Message "Updating configuration for provider: $Provider" -Level "INFO"
+    Add-ApplicationLog -Message "Updating configuration for provider: $Provider" -Level "INFO"
     
     # Validate configuration before updating
     $validation = Test-ConfigurationValid -Provider $Provider -Configuration $Configuration
     
     if (-not $validation.IsValid) {
-        Write-ApplicationLog -Message "Configuration validation failed for $Provider" -Level "ERROR"
+    Add-ApplicationLog -Message "Configuration validation failed for $Provider" -Level "ERROR"
         return $false
     }
     
-    Write-ApplicationLog -Message "Configuration updated successfully for $Provider" -Level "INFO"
+    Add-ApplicationLog -Message "Configuration updated successfully for $Provider" -Level "INFO"
     return $true
 }
 
@@ -321,7 +321,7 @@ function Get-ProviderConfiguration {
         [Parameter(Mandatory=$true)][string]$Provider
     )
     
-    Write-ApplicationLog -Message "Retrieving configuration for provider: $Provider" -Level "DEBUG"
+    Add-ApplicationLog -Message "Retrieving configuration for provider: $Provider" -Level "DEBUG"
     
     # Return empty configuration as placeholder
     return @{}

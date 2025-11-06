@@ -1,10 +1,12 @@
 # AllProviders Module - TTS Provider Orchestrator
 # Dynamically discovers and loads all TTS provider modules
-
+if (-not (Get-Module -Name 'Logging')) {
+	Import-Module (Resolve-Path (Join-Path $PSScriptRoot '.\Logging.psm1')).Path
+}
 $ModulePath = $PSScriptRoot
 $ProvidersPath = Join-Path $ModulePath "Providers"
 
-Write-Verbose "AllProviders module initializing from: $ModulePath"
+Write-Verbose "AllProviders module initialising from: $ModulePath"
 Write-Verbose "Looking for provider modules in: $ProvidersPath"
 
 # Registry of loaded providers
@@ -48,12 +50,12 @@ function Import-TTSProviderModule {
             }
         }
         
-        Write-ApplicationLog -Message "Loaded TTS provider module: $moduleName" -Level "INFO"
+    Add-ApplicationLog -Module "AllProviders" -Message "Loaded module: $moduleName" -Level "INFO"
         return $true
     }
     catch {
-        Write-Warning "Failed to load provider module $ModulePath : $($_.Exception.Message)"
-        Write-ApplicationLog -Message "Failed to load provider module $ModulePath : $($_.Exception.Message)" -Level "ERROR"
+    Add-ApplicationLog -Module "AllProviders" -Message "Failed to load provider module $ModulePath : $($_.Exception.Message)" -Level "WARNING"
+        Add-ApplicationLog -Module "AllProviders" -Message "Failed to load provider module $ModulePath : $($_.Exception.Message)" -Level "ERROR"
         return $false
     }
 }
@@ -64,12 +66,12 @@ function Initialise-TTSProviders {
     Discovers and loads all TTS provider modules
     #>
     
-    Write-ApplicationLog -Message "Initializing TTS providers" -Level "INFO"
+    Add-ApplicationLog -Module "AllProviders" -Message "Initialising TTS providers" -Level "INFO"
     
     # Check if Providers directory exists
     if (-not (Test-Path $ProvidersPath)) {
-        Write-Warning "Providers directory not found: $ProvidersPath"
-        Write-ApplicationLog -Message "Creating Providers directory: $ProvidersPath" -Level "INFO"
+    Add-ApplicationLog -Module "AllProviders" -Message "Providers directory not found: $ProvidersPath" -Level "WARNING"
+    Add-ApplicationLog -Module "AllProviders" -Message "Creating Providers directory: $ProvidersPath" -Level "INFO"
         New-Item -ItemType Directory -Path $ProvidersPath -Force | Out-Null
     }
     
@@ -95,11 +97,11 @@ function Initialise-TTSProviders {
             
             if (Import-TTSProviderModule -ModulePath $providerPath -ProviderName $providerName) {
                 $loadedCount++
-                Write-Host "  OK Loaded provider: $providerName" -ForegroundColor Green
+                Add-ApplicationLog -Module "AllProviders" -Message "OK Loaded provider: $providerName" -Level "INFO"
             }
             else {
                 $failedCount++
-                Write-Host "  FAILED to load: $providerName" -ForegroundColor Red
+                Add-ApplicationLog -Module "AllProviders" -Message "FAILED to load: $providerName" -Level "ERROR"
             }
         }
         else {
@@ -116,14 +118,14 @@ function Initialise-TTSProviders {
         
         if (Import-TTSProviderModule -ModulePath $providerFile.FullName -ProviderName $providerName) {
             $loadedCount++
-            Write-Host "  OK Loaded additional provider: $providerName" -ForegroundColor Cyan
+            Add-ApplicationLog -Module "AllProviders" -Message "OK Loaded additional provider: $providerName" -Level "INFO"
         }
         else {
             $failedCount++
         }
     }
     
-    Write-ApplicationLog -Message "TTS Providers initialized: $loadedCount loaded, $failedCount failed" -Level "INFO"
+    Add-ApplicationLog -Module "AllProviders" -Message "TTS Providers initialised: $loadedCount loaded, $failedCount failed" -Level "INFO"
     
     return @{
         LoadedCount = $loadedCount
@@ -138,7 +140,7 @@ function Test-TTSProviderCapabilities {
     Tests and reports capabilities of all loaded TTS providers
     #>
     
-    Write-ApplicationLog -Message "Testing TTS provider capabilities" -Level "INFO"
+    Add-ApplicationLog -Module "AllProviders" -Message "Testing TTS provider capabilities" -Level "INFO"
     
     $results = @{}
     
@@ -201,7 +203,7 @@ function Get-TTSProvider {
         return $script:LoadedProviders[$ProviderName]
     }
     
-    Write-ApplicationLog -Message "Provider not found: $ProviderName" -Level "WARNING"
+    Add-ApplicationLog -Module "AllProviders" -Message "Provider not found: $ProviderName" -Level "WARNING"
     return $null
 }
 
@@ -227,7 +229,7 @@ function Register-TTSProvider {
     )
     
     $script:LoadedProviders[$ProviderName] = $ProviderInfo
-    Write-ApplicationLog -Message "Registered TTS provider: $ProviderName" -Level "INFO"
+    Add-ApplicationLog -Module "AllProviders" -Message "Registered TTS provider: $ProviderName" -Level "INFO"
 }
 
 function Get-ProviderStatus {
@@ -250,20 +252,19 @@ function Get-ProviderStatus {
 }
 
 # Initialise providers on module load
-Write-Host "`nInitializing TTS Providers..." -ForegroundColor Cyan
+Add-ApplicationLog -Module "AllProviders" -Message "Initialising TTS Providers..." -Level "INFO"
 $initResult = Initialise-TTSProviders
 
 if ($initResult.LoadedCount -eq 0) {
-    Write-Warning "No TTS provider modules were loaded!"
-    Write-Host "`nTo add TTS providers, create provider modules in:" -ForegroundColor Yellow
-    Write-Host "  $ProvidersPath" -ForegroundColor Gray
-    Write-Host "`nExample provider files:" -ForegroundColor Yellow
-    Write-Host "  - Azure.psm1" -ForegroundColor Gray
-    Write-Host "  - GoogleCloud.psm1" -ForegroundColor Gray
-    Write-Host "  - AWSPolly.psm1" -ForegroundColor Gray
+    Add-ApplicationLog -Module "AllProviders" -Message "No TTS provider modules were loaded!" -Level "WARNING"
+    Add-ApplicationLog -Module "AllProviders" -Message "To add TTS providers, create provider modules in: $ProvidersPath" -Level "INFO"
+    Add-ApplicationLog -Module "AllProviders" -Message "Example provider files:" -Level "INFO"
+    Add-ApplicationLog -Module "AllProviders" -Message "  - Azure.psm1" -Level "INFO"
+    Add-ApplicationLog -Module "AllProviders" -Message "  - GoogleCloud.psm1" -Level "INFO"
+    Add-ApplicationLog -Module "AllProviders" -Message "  - AWSPolly.psm1" -Level "INFO"
 }
 else {
-    Write-Host "`nSuccessfully loaded $($initResult.LoadedCount) TTS provider(s)" -ForegroundColor Green
+    Add-ApplicationLog -Module "AllProviders" -Message "Successfully loaded $($initResult.LoadedCount) TTS provider(s)" -Level "INFO"
 }
 
 # Export functions

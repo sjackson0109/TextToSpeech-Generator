@@ -1,4 +1,6 @@
-Import-Module (Resolve-Path (Join-Path $PSScriptRoot '..\..\Logging\EnhancedLogging.psm1')).Path -Force
+if (-not (Get-Module -Name 'Logging')) {
+	Import-Module (Resolve-Path (Join-Path $PSScriptRoot '..\..\Logging.psm1')).Path
+}
 
 function New-TwilioTTSProvider {
     param([hashtable]$config = $null)
@@ -9,7 +11,7 @@ function New-TwilioTTSProvider {
     $provider.Capabilities = @{ MaxTextLength = 4000; SupportedFormats = @('mp3','wav'); Premium = $false }
     $provider.GetAvailableVoices = {
         if ($null -eq $provider.Configuration -or $provider.Configuration.GetType().Name -ne 'Hashtable') {
-            Write-ApplicationLog -Message "Twilio GetAvailableVoices: Configuration is null or not a hashtable, returning demo voices" -Level "WARNING"
+            Add-ApplicationLog -Module "Twilio" -Message "Twilio GetAvailableVoices: Configuration is null or not a hashtable, returning demo voices" -Level "WARNING"
             return @('Polly','Alice','Tom')
         }
         $accountSid = $provider.Configuration["AccountSID"]
@@ -18,7 +20,7 @@ function New-TwilioTTSProvider {
         if (-not $accountSid) { $accountSid = $env:TWILIO_ACCOUNT_SID }
         if (-not $authToken) { $authToken = $env:TWILIO_AUTH_TOKEN }
         if (-not $accountSid -or -not $authToken) {
-            Write-ApplicationLog -Message "Twilio GetAvailableVoices: No config or env vars, returning demo voices" -Level "DEBUG"
+            Add-ApplicationLog -Module "Twilio" -Message "Twilio GetAvailableVoices: No config or env vars, returning demo voices" -Level "DEBUG"
             return @('Polly','Alice','Tom')
         }
         $endpoint = "https://api.twilio.com/2010-04-01/Accounts/$accountSid/Voices.json"
@@ -31,7 +33,7 @@ function New-TwilioTTSProvider {
                 return @('Polly','Alice','Tom')
             }
         } catch {
-            Write-ApplicationLog -Message "Twilio GetAvailableVoices: Exception $($_.Exception.Message)" -Level "ERROR"
+            Add-ApplicationLog -Module "Twilio" -Message "Twilio GetAvailableVoices: Exception $($_.Exception.Message)" -Level "ERROR"
             return @('Polly','Alice','Tom')
         }
     }

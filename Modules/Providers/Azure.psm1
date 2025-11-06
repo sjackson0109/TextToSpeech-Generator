@@ -1,4 +1,6 @@
-Import-Module (Resolve-Path (Join-Path $PSScriptRoot '..\..\Logging\EnhancedLogging.psm1')).Path -Force
+if (-not (Get-Module -Name 'Logging')) {
+	Import-Module (Resolve-Path (Join-Path $PSScriptRoot '..\..\Logging.psm1')).Path
+}
 function ApplyConfigurationToGUI {
 	param(
 		[Parameter(Mandatory=$true)][hashtable]$Configuration,
@@ -15,13 +17,13 @@ function Test-AzureCredentials {
 	)
 	# Validate API Key format (should be a 32-character hex string)
 	if (-not $Config.ApiKey -or $Config.ApiKey -notmatch '^[a-fA-F0-9]{32}$') {
-		Write-ApplicationLog -Message "Azure Validate-AzureCredentials: Invalid ApiKey" -Level "WARNING"
+	Add-ApplicationLog -Module "Azure" -Message "Azure Validate-AzureCredentials: Invalid ApiKey" -Level "WARNING"
 		return $false
 	}
 	# Validate datacenter (should be a known Azure region)
 	$validRegions = @('eastus','eastus2','westus','westus2','centralus','northcentralus','southcentralus','westeurope','northeurope','southeastasia','eastasia','australiaeast','australiasoutheast','japaneast','japanwest','brazilsouth','canadacentral','canadaeast','uksouth','ukwest','francecentral','francesouth','koreacentral','koreasouth','southafricanorth','uaenorth','switzerlandnorth','switzerlandwest','germanywestcentral','norwaywest','norwayeast')
 	if (-not $Config.Datacenter -or ($validRegions -notcontains $Config.Datacenter)) {
-		Write-ApplicationLog -Message "Azure Validate-AzureCredentials: Invalid Datacenter" -Level "WARNING"
+	Add-ApplicationLog -Module "Azure" -Message "Azure Validate-AzureCredentials: Invalid Datacenter" -Level "WARNING"
 		return $false
 	}
 	# Attempt a real API call to Azure TTS endpoint
@@ -187,7 +189,7 @@ class AzureTTSProvider : TTSProvider {
 		if (-not $apiKey) { $apiKey = $env:AZURE_SPEECH_KEY }
 		if (-not $region) { $region = $env:AZURE_SPEECH_REGION }
 		if (-not $apiKey -or -not $region) {
-			Write-ApplicationLog -Message "Azure GetAvailableVoices: No config or env vars, returning demo voices" -Level "DEBUG"
+			Add-ApplicationLog -Module "Azure" -Message "Azure GetAvailableVoices: No config or env vars, returning demo voices" -Level "DEBUG"
 			return @('en-US-JennyNeural', 'en-US-GuyNeural', 'en-GB-LibbyNeural')
 		}
 		$endpoint = "https://$region.tts.speech.microsoft.com/cognitiveservices/voices/list"
@@ -203,12 +205,12 @@ class AzureTTSProvider : TTSProvider {
 				return @('en-US-JennyNeural', 'en-US-GuyNeural', 'en-GB-LibbyNeural')
 			}
 		} catch {
-			Write-ApplicationLog -Message "Azure GetAvailableVoices: Exception $($_.Exception.Message)" -Level "ERROR"
+			Add-ApplicationLog -Module "Azure" -Message "Azure GetAvailableVoices: Exception $($_.Exception.Message)" -Level "ERROR"
 			return @('en-US-JennyNeural', 'en-US-GuyNeural', 'en-GB-LibbyNeural')
 		}
 	}
 	[hashtable] GetCapabilities() {
-		Write-ApplicationLog -Message "Azure GetCapabilities: Returning static capabilities" -Level "DEBUG"
+	Add-ApplicationLog -Module "Azure" -Message "Azure GetCapabilities: Returning static capabilities" -Level "DEBUG"
 		return @{ MaxTextLength = 5000; SupportedFormats = @('mp3', 'wav', 'ogg'); Premium = $false }
 	}
 }
@@ -410,14 +412,14 @@ class AzureTTSProvider : TTSProvider {
 			'X-Microsoft-OutputFormat' = 'audio-16khz-32kbitrate-mono-mp3'
 			'User-Agent' = 'curl'
 		}
-		Write-ApplicationLog -Message "Calling Azure TTS API" -Level "DEBUG"
+	Add-ApplicationLog -Module "Azure" -Message "Calling Azure TTS API" -Level "DEBUG"
 		$scriptBlock = {
 			Invoke-RestMethod -Uri $endpoint -Method Post -Headers $headers -Body $ssml -TimeoutSec 30
 		}
 		$response = Invoke-APIWithRetry -ScriptBlock $scriptBlock -Provider "Azure"
 		if ($response -is [byte[]] -and $response.Length -gt 0) {
 			[System.IO.File]::WriteAllBytes($OutputPath, $response)
-			Write-ApplicationLog -Message "Azure TTS: Generated audio file ($($response.Length) bytes)" -Level "INFO"
+			Add-ApplicationLog -Module "Azure" -Message "Azure TTS: Generated audio file ($($response.Length) bytes)" -Level "INFO"
 			return @{ Success = $true; Message = "Generated successfully"; FileSize = $response.Length }
 		} else {
 			throw "Invalid response from Azure TTS API"
@@ -425,7 +427,7 @@ class AzureTTSProvider : TTSProvider {
 	}
 	catch {
 		$errorDetails = Get-DetailedErrorInfo -Exception $_.Exception -Provider "Azure"
-		Write-ErrorLog -Operation "Azure TTS" -Exception $_.Exception -Context @{ Text = $Text.Substring(0, [Math]::Min(50, $Text.Length)) }
+	Add-ErrorLog -Operation "Azure TTS" -Exception $_.Exception -Context @{ Text = $Text.Substring(0, [Math]::Min(50, $Text.Length)) }
 		return @{ Success = $false; Message = $errorDetails.UserMessage; ErrorCode = $errorDetails.ErrorCode }
 	}
 }
