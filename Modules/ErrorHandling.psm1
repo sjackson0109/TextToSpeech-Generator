@@ -1,4 +1,4 @@
-# Standardized Error Handling Module for TextToSpeech Generator v3.2
+# Standardized Error Handling Module for TextToSpeech Generator
 # Provides consistent error handling patterns across all modules
 
 # Error classification system

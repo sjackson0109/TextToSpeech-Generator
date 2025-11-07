@@ -1,6 +1,6 @@
 using module .\CircuitBreaker.psm1
 using module .\ErrorHandling.psm1
-# Advanced Error Recovery Module for TextToSpeech Generator v3.2
+# Advanced Error Recovery Module for TextToSpeech Generator
 # Provider-specific recovery strategies and intelligent error handling
 # Integrated with AdvancedResilience for enterprise-grade error handling
 

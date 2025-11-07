@@ -1,4 +1,4 @@
-# Enhanced Testing Framework for TextToSpeech Generator v3.2
+# Enhanced Testing Framework for TextToSpeech Generator
 # Comprehensive testing infrastructure with unit, integration, and performance tests
 
 # Import required modules
@@ -668,7 +668,7 @@ class EnhancedTestFramework {
     [string] CreateTextSummary([hashtable]$report) {
         $summary = @"
 ==============================================
-TextToSpeech Generator v3.2 - Test Report
+TextToSpeech Generator - Test Report
 ==============================================
 Generated: $($report.GeneratedAt)
 Duration: $([math]::Round($report.SessionDuration.TotalSeconds, 2)) seconds

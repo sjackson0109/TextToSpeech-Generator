@@ -1,4 +1,4 @@
-# Advanced Configuration Module for TextToSpeech Generator v3.2
+# Advanced Configuration Module for TextToSpeech Generator
 # PowerShell 5.1 Compatible Version
 
 # Configuration profiles for different environments

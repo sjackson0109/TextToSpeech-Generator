@@ -1,10 +1,44 @@
 # GUIModule.psm1 - Unified GUI module for TextToSpeech Generator
 # Consolidates all GUI logic, event handlers, configuration, and provider setup dialogs
 
-# Ensure required WPF and Forms assemblies are loaded for GUI support
-Add-Type -AssemblyName PresentationFramework -ErrorAction SilentlyContinue
-Add-Type -AssemblyName System.Windows.Forms -ErrorAction SilentlyContinue
-Add-Type -AssemblyName System.Windows.Markup -ErrorAction SilentlyContinue
+# Load required WPF assemblies for GUI functionality - check first, then load if needed
+if (-not [System.Type]::GetType('System.Windows.Markup.XamlReader', $false)) {
+	try {
+		Add-Type -AssemblyName PresentationFramework -ErrorAction Stop
+	} catch {
+		$msg = "Unable to load PresentationFramework. GUI functions will be disabled. Exception: $($_.Exception.Message)"
+		Write-Warning $msg
+		if ($_.Exception.LoaderExceptions) {
+			foreach ($loaderEx in $_.Exception.LoaderExceptions) {
+				Write-Warning "LoaderException: $($loaderEx.Message)"
+			}
+		}
+		if ($_.Exception.GetType().FullName) {
+			Write-Warning "Exception type: $($_.Exception.GetType().FullName)"
+		}
+		return
+	}
+}
+
+# Similarly for WinForms if needed
+
+if (-not [System.Type]::GetType('System.Windows.Forms.Form', $false)) {
+	try {
+		Add-Type -AssemblyName System.Windows.Forms -ErrorAction Stop
+	} catch {
+		$msg = "Unable to load System.Windows.Forms. GUI functions may be limited. Exception: $($_.Exception.Message)"
+		Write-Warning $msg
+		if ($_.Exception.LoaderExceptions) {
+			foreach ($loaderEx in $_.Exception.LoaderExceptions) {
+				Write-Warning "LoaderException: $($loaderEx.Message)"
+			}
+		}
+		if ($_.Exception.GetType().FullName) {
+			Write-Warning "Exception type: $($_.Exception.GetType().FullName)"
+		}
+	}
+}
+
 
 # Unified GUI class and all supporting functions
 # (Migrated from GUI.psm1, ModernGUI.psm1, and all legacy GUI/*.psm1)
@@ -27,7 +61,7 @@ class GUI {
 			<!-- Header -->
 			<Border Background="#FF2D2D30" CornerRadius="6" Padding="12" Margin="0,0,0,12">
 				<StackPanel>
-					<TextBlock Text="🎤 TextToSpeech Generator" FontSize="20" FontWeight="Bold" Foreground="White"/>
+					<TextBlock Text="TextToSpeech Generator" FontSize="20" FontWeight="Bold" Foreground="White"/>
 					<TextBlock Text="Convert text to high-quality speech using enterprise TTS providers. Save API configurations and switch between providers seamlessly." FontSize="12" Foreground="#FFCCCCCC" Margin="0,4,0,0" TextWrapping="Wrap"/>
 				</StackPanel>
 			</Border>
@@ -198,6 +232,9 @@ class GUI {
 		$this.Window = $null
 		$this.ConfigManager = $null
 		$this.AutoSaveTimer = $null
+		
+		# Automatically initialize the modern GUI
+		$this.InitialiseModernGUI($profile, $null)
 	}
 
 	[object]InitialiseModernGUI($Profile = "Default", $ConfigurationManager = $null) {
@@ -225,7 +262,9 @@ class GUI {
 				$this.WriteSafeLog("ERROR: PresentationFramework assembly could not be loaded. WPF GUI cannot be initialized.", "ERROR")
 				return $null
 			}
+			$this.WriteSafeLog("DEBUG: About to call ConvertXAMLtoWindow with XAML length: $($this.XAML.Length)", "DEBUG")
 			$this.Window = $this.ConvertXAMLtoWindow($this.XAML)
+			$this.WriteSafeLog("DEBUG: ConvertXAMLtoWindow returned: $($this.Window -ne $null)", "DEBUG")
 			if ($null -eq $this.Window -or ($this.Window.GetType().FullName -ne 'System.Windows.Window')) {
 				$this.WriteSafeLog("ERROR: Failed to create GUI window from XAML or missing WPF types.", "ERROR")
 				return $null
@@ -290,20 +329,41 @@ class GUI {
 	[object]ConvertXAMLtoWindow($XAML) {
 		$wpfAvailable = $false
 		try {
-			Add-Type -AssemblyName PresentationFramework -ErrorAction Stop
+			Add-Type -AssemblyName PresentationFramework -ErrorAction SilentlyContinue
+
 			$wpfAvailable = $true
 		} catch {}
-		$xamlReaderType = [System.Type]::GetType('System.Windows.Markup.XamlReader')
-		$windowType = [System.Type]::GetType('System.Windows.Window')
-		if (-not $wpfAvailable -or $null -eq $xamlReaderType -or $null -eq $windowType) {
+		# Test WPF types directly instead of using GetType() which can fail in PowerShell classes
+		$typesAvailable = $true
+		try {
+			# Test if we can access the actual types directly
+			$null = [System.Windows.Markup.XamlReader]
+			$null = [System.Windows.Window]
+			$this.WriteSafeLog("DEBUG: Direct WPF type access successful", "DEBUG")
+		} catch {
+			$typesAvailable = $false
+			$this.WriteSafeLog("DEBUG: Direct WPF type access failed: $($_.Exception.Message)", "DEBUG")
+		}
+		
+		if (-not $wpfAvailable -or -not $typesAvailable) {
 			$this.WriteSafeLog("ERROR: WPF types not available in this environment. GUI will not be shown.", "ERROR")
 			return $null
 		}
+		
+		# Clean up XAML string - remove any trailing quotes that might be included from here-string parsing
+		$cleanXAML = $XAML
+		if ($cleanXAML.EndsWith('"')) {
+			$cleanXAML = $cleanXAML.Substring(0, $cleanXAML.Length - 1)
+			$this.WriteSafeLog("DEBUG: Removed trailing quote from XAML", "DEBUG")
+		}
+		$this.WriteSafeLog("DEBUG: XAML length: $($cleanXAML.Length), starts with: $($cleanXAML.Substring(0, 50))", "DEBUG")
+		
 		try {
-			$reader = [System.Xml.XmlReader]::Create([IO.StringReader]$XAML)
+			$reader = [System.Xml.XmlReader]::Create([IO.StringReader]$cleanXAML)
 			$result = [System.Windows.Markup.XamlReader]::Load($reader)
 			$reader.Close()
-			$reader = [System.Xml.XmlReader]::Create([IO.StringReader]$XAML)
+			$this.WriteSafeLog("DEBUG: XAML parsed successfully, result type: $($result.GetType().Name)", "DEBUG")
+			$reader = [System.Xml.XmlReader]::Create([IO.StringReader]$cleanXAML)
 			while ($reader.Read()) {
 				$name = $reader.GetAttribute('Name')
 				if (!$name) { $name = $reader.GetAttribute('x:Name') }
@@ -316,7 +376,17 @@ class GUI {
 			}
 			return $result
 		} catch {
-			$this.WriteSafeLog("ERROR: WPF XAML loading or type resolution failed: $($_.Exception.Message)", "ERROR")
+			$msg = "ERROR: WPF XAML loading or type resolution failed: $($_.Exception.Message)"
+			if ($_.Exception.GetType().FullName) {
+				$msg += " | Exception type: $($_.Exception.GetType().FullName)"
+			}
+			if ($_.Exception.StackTrace) {
+				$msg += " | StackTrace: $($_.Exception.StackTrace)"
+			}
+			if ($_.Exception.InnerException) {
+				$msg += " | InnerException: $($_.Exception.InnerException.Message)"
+			}
+			$this.WriteSafeLog($msg, "ERROR")
 			return $null
 		}
 	}

@@ -1,4 +1,4 @@
-# Configuration Schema Validation Module for TextToSpeech Generator v3.2
+# Configuration Schema Validation Module for TextToSpeech Generator
 # Provides comprehensive validation for configuration files
 
 # Configuration schema definitions

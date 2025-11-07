@@ -1,4 +1,4 @@
-# Enhanced Security Module for TextToSpeech Generator v3.2
+# Enhanced Security Module for TextToSpeech Generator
 # Provides certificate-based encryption, secure storage, and audit trails
 
 Add-Type -AssemblyName System.Security

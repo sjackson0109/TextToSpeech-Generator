@@ -1,4 +1,4 @@
-# Performance Optimization & Monitoring Module for TextToSpeech Generator v3.2
+# Performance Optimization & Monitoring Module for TextToSpeech Generator
 # Advanced performance monitoring, memory management, and intelligent caching
 
 class PerformanceMonitor {

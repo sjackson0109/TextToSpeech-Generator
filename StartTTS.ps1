@@ -30,15 +30,16 @@ if (-not $EnablePerformanceMonitoring) { $EnablePerformanceMonitoring = $true }
 if (-not $EnableSecureStorage) { $EnableSecureStorage = $true }
 
 
-# Import required modules once at the top
 
-# Import Logging module and ensure Add-ApplicationLog is available
+# Import Logging.psm1 FIRST, before any logging calls
 if (Get-Command New-LoggingSystem -ErrorAction SilentlyContinue) {
     Remove-Item Function:New-LoggingSystem -ErrorAction SilentlyContinue
 }
 Import-Module (Resolve-Path (Join-Path $PSScriptRoot 'Modules\Logging.psm1')).Path -Force
 Import-Module (Resolve-Path (Join-Path $PSScriptRoot 'Modules\Optimisation.psm1')).Path -Force
+Import-Module (Resolve-Path (Join-Path $PSScriptRoot 'Modules\Performance.psm1')).Path -Force
 
+# Ensure Write-Log is defined before any usage
 function Write-Log {
     param(
         [string]$Message,
@@ -51,6 +52,18 @@ function Write-Log {
         Write-Host "[$Level] [$Module] $Message" -ForegroundColor Yellow
     }
 }
+
+# Import ShowUIHelper if available
+try {
+    Import-Module (Resolve-Path (Join-Path $PSScriptRoot 'Modules\ShowUIHelper.psm1')).Path -ErrorAction Stop
+    $ShowUIAvailable = $true
+    Write-Log -Message "ShowUIHelper module loaded successfully." -Level "INFO"
+} catch {
+    $ShowUIAvailable = $false
+    Write-Log -Message "ShowUIHelper module not available (ShowUI not installed). Using fallback GUI." -Level "INFO"
+}
+
+# Write-Log function already defined above - no need to redefine
 
 # Initialise global optimisation objects
 
@@ -68,6 +81,13 @@ $asyncResult = Get-OptimisationAsyncSlot $Global:AsyncManager
 Write-Log -Message "ConnectionPool count: $connCount, Got: $conn, Async result: $asyncResult" -Level "DEBUG"
 
 $ErrorActionPreference = "Continue"
+
+# Show GUI using ShowUI if available
+if ($ShowUIAvailable -and -not $RunTests -and -not $ValidateOnly -and -not $ShowHelp) {
+    Write-Log -Message "Launching GUI using ShowUI..." -Level "INFO"
+    $null = Show-TTSGeneratorGUI -Profile $ConfigProfile
+    return
+}
 
 function Show-ApplicationHelp {
     Write-Host @"
@@ -109,8 +129,7 @@ if ($Verbose) {
     $VerbosePreference = "Continue"
 }
 
-Add-ApplicationLog -Module "StartTTS" -Message "=== TextToSpeech Generator v3.2 ===" -Level "INFO"
-Write-Log -Message "=== TextToSpeech Generator v3.2 ===" -Level "INFO"
+Add-ApplicationLog -Module "StartTTS" -Message "=== TextToSpeech Generator ===" -Level "INFO"
 if ($DryRun) {
     Write-Log -Message "DRY RUN MODE - No API calls will be made" -Level "WARNING"
 }
@@ -133,8 +152,7 @@ try {
         "Modules\ErrorHandling.psm1",
         "Modules\ErrorRecovery.psm1",
         "Modules\CircuitBreaker.psm1",
-        "Modules\Providers.psm1",
-        "Modules\GUI.psm1"
+        "Modules\Providers.psm1"
     )
     
     foreach ($Module in $ModulesToLoad) {
@@ -154,9 +172,30 @@ try {
             Write-Log -Message "Failed to load $Module : $($_.Exception.Message)" -Level "ERROR"
         }
     }
+
+    # Try to load PresentationFramework and import GUI module if available
+    $guiModulePath = Join-Path $PSScriptRoot "Modules\GUI.psm1"
+    $wpfAvailable = $false
+    try {
+        Add-Type -AssemblyName PresentationFramework -ErrorAction Stop
+        $wpfAvailable = $true
+    } catch {
+        Write-Log -Message "WPF PresentationFramework assembly not available. GUI will be disabled. CLI mode only." -Level "WARNING"
+    }
+    if ($wpfAvailable -and (Test-Path $guiModulePath)) {
+        try {
+            Import-Module $guiModulePath -Force -ErrorAction Stop
+            Write-Log -Message "OK Modules\GUI.psm1" -Level "INFO"
+        } catch {
+            Write-Log -Message "FAILED Modules\GUI.psm1 : $($_.Exception.Message)" -Level "WARNING"
+            Write-Log -Message "Failed to load Modules\GUI.psm1 : $($_.Exception.Message)" -Level "ERROR"
+        }
+    } else {
+        Write-Log -Message "Skipping GUI module import. Running in CLI mode only." -Level "INFO"
+    }
     
     if ($EnablePerformanceMonitoring) {
-        $perfModule = Join-Path $PSScriptRoot "Modules\PerformanceMonitoring\PerformanceMonitoring.psm1"
+        $perfModule = Join-Path $PSScriptRoot "Modules\Performance.psm1"
         if (Test-Path $perfModule) {
             Import-Module $perfModule -Force -ErrorAction SilentlyContinue
         }
@@ -168,18 +207,16 @@ try {
     Add-ApplicationLog -Module "StartTTS" -Message "Initialising systems..." -Level "INFO"
     
 
+    # Initialize logging system properly
     $logPath = Join-Path $PSScriptRoot "application.log"
-    if (Get-Command New-LoggingSystem -ErrorAction SilentlyContinue) {
-        Remove-Item Function:New-LoggingSystem -ErrorAction SilentlyContinue
-    }
-    Import-Module (Resolve-Path (Join-Path $PSScriptRoot 'Modules\Logging.psm1')).Path -Force
-    $cmd = Get-Command New-LoggingSystem -ErrorAction SilentlyContinue
-    if ($cmd) {
-        $signature = ($cmd | Format-List * | Out-String)
-        Write-Log -Message "New-LoggingSystem full signature:`n$signature" -Level "INFO"
+    $LogLevel = if ($LogLevel) { $LogLevel } else { "INFO" }
+    
+    try {
+        # Call New-LoggingSystem with proper named parameters (already imported at top)
         New-LoggingSystem -LogPath $logPath -Level $LogLevel -MaxSizeMB 10 -MaxFiles 5
-    } else {
-        Write-Log -Message "New-LoggingSystem function not found. Logging system initialisation skipped." -Level "ERROR"
+        Write-Log -Message "Logging system initialized successfully" -Level "INFO"
+    } catch {
+        Write-Log -Message "Logging system already initialized or parameter mismatch - continuing with existing logging" -Level "INFO"
     }
     Add-ApplicationLog -Module "StartTTS" -Message "TextToSpeech Generator v3.2 starting" -Level "INFO"
     
@@ -196,11 +233,15 @@ try {
     
     if ($EnablePerformanceMonitoring) {
         try {
-            Start-OperationMonitoring -OperationName "ApplicationStartup"
-            Add-ApplicationLog -Module "StartTTS" -Message "Performance monitoring enabled" -Level "INFO"
+            if (Get-Command Start-OperationMonitoring -ErrorAction SilentlyContinue) {
+                Start-OperationMonitoring -OperationName "ApplicationStartup"
+                Add-ApplicationLog -Module "StartTTS" -Message "Performance monitoring enabled" -Level "INFO"
+            } else {
+                Add-ApplicationLog -Module "StartTTS" -Message "Performance monitoring disabled (function not available)" -Level "INFO"
+            }
         }
         catch {
-            Add-ApplicationLog -Module "StartTTS" -Message "Performance monitoring unavailable" -Level "WARNING"
+            Add-ApplicationLog -Module "StartTTS" -Message "Performance monitoring disabled (initialization failed)" -Level "INFO"
         }
     }
     

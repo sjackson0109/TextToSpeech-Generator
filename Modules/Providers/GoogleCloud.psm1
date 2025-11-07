@@ -189,7 +189,7 @@ function Invoke-GoogleCloudTTS {
         $requestBody = $requestBody | ConvertTo-Json -Depth 10
         $headers = @{
             'Content-Type' = 'application/json'
-            'User-Agent' = 'TextToSpeech Generator v3.2'
+            'User-Agent' = 'TextToSpeech Generator'
         }
         # ...existing code for API call and error handling...
     } catch {

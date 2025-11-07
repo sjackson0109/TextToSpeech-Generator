@@ -1,4 +1,4 @@
-# Utilities Module for TextToSpeech Generator v3.2
+# Utilities Module for TextToSpeech Generator
 # Common utility functions and helpers
 
 # File and Path Utilities
