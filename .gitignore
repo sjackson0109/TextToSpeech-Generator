@@ -13,5 +13,7 @@ OUTPUT/*
 // Ignore the LOGS file/folder
 LOGS/*
 *.log
+
+// Ignore specific configuration and credential files
 config.json
 Credentials.txt
