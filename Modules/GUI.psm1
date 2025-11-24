@@ -337,29 +337,23 @@ class GUI {
 				<!-- Row 0: Voice, Language, Format -->
 				<Label Content="Voice:" Grid.Row="0" Grid.Column="0" Margin="0,4,8,0" VerticalAlignment="Center"/>
 				<ComboBox x:Name="VoiceSelect" Grid.Row="0" Grid.Column="1" Height="26" Margin="0,4,12,0" VerticalContentAlignment="Center">
-					<ComboBoxItem Content="AriaNeural"/>
-					<ComboBoxItem Content="Joanna"/>
-					<ComboBoxItem Content="Wavenet-D"/>
+					   <!-- Items will be populated dynamically -->
 				</ComboBox>
 				
 				<Label Content="Language:" Grid.Row="0" Grid.Column="2" Margin="0,4,8,0" VerticalAlignment="Center"/>
 				<ComboBox x:Name="LanguageSelect" Grid.Row="0" Grid.Column="3" Height="26" Margin="0,4,12,0" VerticalContentAlignment="Center">
-					<ComboBoxItem Content="en-US"/>
-					<ComboBoxItem Content="en-GB"/>
-					<ComboBoxItem Content="de-DE"/>
+					   <!-- Items will be populated dynamically -->
 				</ComboBox>
 				
 				<Label Content="Format:" Grid.Row="0" Grid.Column="4" Margin="0,4,8,0" VerticalAlignment="Center"/>
 				<ComboBox x:Name="FormatSelect" Grid.Row="0" Grid.Column="5" Height="26" Margin="0,4,12,0" VerticalContentAlignment="Center">
-					<ComboBoxItem Content="MP3 16kHz"/>
-					<ComboBoxItem Content="WAV"/>
+					   <!-- Items will be populated dynamically -->
 				</ComboBox>
 				
 				<!-- Row 1: Quality, Advanced button spans both rows -->
 				<Label Content="Quality:" Grid.Row="1" Grid.Column="0" Margin="0,4,8,0" VerticalAlignment="Center"/>
 				<ComboBox x:Name="QualitySelect" Grid.Row="1" Grid.Column="1" Height="26" Margin="0,4,12,0" VerticalContentAlignment="Center" HorizontalAlignment="Left">
-					<ComboBoxItem Content="Neural"/>
-					<ComboBoxItem Content="Standard"/>
+					   <!-- Items will be populated dynamically -->
 				</ComboBox>
 				
 				<!-- Advanced button spans both rows, vertically centreed -->
@@ -1033,27 +1027,31 @@ class GUI {
 			}.GetNewClosure())
 		}
 		
-		# Connect button event
-		if ($this.Window.Connect) {
-			$this.Window.Connect.add_Click({
+		# Advanced button event
+		if ($this.Window.AdvancedVoice) {
+			$this.Window.AdvancedVoice.add_Click({
 				$selectedProvider = $gui.Window.ProviderSelect.SelectedItem.Content
 				if ($selectedProvider) {
-					$gui.WriteSafeLog("Testing connection for provider: $selectedProvider", "INFO")
-					
-					# Get provider instance
+					$gui.WriteSafeLog("Opening advanced settings for provider: $selectedProvider", "INFO")
 					$providerInstance = Get-TTSProvider -ProviderName $selectedProvider
-					if ($providerInstance) {
-						# Get configuration - first from provider instance, then from config.json
-						$config = @{}
-						if ($providerInstance.Configuration -and $providerInstance.Configuration.Count -gt 0) {
-							$config = $providerInstance.Configuration
-						} else {
-							# Load from config.json if provider instance doesn't have config
-							try {
-								$configPath = Join-Path $PSScriptRoot "..\config.json"
-								if (Test-Path $configPath) {
-									$savedConfig = Get-Content $configPath -Raw | ConvertFrom-Json
-									if ($savedConfig.ProviderConfigurations -and $savedConfig.ProviderConfigurations.$selectedProvider) {
+					if ($providerInstance -and ($providerInstance.PSObject.Methods.Name -contains 'ShowAdvancedVoiceDialog')) {
+						$currentConfig = $providerInstance.Configuration
+						$result = $providerInstance.ShowAdvancedVoiceDialog($currentConfig)
+						if ($result) {
+							$gui.WriteSafeLog("Advanced voice options updated for $selectedProvider", "INFO")
+						}
+					} else {
+						$gui.WriteSafeLog("ShowAdvancedVoiceDialog not implemented for $selectedProvider", "WARNING")
+						[System.Windows.MessageBox]::Show(
+							"Advanced settings are not yet implemented for $selectedProvider",
+							"Advanced Settings",
+							[System.Windows.MessageBoxButton]::OK,
+							[System.Windows.MessageBoxImage]::Information
+						)
+					}
+				}
+			}.GetNewClosure())
+		}
 										# Convert PSCustomObject to hashtable
 										$providerConfig = $savedConfig.ProviderConfigurations.$selectedProvider
 										$providerConfig.PSObject.Properties | ForEach-Object {
