@@ -1,4 +1,4 @@
-# TextToSpeech Generator v3.2
+﻿# TextToSpeech Generator v3.2
 
 An **enterprise-grade modular application** for converting text to speech using multiple TTS providers. Features **advanced architecture**, **security framework**, **performance monitoring**, bulk CSV processing, and comprehensive testing infrastructure.
 
@@ -6,20 +6,20 @@ An **enterprise-grade modular application** for converting text to speech using 
 ![Platform](https://img.shields.io/badge/platform-Windows-lightgrey)
 ![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue)
 ![Architecture](https://img.shields.io/badge/architecture-modular-green)
-![License](https://img.shields.io/badge/license-MIT-green)
+![licence](https://img.shields.io/badge/licence-MIT-green)
 ![Status](https://img.shields.io/badge/stability-operational-brightgreen)
 ![Security](https://img.shields.io/badge/security-validated-green)
 
-## **Attribution & License**
+## **Attribution & licence**
 
 This project is derived from and inspired by **[Luca Vitali's AzureTTSVoiceGeneratorGUI](https://github.com/LucaVitali/AzureTTSVoiceGeneratorGUI)** original works.
 
-- **Original Work**: Luca Vitali (2019, MIT License)
-- **Enhanced Version**: Simon Jackson (2024-2025, MIT License) 
+- **Original Work**: Luca Vitali (2019, MIT licence)
+- **Enhanced Version**: Simon Jackson (2024-2025, MIT licence) 
    
-   See [ATTRIBUTION.md](ATTRIBUTION.md) and [LICENSE.md](LICENSE.md) for details.
+   See [ATTRIBUTION.md](ATTRIBUTION.md) and [licence.md](licence.md) for details.
 
-Both original and derivative works are licensed under the **MIT License**, allowing free use, modification, and distribution with proper attribution.
+Both original and derivative works are licenced under the **MIT licence**, allowing free use, modification, and distribution with proper attribution.
 
 ## Features
 
@@ -34,13 +34,15 @@ Both original and derivative works are licensed under the **MIT License**, allow
 - **Input Validation** - Enterprise-grade sanitization and validation frameworks
 - **Error Classification** - Provider-specific error codes with detailed resolution guidance
 - **Configuration Migration** - Seamless upgrade path from legacy XML to modern JSON
-- **Azure Cognitive Services** - Premium neural voices with SSML support and regional deployment
+- **Microsoft Azure Cognitive Services** - Premium neural voices with SSML support and regional deployment
 - **AWS Polly** - Neural engine with lifelike speech synthesis and custom lexicons
+- **ElevenLabs** - Ultra-realistic AI voices with emotion control and voice cloning
 - **Google Cloud TTS** - WaveNet technology with advanced prosody control
-- **CloudPronouncer** - Specialized pronunciation accuracy for complex terms
-- **Twilio** - Telephony-optimized TTS for communication workflows
-- **VoiceForge** - Character and novelty voices for creative applications
-- **Intelligent Threading** - Auto-optimized parallel processing (3-6x speed improvement)
+- **Murf AI** - Gen2 and Falcon models with 150+ ultra-realistic voices across 20+ languages
+- **OpenAI TTS** - GPT-4 powered voices (alloy, echo, fable, onyx, nova, shimmer) with HD quality
+- **Telnyx** - WebSocket streaming with 266+ voices (KokoroTTS, Natural, NaturalHD models)
+- **Twilio** - Telephony-optimised TTS for communication workflows
+- **Intelligent Threading** - Auto-optimised parallel processing (3-6x speed improvement)
 - **Memory Management** - Automatic garbage collection and memory threshold monitoring
 - **Caching System** - LRU cache with TTL for improved response times
 - **Progress Tracking** - Real-time updates with thread-safe UI integration
@@ -53,11 +55,12 @@ Both original and derivative works are licensed under the **MIT License**, allow
 
 ## Requirements
 
-- **Operating System**: Windows 10/11 or Windows Server 2016+
-- **PowerShell**: Version 5.1 or higher
-- **.NET Framework**: 4.7.2 or higher
-- **API Access**: Valid API keys for chosen TTS provider(s)
-- **Subscription/Billing**: The ability to pay for your consumption of the TTS providers API. Ensure you read the chosen providers documentation. 
+**Operating System**: Windows 10/11 or Windows Server 2016+
+**PowerShell**: Version 5.1 or higher
+**.NET Framework**: 4.7.2 or higher (required for GUI/XAML support; PowerShell 5.1 uses .NET Framework by default)
+   - For full GUI functionality and XAML window rendering, you must run on Windows with .NET Framework 4.7.2 or newer. WPF/XAML features are not available on PowerShell Core or non-Windows environments.
+**API Access**: Valid API keys for chosen TTS provider(s)
+**Subscription/Billing**: The ability to pay for your consumption of the TTS providers API. Ensure you read the chosen providers documentation. 
 
 Note: Simon Jackson and Luca Vitali will not be held responsible for you not understanding that there are sometimes costs involved with using external APIs.
 
@@ -86,14 +89,14 @@ Note: Simon Jackson and Luca Vitali will not be held responsible for you not und
 
 3. **Run Application**:
    ```powershell
-   .\StartModularTTS.ps1
+   .\StartTTS.ps1
    ```
    
    **Advanced Options:**
    ```powershell
-   .\StartModularTTS.ps1 -TestMode                    # System validation only
-   .\StartModularTTS.ps1 -RunTests -GenerateReport   # Run tests with reporting
-   .\StartModularTTS.ps1 -ConfigProfile "Production" # Use production settings
+   .\StartTTS.ps1 -TestMode                    # System validation only
+   .\StartTTS.ps1 -RunTests -GenerateReport   # Run tests with reporting
+   .\StartTTS.ps1 -ConfigProfile "Production" # Use production settings
    ```
 
 ### **Upgrading from v3.1 or Earlier**
@@ -112,24 +115,74 @@ If you have an existing installation with `TextToSpeech-Generator.xml` configura
 
 3. **Verify Migration**:
    ```powershell
-   .\StartModularTTS.ps1 -TestMode
+   .\StartTTS.ps1 -TestMode
    ```
 
 4. **Update Your Workflow**:
-   - Use `.\StartModularTTS.ps1` instead of `.\TextToSpeech-Generator.ps1`
+   - Use `.\StartTTS.ps1` instead of `.\TextToSpeech-Generator.ps1`
    - Configure providers using the new JSON-based system
    - Take advantage of multi-environment profiles (Development/Production/Testing)
 
+
 ## API Configuration
+
+All providers support two secure methods for supplying credentials and configuration:
+
+1. **Configuration File (Default.json/config.json):**
+   - Enter credentials in the GUI or JSON config file (not recommended for sensitive production keys).
+2. **Environment Variables (Recommended for Testing/Security):**
+   - Set environment variables in your PowerShell session before launching the app. No credentials are ever written to disk.
+
+### Supported Environment Variables
+
+| Provider         | Required Environment Variables                          |
+|------------------|--------------------------------------------------------|
+| **Azure**        | `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION`              |
+| **AWS Polly**    | `AWS_POLLY_ACCESS_KEY`, `AWS_POLLY_SECRET_KEY`, `AWS_POLLY_REGION` |
+| **Google Cloud** | `GOOGLE_CLOUD_API_KEY`                                 |
+| **Twilio**       | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`              |
+| **VoiceForge**   | `VOICEFORGE_API_KEY`                                   |
+| **VoiceWare**    | `VOICEWARE_API_KEY`, `VOICEWARE_REGION`, `VOICEWARE_VOICE` |
+
+**Example (PowerShell):**
+```powershell
+$env:AZURE_SPEECH_KEY = 'your-azure-key'
+$env:AZURE_SPEECH_REGION = 'your-azure-region'
+$env:AWS_POLLY_ACCESS_KEY = 'your-aws-access-key'
+$env:AWS_POLLY_SECRET_KEY = 'your-aws-secret-key'
+$env:AWS_POLLY_REGION = 'your-aws-region'
+$env:GOOGLE_CLOUD_API_KEY = 'your-google-api-key'
+$env:TWILIO_ACCOUNT_SID = 'your-twilio-sid'
+$env:TWILIO_AUTH_TOKEN = 'your-twilio-token'
+$env:VOICEFORGE_API_KEY = 'your-voiceforge-key'
+$env:VOICEWARE_API_KEY = 'your-voiceware-key'
+$env:VOICEWARE_REGION = 'your-voiceware-region'
+$env:VOICEWARE_VOICE = 'your-voiceware-voice'
+```
+> **Compatibility Note:** All code in this project is designed to work with both PowerShell v5 and v7. If you encounter any compatibility issues, please report them via GitHub Issues.
+
+Set these variables in your session before running `.\StartTTS.ps1`. The app will automatically use them if config fields are missing or empty.
+
+> **Important:**
+> - For **Azure**, your API key and region must match, and you must select a valid Azure voice or TTS generation will fail.
+> - For **AWS Polly**, your access/secret keys and region must match, and you must select a valid Polly voice or TTS generation will fail.
+> - For **Google Cloud**, your API key, region, and voice must be valid and match your project setup.
+> - For **Twilio**, you must provide a valid account SID, auth token, and select a supported Twilio voice.
+> - For **VoiceForge**, you must provide a valid API key and select a supported VoiceForge voice.
+> - For **VoiceWare**, your API key must match the selected region, and you must select a valid VoiceWare voice or TTS generation will fail.
 
 | Provider | Details |
 |----------|---------|
 | **Azure Cognitive Services** | **Status**: Full production implementation with real API calls<br>**Quality**: Premium neural voices with natural prosody and SSML support<br>**Free Tier**: 5,000 transactions/month<br>**Languages**: 140+ languages, 400+ voices<br>**[Complete Setup Guide →](docs/AZURE-SETUP.md)** |
 | **Google Cloud Text-to-Speech** | **Status**: Full production implementation with real API calls<br>**Quality**: WaveNet technology for human-like speech with advanced options<br>**Free Tier**: 1M WaveNet characters/month<br>**Languages**: 40+ languages, 220+ voices<br>**[Complete Setup Guide →](docs/GOOGLE-SETUP.md)** |
 | **AWS Polly** | **Status**: Full production implementation with real API calls<br>**Quality**: Neural and standard voices with AWS Signature V4 authentication<br>**Free Tier**: 1M characters/month for speech synthesis<br>**Languages**: 60+ languages, 570+ voices including neural options<br>**[Complete Setup Guide →](docs/AWS-SETUP.md)** |
-| **CloudPronouncer** | **Status**: Full production implementation with real API calls<br>**Quality**: Specialised pronunciation accuracy for names and complex terms<br>**Features**: High-quality synthesis, SSML support, multiple audio formats<br>**Languages**: Multi-language support with pronunciation optimisation<br>**[Complete Setup Guide →](docs/CLOUDPRONOUNCER-SETUP.md)** |
 | **Twilio** | **Status**: Full production implementation with real API calls<br>**Quality**: TTS integration within telephony and IVR workflows<br>**Features**: TwiML generation, call API integration, multi-language support<br>**Languages**: 11+ languages with voice selection across providers<br>**[Complete Setup Guide →](docs/TWILIO-SETUP.md)** |
-| **VoiceForge** | **Status**: Full production implementation with real API calls<br>**Quality**: Character-style and novelty voices for creative applications<br>**Features**: High-quality synthesis, SSML processing, multiple audio formats<br>**Languages**: Multi-language support with specialized voice characters<br>**[Complete Setup Guide →](docs/VOICEFORGE-SETUP.md)** |
+| **VoiceForge** | **Status**: Full production implementation with real API calls<br>**Quality**: Character-style and novelty voices for creative applications<br>**Features**: High-quality synthesis, SSML processing, multiple audio formats<br>**Languages**: Multi-language support with specialised voice characters<br>**[Complete Setup Guide →](docs/VOICEFORGE-SETUP.md)** |
+| **VoiceWare** | **Status**: Experimental integration<br>**Quality**: Neural and expressive voices<br>**Features**: SSML support, multiple audio formats, regional selection<br>**Languages**: Multi-language support<br>**[Complete Setup Guide →](docs/VOICEWARE-SETUP.md)** |
+> **Important:**
+> - Your VoiceWare API key must match the selected region, or authentication will fail.
+> - You must select a valid VoiceWare voice in your configuration/profile, or TTS generation will fail.
+| **VoiceWare** | **Status**: Experimental integration<br>**Quality**: Neural and expressive voices<br>**Features**: SSML support, multiple audio formats, regional selection<br>**Languages**: Multi-language support<br>**[Complete Setup Guide →](docs/VOICEWARE-SETUP.md)** |
 
 ## Usage Guide
 
@@ -183,12 +236,12 @@ The application offers secure API key storage using Windows Credential Manager:
 
 ```
 TextToSpeech-Generator/
-├─ StartModularTTS.ps1                      # Main application launcher (v3.2+)
+├─ StartTTS.ps1                      # Main application launcher (v3.2+)
 ├─ config.json                              # Modern JSON configuration
 ├─ MigrateLegacyConfig.ps1                  # XML to JSON migration utility
 ├─ TextToSpeech-Generator.ps1               # Legacy GUI component (transitional)
 ├─ Modules/                                 # Modular architecture
-│  ├─ Logging/EnhancedLogging.psm1          # Enterprise logging system
+│  ├─ Logging/Logging.psm1          # Enterprise logging system
 │  ├─ Security/EnhancedSecurity.psm1        # Certificate-based encryption
 │  ├─ Configuration/AdvancedConfiguration.psm1 # Multi-environment profiles
 │  ├─ TTSProviders/TTSProviders.psm1        # Modular TTS provider implementations
@@ -200,7 +253,7 @@ TextToSpeech-Generator/
 │  ├─ Integration/                          # Integration tests for system components
 │  └─ Performance/                          # Performance benchmarking tests
 ├─ README.md                                # Project overview (this file)
-├─ LICENSE                                  # MIT License
+├─ licence                                  # MIT licence
 ├─ GUI-Timeline/                            # Development timeline screenshots
 │  └─ 20210922 - Single-Mode File-Save issue.PNG
 ```
@@ -216,20 +269,20 @@ Configuration is stored in `config.json` with provider-specific settings organis
 | **Azure Cognitive Services** | WAV, MP3, OGG, WEBM, FLAC | `riff-16khz-16bit-mono-pcm` |
 | **Google Cloud TTS** | LINEAR16, MP3, OGG_OPUS, MULAW, ALAW | `LINEAR16` |
 | **AWS Polly** | PCM, MP3, OGG_VORBIS, JSON | `mp3` |
-| **CloudPronouncer** | WAV, MP3, OGG | `mp3` |
 | **Twilio** | WAV, MP3 | `mp3` |
 | **VoiceForge** | WAV, MP3, OGG | `mp3` |
+| **VoiceWare** | WAV, MP3, OGG | `mp3` |
 
 ### Voice Options
 
 | Provider | Voice Count | Languages | Voice Types | Sample Voices |
 |----------|-------------|-----------|-------------|---------------|
 | **Azure Cognitive Services** | 400+ voices | 140+ languages | Neural, Standard | en-US-JennyNeural, en-GB-RyanNeural, fr-FR-DeniseNeural |
-| **Google Cloud TTS** | 220+ voices | 40+ languages | WaveNet, Neural2, Standard | en-US-Wavenet-D, en-GB-Neural2-A, fr-FR-Wavenet-E |
 | **AWS Polly** | 570+ voices | 60+ languages | Neural, Standard | Joanna, Matthew, Emma, Brian, Celine |
-| **CloudPronouncer** | 100+ voices | 25+ languages | High-Definition | American English, British English, Australian English |
-| **Twilio** | 50+ voices | 11+ languages | Telephony-Optimized | alice, man, woman (provider-specific) |
+| **Google Cloud TTS** | 220+ voices | 40+ languages | WaveNet, Neural2, Standard | en-US-Wavenet-D, en-GB-Neural2-A, fr-FR-Wavenet-E |
+| **Twilio** | 50+ voices | 11+ languages | Telephony-optimised | alice, man, woman (provider-specific) |
 | **VoiceForge** | 200+ voices | 15+ languages | Character, Novelty | Robot, Alien, Wizard, Princess, Monster |
+| **VoiceWare** | 100+ voices | 20+ languages | Neural, Expressive | en-US-Standard, en-GB-Premium, fr-FR-Neural |
 
 ## Troubleshooting
 
@@ -238,7 +291,7 @@ Configuration is stored in `config.json` with provider-specific settings organis
 **Authentication Errors**:
 - Verify API key is correct and active
 - Check datacenter region matches your subscription  
-- See provider-specific setup: [Azure Cognitive Services](docs/AZURE-SETUP.md) | [Google Cloud](docs/GOOGLE-SETUP.md) | [AWS Polly](docs/AWS-SETUP.md) | [CloudPronouncer](docs/CLOUDPRONOUNCER-SETUP.md) | [Twilio](docs/TWILIO-SETUP.md) | [VoiceForge](docs/VOICEFORGE-SETUP.md)
+- See provider-specific setup: [AWS Polly](docs/providers/AWS Polly.md) | [ElevenLabs](docs/providers/ElevenLabs.md) | [Google Cloud](docs/providers/Google Cloud.md) | [Microsoft Azure](docs/providers/Microsoft Azure.md) | [Murf AI](docs/providers/Murf AI.md) | [Twilio](docs/providers/Twilio.md)
 
 **File Processing Errors**:
 - Validate CSV format - see [CSV Format Guide](docs/CSV-FORMAT.md)

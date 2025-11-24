@@ -1,4 +1,4 @@
-# Troubleshooting Guide
+﻿# Troubleshooting Guide
 
 This comprehensive guide covers common issues, solutions, and diagnostic steps for the TextToSpeech Generator.
 
@@ -227,7 +227,7 @@ This comprehensive guide covers common issues, solutions, and diagnostic steps f
 2. **Test Voice List API**:
    ```powershell
    # Test voice list endpoint manually
-   $headers = @{"Authorization"="Bearer $token"}
+   $headers = @{"authorisation"="Bearer $token"}
    Invoke-RestMethod -Uri "https://eastus.tts.speech.microsoft.com/cognitiveservices/voices/list" -Headers $headers
    ```
 
@@ -292,7 +292,7 @@ Write-Host "Token received: $($token.Length) characters"
 ```powershell
 $key = "YOUR_API_KEY"
 $headers = @{
-    "Authorization" = "Bearer $key"
+    "authorisation" = "Bearer $key"
     "Content-Type" = "application/json"
 }
 $body = @{

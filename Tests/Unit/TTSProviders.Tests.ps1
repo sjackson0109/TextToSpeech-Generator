@@ -10,11 +10,11 @@
 Describe "TTS Providers Module Tests" {
     BeforeAll {
         # Import required modules
-        Import-Module "$PSScriptRoot\..\..\Modules\TTSProviders\TTSProviders.psm1" -Force
-        Import-Module "$PSScriptRoot\..\..\Modules\Logging\EnhancedLogging.psm1" -Force
+        Import-Module "$PSScriptRoot\...\Modules\Providers.psm1" -Force
+        Import-Module "$PSScriptRoot\..\Modules\Logging.psm1" -Force
         
-        # Initialize logging for tests
-        Initialize-LoggingSystem -LogPath "$PSScriptRoot\tts-test.log" -Level "DEBUG"
+        # Initialise logging for tests
+    Initialise-LoggingSystem -LogPath "$PSScriptRoot\tts-test.log" -Level "DEBUG"
     }
     
     AfterAll {
@@ -52,12 +52,7 @@ Describe "TTS Providers Module Tests" {
             $result = Test-AWSConfiguration -AccessKey "AKIA1234567890123456" -SecretKey "abcd1234567890abcd1234567890abcd12345678" -Region "us-east-1"
             $result | Should -Be $true
         }
-        
-        It "Should validate CloudPronouncer configuration" {
-            $result = Test-CloudPronouncerConfiguration -APIKey "cp-fake-test-key-example" -UserId "test-user"
-            $result | Should -Be $true
-        }
-        
+               
         It "Should validate Twilio configuration" {
             $result = Test-TwilioConfiguration -AccountSID "TEST_FAKE_ACCOUNT_SID_FOR_UNIT_TESTS" -AuthToken "fake_auth_token_for_testing"
             $result | Should -Be $true
@@ -65,6 +60,11 @@ Describe "TTS Providers Module Tests" {
         
         It "Should validate VoiceForge configuration" {
             $result = Test-VoiceForgeConfiguration -APIKey "vf-fake-test-key-example" -Username "testuser"
+            $result | Should -Be $true
+        }
+        
+        It "Should validate VoiceWare configuration" {
+            $result = Test-VoiceWareConfiguration -APIKey "vw-fake-test-key-example" -Username "testuser"
             $result | Should -Be $true
         }
     }
@@ -170,7 +170,7 @@ Describe "TTS Providers Module Tests" {
             
             $provider = Select-OptimalProvider -Requirements $requirements
             $provider | Should -Not -BeNullOrEmpty
-            $provider | Should -BeIn @("Azure", "GoogleCloud", "AWSPolly", "CloudPronouncer", "Twilio", "VoiceForge")
+            $provider | Should -BeIn @("Azure", "GoogleCloud", "AWSPolly", "Twilio", "VoiceForge", "VoiceWare")
         }
         
         It "Should handle provider failover" {

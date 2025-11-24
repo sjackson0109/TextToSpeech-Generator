@@ -1,0 +1,383 @@
+{
+  "ConfigVersion": "3.2",
+  "MigratedFrom": "TextToSpeech-Generator.xml",
+  "Profiles": {
+    "Default": {
+      "Providers": {
+        "Google Cloud TTS": {
+          "Enabled": true,
+          "ApiKey": "demo-key",
+          "DefaultVoice": "en-US-Wavenet-D",
+          "DefaultLanguage": "en-US",
+          "DefaultFormat": "MP3",
+          "DefaultQuality": "Neural2",
+          "AdvancedOptions": {
+            "SpeakingRate": 1.0,
+            "Pitch": 0.0,
+            "VolumeGainDb": 0.0,
+            "EffectsProfile": "small-bluetooth-speaker-class-device"
+          }
+        },
+        "Murf AI": {
+          "Enabled": true,
+          "ApiKey": "demo-key",
+          "DefaultVoice": "en-US-natalie",
+          "DefaultLanguage": "en-US",
+          "DefaultFormat": "MP3",
+          "DefaultQuality": "High",
+          "AdvancedOptions": {
+            "Model": "Gen2",
+            "Style": "Conversational",
+            "Pitch": 0,
+            "Speed": 0,
+            "Variation": 0
+          }
+        },
+        "AWS Polly": {
+          "Enabled": true,
+          "AccessKey": "demo-access",
+          "SecretKey": "demo-secret",
+          "Region": "us-east-1",
+          "DefaultVoice": "Joanna",
+          "DefaultLanguage": "en-US",
+          "DefaultFormat": "MP3",
+          "DefaultQuality": "Neural",
+          "AdvancedOptions": {
+            "Engine": "neural",
+            "SampleRate": 22050,
+            "TextType": "text",
+            "EnableSSML": false,
+            "LexiconNames": []
+          }
+        },
+        "ElevenLabs": {
+          "Enabled": true,
+          "ApiKey": "demo-key",
+          "DefaultVoice": "Rachel",
+          "DefaultLanguage": "en",
+          "DefaultFormat": "mp3_44100_128",
+          "DefaultQuality": "High",
+          "AdvancedOptions": {
+            "Model": "eleven_multilingual_v2",
+            "Stability": 0.5,
+            "SimilarityBoost": 0.75,
+            "EnableSSML": false
+          }
+        },
+        "OpenAI": {
+          "Enabled": true,
+          "ApiKey": "demo-key",
+          "DefaultVoice": "alloy",
+          "DefaultLanguage": "en",
+          "DefaultFormat": "MP3",
+          "DefaultQuality": "tts-1-hd",
+          "AdvancedOptions": {
+            "Model": "tts-1-hd",
+            "Speed": 1.0
+          }
+        },
+        "Telnyx": {
+          "Enabled": true,
+          "ApiKey": "demo-key",
+          "DefaultVoice": "Telnyx.NaturalHD.astra",
+          "DefaultLanguage": "en-US",
+          "DefaultFormat": "MP3",
+          "DefaultQuality": "NaturalHD",
+          "AdvancedOptions": {
+            "Model": "NaturalHD",
+            "SampleRate": 16000,
+            "Channels": "MONO"
+          }
+        },
+        "Twilio": {
+          "Enabled": true,
+          "AccountSid": "demo-sid",
+          "AuthToken": "demo-token",
+          "DefaultVoice": "Polly.Joanna",
+          "DefaultLanguage": "en-US",
+          "DefaultFormat": "MP3",
+          "DefaultQuality": "Neural",
+          "AdvancedOptions": {
+            "LanguageOverride": "",
+            "Loop": 1,
+            "EnableSSML": false
+          }
+        },
+        "Microsoft Azure": {
+          "Enabled": true,
+          "ApiKey": "demo-key",
+          "Datacenter": "eastus",
+          "DefaultVoice": "en-US-AriaNeural",
+          "DefaultLanguage": "en-US",
+          "DefaultFormat": "MP3 24kHz",
+          "DefaultQuality": "Neural",
+          "AdvancedOptions": {
+            "SpeechRate": "medium",
+            "Pitch": "medium",
+            "Volume": "medium",
+            "Style": "neutral",
+            "Emphasis": "moderate",
+            "EnableSSML": false
+          }
+        }
+      },
+      "Processing": {
+        "BulkMode": false,
+        "InputText": "Enter your text here for single mode processing...",
+        "OutputDirectory": "C:\\temp\\output",
+        "OutputFormat": "MP3"
+      },
+      "SelectedProvider": "Amazon Polly"
+    },
+    "Production": {
+      "Processing": {
+        "OutputPath": "C:\\\\Output",
+        "InputFile": "C:\\TTS\\Input\\batch.csv",
+        "Timeout": 60,
+        "MaxParallelJobs": 4
+      },
+      "Providers": {
+        "Azure Cognitive Services": {
+          "Enabled": false,
+          "ApiKey": "",
+          "Datacenter": "eastus",
+          "AudioFormat": "audio-16khz-32kbitrate-mono-mp3",
+          "DefaultVoice": "en-US-AriaNeural",
+          "DefaultLanguage": "en-US",
+          "DefaultFormat": "MP3 24kHz",
+          "DefaultQuality": "Neural",
+          "AdvancedOptions": {
+            "SpeechRate": "medium",
+            "Pitch": "medium",
+            "Volume": "medium",
+            "Style": "neutral",
+            "Emphasis": "moderate",
+            "EnableSSML": false
+          }
+        },
+        "AWS Polly": {
+          "Enabled": false,
+          "AccessKey": "",
+          "SecretKey": "",
+          "Region": "us-east-1",
+          "DefaultVoice": "Joanna",
+          "AdvancedOptions": {
+            "Engine": "neural",
+            "SampleRate": 22050,
+            "TextType": "text",
+            "EnableSSML": false,
+            "LexiconNames": []
+          }
+        },
+        "Google Cloud TTS": {
+          "Enabled": false,
+          "ApiKey": "",
+          "DefaultVoice": "en-US-Wavenet-D",
+          "AdvancedOptions": {
+            "SpeakingRate": 1.0,
+            "Pitch": 0.0,
+            "VolumeGainDb": 0.0,
+            "EffectsProfile": "small-bluetooth-speaker-class-device"
+          }
+        },
+        "Murf AI": {
+          "Enabled": false,
+          "ApiKey": "",
+          "DefaultVoice": "en-US-natalie",
+          "AdvancedOptions": {
+            "Model": "Gen2",
+            "Style": "Conversational",
+            "Pitch": 0,
+            "Speed": 0,
+            "Variation": 0
+          }
+        },
+        "OpenAI": {
+          "Enabled": false,
+          "ApiKey": "",
+          "DefaultVoice": "alloy",
+          "DefaultLanguage": "en",
+          "DefaultFormat": "MP3",
+          "DefaultQuality": "tts-1-hd",
+          "AdvancedOptions": {
+            "Model": "tts-1-hd",
+            "Speed": 1.0
+          }
+        },
+        "Twilio": {
+          "Enabled": false,
+          "AccountSid": "",
+          "AuthToken": "",
+          "DefaultVoice": "Polly.Joanna",
+          "DefaultLanguage": "en-US",
+          "DefaultFormat": "MP3",
+          "DefaultQuality": "Neural",
+          "AdvancedOptions": {
+            "LanguageOverride": "",
+            "Loop": 1,
+            "EnableSSML": false
+          }
+        },
+        "Telnyx": {
+          "Enabled": false,
+          "ApiKey": "",
+          "DefaultVoice": "Telnyx.NaturalHD.astra",
+          "AdvancedOptions": {
+            "Model": "NaturalHD",
+            "SampleRate": 16000,
+            "Channels": "MONO"
+          }
+        },
+        "ElevenLabs": {
+          "Enabled": false,
+          "ApiKey": "",
+          "DefaultVoice": "Rachel",
+          "DefaultLanguage": "en",
+          "DefaultFormat": "mp3_44100_128",
+          "DefaultQuality": "High",
+          "AdvancedOptions": {
+            "Model": "eleven_multilingual_v2",
+            "Stability": 0.5,
+            "SimilarityBoost": 0.75,
+            "EnableSSML": false
+          }
+        }
+      },
+      "Logging": {
+        "Level": "WARNING",
+        "EnableDetailedLogging": false
+      }
+    },
+    "Testing": {
+      "Processing": {
+        "OutputPath": "C:\\TTS\\Test\\Output",
+        "InputFile": "C:\\TTS\\Test\\test.csv",
+        "Timeout": 10,
+        "MaxParallelJobs": 1
+      },
+      "Providers": {
+        "Azure Cognitive Services": {
+          "Enabled": true,
+          "ApiKey": "",
+          "Datacenter": "uksouth",
+          "AudioFormat": "audio-16khz-32kbitrate-mono-mp3",
+          "DefaultVoice": "Microsoft Server Speech Text to Speech Voice (en-US, SaraNeural)",
+          "DefaultLanguage": "en-US",
+          "DefaultFormat": "MP3 16kHz",
+          "DefaultQuality": "Neural",
+          "AdvancedOptions": {
+            "SpeechRate": "medium",
+            "Pitch": "medium",
+            "Volume": "medium",
+            "Style": "neutral",
+            "Emphasis": "moderate",
+            "EnableSSML": false
+          }
+        },
+        "AWS Polly": {
+          "Enabled": false,
+          "AccessKey": "",
+          "SecretKey": "",
+          "Region": "us-east-1",
+          "DefaultVoice": "Joanna",
+          "DefaultLanguage": "en-US",
+          "DefaultFormat": "MP3",
+          "DefaultQuality": "Neural",
+          "AdvancedOptions": {
+            "Engine": "neural",
+            "SampleRate": 22050,
+            "TextType": "text",
+            "EnableSSML": false,
+            "LexiconNames": []
+          }
+        },
+        "Google Cloud TTS": {
+          "Enabled": false,
+          "ApiKey": "",
+          "DefaultVoice": "en-US-Wavenet-D",
+          "AdvancedOptions": {
+            "SpeakingRate": 1.0,
+            "Pitch": 0.0,
+            "VolumeGainDb": 0.0,
+            "EffectsProfile": "small-bluetooth-speaker-class-device"
+          }
+        },
+        "Murf AI": {
+          "Enabled": false,
+          "ApiKey": "",
+          "DefaultVoice": "en-US-natalie",
+          "DefaultLanguage": "en-US",
+          "DefaultFormat": "MP3",
+          "DefaultQuality": "High",
+          "AdvancedOptions": {
+            "Model": "Gen2",
+            "Style": "Conversational",
+            "Pitch": 0,
+            "Speed": 0,
+            "Variation": 0
+          }
+        },
+        "Twilio": {
+          "Enabled": false,
+          "AccountSid": "",
+          "AuthToken": "",
+          "DefaultVoice": "Polly.Joanna",
+          "DefaultLanguage": "en-US",
+          "DefaultFormat": "MP3",
+          "DefaultQuality": "Neural",
+          "AdvancedOptions": {
+            "LanguageOverride": "",
+            "Loop": 1,
+            "EnableSSML": false
+          }
+        },
+        "Telnyx": {
+          "Enabled": false,
+          "ApiKey": "",
+          "DefaultVoice": "Telnyx.NaturalHD.astra",
+          "DefaultLanguage": "en-US",
+          "DefaultFormat": "MP3",
+          "DefaultQuality": "NaturalHD",
+          "AdvancedOptions": {
+            "Model": "NaturalHD",
+            "SampleRate": 16000,
+            "Channels": "MONO"
+          }
+        },
+        "ElevenLabs": {
+          "Enabled": false,
+          "ApiKey": "",
+          "DefaultVoice": "Rachel",
+          "DefaultLanguage": "en",
+          "DefaultFormat": "mp3_44100_128",
+          "DefaultQuality": "High",
+          "AdvancedOptions": {
+            "Model": "eleven_multilingual_v2",
+            "Stability": 0.5,
+            "SimilarityBoost": 0.75,
+            "EnableSSML": false
+          }
+        },
+        "OpenAI": {
+          "Enabled": false,
+          "ApiKey": "",
+          "DefaultVoice": "alloy",
+          "DefaultLanguage": "en",
+          "DefaultFormat": "MP3",
+          "DefaultQuality": "tts-1-hd",
+          "AdvancedOptions": {
+            "Model": "tts-1-hd",
+            "Speed": 1.0
+          }
+        }
+      },
+      "Logging": {
+        "Level": "DEBUG",
+        "EnableDetailedLogging": true
+      }
+    }
+  },
+  "CurrentProfile": "Development",
+  "LastMigrated": "2025-10-14 12:31:14",
+  "LastUpdated": "2025-10-14 21:50:00"
+}

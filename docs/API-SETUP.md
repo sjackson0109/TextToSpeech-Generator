@@ -1,4 +1,4 @@
-# API Setup Guide - Complete Provider Overview
+﻿# API Setup Guide - Complete Provider Overview
 
 **Updated: October 2025** | **TextToSpeech Generator v3.0**
 
@@ -10,7 +10,6 @@ This guide provides detailed instructions for setting up API access for all TTS 
 
 ### What's New
 - ✅ **AWS Polly**: Complete implementation with real audio synthesis
-- ✅ **CloudPronouncer**: Full API integration for pronunciation accuracy
 - ✅ **Twilio**: Complete TwiML generation and telephony integration
 - ✅ **VoiceForge**: Full implementation with character and novelty voices
 - 🔧 **Enhanced Error Handling**: Provider-specific fallback and recovery
@@ -25,14 +24,14 @@ All 6 providers now support:
 
 ## 🎯 **Provider Implementation Status - All Production Ready**
 
-| Provider | Status | Specialization | Setup Guide |
+| Provider | Status | specialisation | Setup Guide |
 |----------|--------|----------------|-------------|
-| **Microsoft Azure** | ✅ **PRODUCTION** | Neural voices, enterprise integration | [AZURE-SETUP.md](AZURE-SETUP.md) |
+| **Azure Cognitive Services** | ✅ **PRODUCTION** | Neural voices, enterprise integration | [AZURE-SETUP.md](AZURE-SETUP.md) |
 | **Google Cloud** | ✅ **PRODUCTION** | WaveNet voices, advanced features | [GOOGLE-SETUP.md](GOOGLE-SETUP.md) |
 | **Amazon Polly** | ✅ **PRODUCTION** | Neural voices, AWS ecosystem | [AWS-SETUP.md](AWS-SETUP.md) |
-| **CloudPronouncer** | ✅ **PRODUCTION** | Pronunciation accuracy, complex terms | [CLOUDPRONOUNCER-SETUP.md](CLOUDPRONOUNCER-SETUP.md) |
 | **Twilio** | ✅ **PRODUCTION** | Telephony integration, communication | [TWILIO-SETUP.md](TWILIO-SETUP.md) |
 | **VoiceForge** | ✅ **PRODUCTION** | Character voices, creative applications | [VOICEFORGE-SETUP.md](VOICEFORGE-SETUP.md) |
+| **VoiceWare** | 🔧 **EXPERIMENTAL** | Neural voices, multi-regional | [VOICEWARE-SETUP.md](VOICEWARE-SETUP.md) |
 
 ## 💡 **Choose the Right Provider for Your Use Case**
 
@@ -41,10 +40,10 @@ All 6 providers now support:
 - **Google Cloud**: Advanced WaveNet technology, superior voice quality, GCP integration
 - **AWS Polly**: Comprehensive voice selection, strong AWS integration, neural voices
 
-### **Specialized Applications**  
-- **CloudPronouncer**: Perfect for medical, legal, or technical content requiring precise pronunciation
+### **Specialised Applications**  
 - **Twilio**: Ideal for phone systems, IVR, and telephony applications requiring TwiML
 - **VoiceForge**: Excellent for gaming, entertainment, and creative projects with character voices
+- **VoiceWare**: Emerging provider with neural and expressive voices across multiple regions
 
 ## 🚀 **Quick Start - All Providers Production Ready**
 
@@ -265,12 +264,6 @@ All six TTS providers are now fully implemented and production-ready:
 - **Features**: Neural and standard voices with AWS Signature V4 authentication
 - 📖 **[AWS Polly Setup Guide →](AWS-SETUP.md)**
 
-### CloudPronouncer ✅ **FULLY IMPLEMENTED**
-- **Status**: Full production implementation with real API calls
-- **Use Case**: Specialized pronunciation accuracy for complex terms
-- **Features**: High-quality synthesis, SSML support, multiple audio formats
-- 📖 **[CloudPronouncer Setup Guide →](CLOUDPRONOUNCER-SETUP.md)**
-
 ### Twilio ✅ **FULLY IMPLEMENTED**
 - **Status**: Full production implementation with real API calls
 - **Use Case**: Telephony-optimised TTS for communication workflows
@@ -282,6 +275,12 @@ All six TTS providers are now fully implemented and production-ready:
 - **Use Case**: Character and novelty voices for creative applications
 - **Features**: High-quality synthesis, SSML processing, multiple audio formats
 - 📖 **[VoiceForge Setup Guide →](VOICEFORGE-SETUP.md)**
+
+### VoiceWare 🔧 **EXPERIMENTAL INTEGRATION**
+- **Status**: Experimental integration with real API calls
+- **Use Case**: Neural and expressive voices with regional selection
+- **Features**: SSML support, multiple audio formats, multi-regional deployment
+- 📖 **[VoiceWare Setup Guide →](VOICEWARE-SETUP.md)**
 
 ---
 
@@ -297,7 +296,7 @@ All six TTS providers are now fully implemented and production-ready:
 1. **Microsoft Ecosystem**: Azure Cognitive Services for Office 365 integration
 2. **Google Cloud Platform**: Google Cloud TTS for GCP workflow integration  
 3. **AWS Infrastructure**: AWS Polly for existing AWS service integration
-4. **Specialized Needs**: CloudPronouncer (accuracy), Twilio (telephony), VoiceForge (creative)
+4. **specialised Needs**: Twilio (telephony), VoiceForge (creative), VoiceWare (experimental)
 5. **Multi-Provider**: Configure multiple providers for redundancy and feature comparison
 
 ### For Advanced Users
@@ -382,9 +381,9 @@ All six TTS providers are now fully implemented and production-ready:
 - **[Azure Cognitive Services](AZURE-SETUP.md)**: Complete Azure TTS setup with neural voices
 - **[Google Cloud TTS](GOOGLE-SETUP.md)**: Complete Google Cloud setup with WaveNet voices  
 - **[AWS Polly](AWS-SETUP.md)**: Full production implementation with neural voices
-- **[CloudPronouncer](CLOUDPRONOUNCER-SETUP.md)**: Complete setup for pronunciation accuracy
 - **[Twilio](TWILIO-SETUP.md)**: Complete setup for telephony integration
 - **[VoiceForge](VOICEFORGE-SETUP.md)**: Complete setup for character voices
+- **[VoiceWare](VOICEWARE-SETUP.md)**: Experimental setup for neural and expressive voices
 
 ### Application Documentation
 - **[Main README](../README.md)**: Application overview and features
@@ -403,7 +402,7 @@ All six TTS providers are now fully implemented and production-ready:
 
 **All Providers Production Ready**: 
 - **Enterprise Grade**: [Azure Setup](AZURE-SETUP.md) | [Google Cloud Setup](GOOGLE-SETUP.md) | [AWS Polly](AWS-SETUP.md)
-- **Specialized Features**: [CloudPronouncer](CLOUDPRONOUNCER-SETUP.md) | [Twilio](TWILIO-SETUP.md) | [VoiceForge](VOICEFORGE-SETUP.md)
+- **specialised Features**: [Twilio](TWILIO-SETUP.md) | [VoiceForge](VOICEFORGE-SETUP.md) | [VoiceWare](VOICEWARE-SETUP.md)
 
 ### Validation Tools
 
@@ -416,7 +415,7 @@ Use the application's built-in validation:
 **Google Test (PowerShell)**:
 ```powershell
 $headers = @{
-    "Authorization" = "Bearer YOUR_KEY_HERE"
+    "authorisation" = "Bearer YOUR_KEY_HERE"
     "Content-Type" = "application/json"
 }
 $body = '{"input":{"text":"test"},"voice":{"languageCode":"en-US"},"audioConfig":{"audioEncoding":"MP3"}}'

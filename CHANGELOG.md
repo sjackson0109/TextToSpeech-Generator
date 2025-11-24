@@ -1,4 +1,33 @@
-# Changelog
+﻿# Changelog
+
+## [v3.2.1] - 2025-11-23 - Provider Integration Complete
+
+### Added ✨
+- **OpenAI TTS Provider**: Complete implementation with 6 voices (alloy, echo, fable, onyx, nova, shimmer), 2 models (tts-1, tts-1-hd), 6 audio formats, variable speed control (0.25x-4.0x)
+- **Telnyx Provider**: WebSocket-based streaming implementation with 266+ voices across KokoroTTS, Natural, and NaturalHD models
+- **Murf AI Provider**: Gen2 and Falcon models with 150+ ultra-realistic voices across 20+ languages
+- **Provider Configuration Dialogs**: Consistent modern dark-themed dialogs for all 8 providers with real-time credential testing
+- **Configuration Persistence**: Full support for saving and loading provider configurations via GUI
+
+### Changed 🔄
+- **Provider Architecture**: All 8 providers now follow consistent class-based pattern with Configuration property
+- **Test Connection Feedback**: Unified label-based feedback (green/red status) across all providers, removed popup dialogs
+- **Configuration Loading**: Enhanced GUI configuration loading from config.json with detailed logging
+- **Provider Count**: Updated from 6 to 8 fully operational TTS providers
+
+### Fixed 🐛
+- **OpenAI Configuration Loading**: Fixed API key auto-population from config.json using property access pattern
+- **Telnyx Dialog Pattern**: Corrected ShowConfigurationDialog return type from [void] to [hashtable]
+- **Configuration Property**: Added missing Configuration hashtable property to OpenAI and Telnyx provider classes
+- **Logging Consistency**: Replaced all Write-Log calls with Add-ApplicationLog across OpenAI and Telnyx modules
+- **Variable Naming**: Fixed PowerShell class method variable conflicts in OpenAI ProcessTTS method
+
+### Technical Details 🔧
+- **OpenAI Module**: 443 lines, supports GET /v1/models validation and POST /v1/audio/speech synthesis
+- **Telnyx Module**: 432 lines, WebSocket-based real-time streaming architecture
+- **Murf AI Module**: 422 lines, REST API with Gen2 and Falcon model support
+- **Provider Consistency**: All providers implement Test-{Provider}Credentials, Get-{Provider}VoiceOptions, ShowConfigurationDialog, ProcessTTS methods
+- **Documentation**: Complete provider-specific setup guides in docs/providers/ directory
 
 ## [v3.2] - 2025-10-14 - Enterprise Modular Architecture
 
@@ -6,7 +35,7 @@
 
 ### Added ✨
 - **Modular Architecture**: Complete 6-module enterprise architecture with proper separation of concerns
-  - `EnhancedLogging.psm1`: Structured JSON logging with rotation and thread-safe operations
+  - `Logging.psm1`: Structured JSON logging with rotation and thread-safe operations
   - `EnhancedSecurity.psm1`: Certificate-based encryption and secure configuration management
   - `AdvancedConfiguration.psm1`: Multi-environment profile system with schema validation
   - `TTSProviders.psm1`: Modular TTS provider implementations with enhanced error handling
@@ -17,8 +46,8 @@
 - **Advanced Configuration Management**: 
   - **Multi-Environment Profiles**: Development, Production, and Testing configurations
   - **JSON-based Configuration**: Modern config.json replacing legacy XML format
-  - **All 6 TTS Providers**: Complete configuration templates for Microsoft Azure, AWS Polly, Google Cloud TTS, CloudPronouncer, Twilio, and VoiceForge
-  - **GUI Integration Functions**: `Get-ProviderConfiguration()` and `Update-ProviderConfiguration()` for seamless GUI integration
+  - **All 8 TTS Providers**: Complete configuration templates for Microsoft Azure, AWS Polly, ElevenLabs, Google Cloud TTS, Murf AI, OpenAI, Telnyx, and Twilio
+  - **GUI Integration Functions**: Dynamic provider configuration dialogs with credential testing and validation
 
 - **Enterprise Security Framework**:
   - **Certificate-Based Encryption**: SecureConfigurationManager class for sensitive data protection
@@ -35,9 +64,9 @@
   - **Exponential Backoff**: Advanced backoff algorithms with jitter and circuit breakers
   - **Recovery Statistics**: Detailed tracking and analysis of error patterns and recovery success rates
 
-- **Performance Optimization & Monitoring**:
+- **Performance optimisation & Monitoring**:
   - **Real-Time Monitoring**: PerformanceMonitor class with system metrics tracking
-  - **Intelligent Caching**: LRU cache implementation with TTL and memory optimization
+  - **Intelligent Caching**: LRU cache implementation with TTL and memory optimisation
   - **Memory Management**: Automatic garbage collection and memory threshold alerts
   - **Performance Reports**: Detailed performance analytics with recommendations
 
@@ -47,17 +76,17 @@
   - **Configuration Validation**: Ensures data integrity during migration process
 
 ### Changed 🔄
-- **Application Launcher**: New `StartModularTTS.ps1` replaces monolithic approach with modular initialization
+- **Application Launcher**: New `StartTTS.ps1` replaces monolithic approach with modular initialisation
 - **Configuration Format**: Migrated from XML to JSON-based configuration with full provider support
 - **System Architecture**: Transformed from single-file application to enterprise-grade modular system
 - **PowerShell Compatibility**: Fixed PowerShell 5.1+ compatibility issues (null-coalescing operators)
 - **Error Handling**: Enhanced from basic retry logic to intelligent provider-specific recovery strategies
-- **Performance**: Optimized startup time to ~1.5s with lazy loading and efficient module initialization
+- **Performance**: optimised startup time to ~1.5s with lazy loading and efficient module initialisation
 
 ### Technical Improvements 🔧
 - **Class-Based Design**: Modern PowerShell classes for PerformanceMonitor, IntelligentCache, and SecureConfigurationManager
-- **Dependency Injection**: Proper module dependency management and initialization order
-- **Memory Optimization**: Intelligent caching with automatic memory management and cleanup
+- **Dependency Injection**: Proper module dependency management and initialisation order
+- **Memory optimisation**: Intelligent caching with automatic memory management and cleanup
 - **Security Hardening**: Certificate-based encryption, secure storage, and audit logging
 - **Enterprise Logging**: Structured JSON logs with severity levels, categories, and performance metrics
 - **Configuration Validation**: Schema validation, template system, and profile management
@@ -71,11 +100,11 @@
 - **PowerShell 5.1 Compatibility**: Resolved null-coalescing operator issues across all modules
 - **Constructor Errors**: Fixed class instantiation issues in PerformanceMonitoring module
 - **Variable Scope**: Resolved variable assignment conflicts in class methods
-- **Module Loading**: Fixed dependency loading order and error handling during initialization
+- **Module Loading**: Fixed dependency loading order and error handling during initialisation
 
 ### Performance 📈
 - **Startup Time**: Reduced to 1.45s with modular loading and performance monitoring
-- **Memory Usage**: Optimized with intelligent caching and automatic garbage collection
+- **Memory Usage**: optimised with intelligent caching and automatic garbage collection
 - **Configuration Loading**: Instant JSON parsing vs. slower XML processing
 - **Error Recovery**: Intelligent backoff reduces failed API calls and improves success rates
 
@@ -101,7 +130,7 @@
 - **Retry Logic**: `Invoke-APIWithRetry` function with exponential backoff (1s, 2s, 4s delays)
 - **Error Analysis**: `Get-DetailedErrorInfo` for provider-specific error codes and user guidance
 - **Validation Framework**: `Test-ConfigurationValid` and `Test-APIConnectivity` functions
-- **Performance Metrics**: `Write-PerformanceLog` and `Write-ErrorLog` specialized logging functions
+- **Performance Metrics**: `Write-PerformanceLog` and `Write-ErrorLog` specialised logging functions
 - **Code Documentation**: Comprehensive PowerShell help documentation for all major functions
 
 ## [v3.0] - 2025-10-13 - Complete Multi-Provider TTS Implementation
@@ -122,7 +151,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Complete TTS Processing**: Full implementation for 6 TTS providers with real API calls
 - **Parallel Processing System**: Multi-threaded bulk processing with 3-6x speed improvements
-- **Intelligent Thread Management**: Auto-optimized thread counts based on dataset size and CPU cores
+- **Intelligent Thread Management**: Auto-optimised thread counts based on dataset size and CPU cores
 - **Enterprise Error Handling**: Provider-specific error codes and comprehensive error management
 - **Advanced Voice Options**: Full SSML support for Azure, advanced JSON API for Google Cloud
 - **Real-time Progress Tracking**: Thread-safe UI updates from background processes
@@ -132,12 +161,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Rate Limiting Protection**: Built-in delays to prevent API throttling
 
 ### **Provider Implementation Status**
-- **Microsoft Azure**: **PRODUCTION READY** - Full API implementation with SSML support
-- **Google Cloud**: **PRODUCTION READY** - Full JSON API implementation with advanced options
-- **Amazon Polly**: **PRODUCTION READY** - Complete AWS Signature V4 authentication and TTS processing
-- **CloudPronouncer**: **PRODUCTION READY** - Full API implementation with advanced voice options
-- **Twilio**: **PRODUCTION READY** - Complete TwiML generation and TTS processing
-- **VoiceForge**: **PRODUCTION READY** - Full API implementation with advanced synthesis options
+- **AWS Polly**: **PRODUCTION READY** - Complete AWS Signature V4 authentication with neural voices and custom lexicons
+- **ElevenLabs**: **PRODUCTION READY** - Full API implementation with ultra-realistic voices and emotion control
+- **Google Cloud TTS**: **PRODUCTION READY** - Full JSON API implementation with WaveNet voices and advanced prosody
+- **Microsoft Azure**: **PRODUCTION READY** - Complete SSML support with neural voices and regional deployment
+- **Murf AI**: **PRODUCTION READY** - Gen2 and Falcon models with 150+ voices across 20+ languages
+- **OpenAI TTS**: **PRODUCTION READY** - GPT-4 powered voices with tts-1 and tts-1-hd models, streaming support
+- **Telnyx**: **PRODUCTION READY** - WebSocket streaming with 266+ voices (KokoroTTS, Natural, NaturalHD)
+- **Twilio**: **PRODUCTION READY** - Complete TwiML generation and telephony-optimised processing
 
 ### Changed
 - **Application Architecture**: Transformed from prototype to enterprise-grade application
@@ -149,7 +180,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Technical Implementation
 - **Core Functions**: Sanitize-FileName, Invoke-AzureTTS, Invoke-GoogleCloudTTS, Start-ParallelTTSProcessing
 - **Processing Modes**: Single, Sequential, Parallel processing with intelligent selection
-- **Thread Architecture**: Runspace pools with synchronized collections and proper cleanup
+- **Thread Architecture**: Runspace pools with synchronised collections and proper cleanup
 - **Progress System**: Real-time updates with success/failure tracking
 - **Validation**: Comprehensive input validation and error recovery
 

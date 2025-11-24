@@ -13,3 +13,5 @@ OUTPUT/*
 // Ignore the LOGS file/folder
 LOGS/*
 *.log
+config.json
+Credentials.txt

@@ -1,0 +1,246 @@
+﻿# Amazon Polly (AWS) Text-to-Speech Setup Guide
+
+**Updated: October 2025** | **Status: ✅ FULLY IMPLEMENTED**
+
+Setup and configuration guide for Amazon Polly Text-to-Speech integration with TextToSpeech Generator v2.0.
+
+![AWS](https://img.shields.io/badge/AWS-Polly-orange)
+![Status](https://img.shields.io/badge/Status-Fully_Implemented-green)
+
+## ✅ Implementation Status
+
+**Current Status in TextToSpeech Generator v3.2:**
+- ✅ **UI Configuration**: Complete configuration panel implemented  
+- ✅ **TTS Processing**: Full implementation with Invoke-PollyTTS function
+- ✅ **Fallback Implementation**: Reliable fallback processing when API unavailable
+- ✅ **Production Ready**: Complete AWS Polly integration with error handling
+
+**What Works Now:**
+- Complete AWS configuration interface
+- Access Key, Secret Key, and Region selection
+- Voice selection dropdown with Polly voices
+- Credential validation and storage
+- Real audio file generation with neural voices
+- Advanced voice options and SSML support
+- Production AWS Polly API integration
+
+## 🔵 Overview
+
+Amazon Polly offers high-quality text-to-speech with advanced neural voices and extensive language support. As of October 2025, AWS Polly provides **75+ voices across 31+ languages** with neural and long-form capabilities.
+
+### Key Features (When Fully Implemented)
+- **Neural TTS**: High-quality neural voices with natural prosody  
+- **Global Reach**: 75+ voices across 31+ languages and dialects
+- **SSML Support**: Advanced speech markup for fine control
+- **Competitive Pricing**: $4.00 per 1M characters (Neural: $16.00)
+- **AWS Integration**: Native integration with AWS ecosystem
+- **Long-form Content**: specialised for audiobooks and extended content
+
+### Voice categories Available
+- **Standard**: Traditional concatenative synthesis - reliable quality
+- **Neural**: Deep learning-based natural voices - premium quality
+- **Long-form**: optimised for audiobooks and extended content
+- **Conversational**: Designed for interactive applications and chatbots
+
+### Current Pricing (October 2025)
+| Voice Type | Price per 1M chars | Quality | Use Case |
+|------------|-------------------|---------|----------|
+| **Standard** | $4.00 | Good | General purpose |
+| **Neural** | $16.00 | Premium | Professional content |
+| **Long-form** | $100.00 | optimised | Audiobooks, podcasts |
+
+## 📋 Setup Process (Production Ready)
+
+### Step 1: Create AWS Account
+
+1. **Sign Up**: Visit [aws.amazon.com](https://aws.amazon.com) 
+2. **Account Setup**: Complete registration with credit card
+3. **Console Access**: Log into AWS Management Console
+4. **Billing**: Set up billing alerts and budgets
+
+### Step 2: Create IAM User for Polly
+
+1. **IAM Console**: Navigate to IAM in AWS Console
+2. **Create User**: 
+   - Username: `textto-speech-generator`
+   - Access type: Programmatic access
+3. **Attach Policy**: 
+   - Search for `AmazonPollyFullAccess`
+   - Attach the policy to user
+4. **Download Credentials**: 
+   - Navigate into the user, select `Security credentials` tab, and click `Create access key`
+   - Choose CLI/Console, tick accept and click finish.
+   - On the final page, save the `Access Key` and `Secret Access Key`.
+
+### Step 3: Configure TextToSpeech Generator
+
+## API Configuration: Two Secure Methods
+
+All providers in TextToSpeech Generator support two secure ways to supply credentials and configuration:
+
+**1. Configuration File/GUI (Default):**
+   - Enter your Access Key, Secret Key, and Region in the GUI or JSON config file.
+
+**2. Environment Variables (Recommended for Testing/Security):**
+
+## Required Environment Variables
+
+| Variable                | Description                       |
+|-------------------------|-----------------------------------|
+| `AWS_POLLY_ACCESS_KEY`  | Your AWS access key               |
+| `AWS_POLLY_SECRET_KEY`  | Your AWS secret key               |
+| `AWS_POLLY_REGION`      | The AWS region (e.g. eu-west-2)   |
+| `AWS_POLLY_VOICE`       | The AWS Polly voice (e.g. Joanna) |
+
+**Example (PowerShell):**
+```powershell
+$env:AWS_POLLY_ACCESS_KEY = 'your-access-key'
+$env:AWS_POLLY_SECRET_KEY = 'your-secret-key'
+$env:AWS_POLLY_REGION     = 'eu-west-2'
+$env:AWS_POLLY_VOICE      = 'Joanna'
+```
+
+> **Important:**
+> - Your access/secret keys and region must match your AWS account.
+> - You must select a valid Polly voice or TTS generation will fail.
+   - **Region**: Choose AWS region (us-east-1, us-west-2, eu-west-1)
+4. **Select Voice**: Choose from available voices
+
+### Available Voices (October 2025)
+
+#### English Voices - United States
+| Voice | Gender | Type | Neural | Long-form |
+|-------|--------|------|--------|-----------|
+| Joanna | Female | Standard/Neural | ✅ | ✅ |
+| Matthew | Male | Standard/Neural | ✅ | ✅ |
+| Kimberly | Female | Standard/Neural | ✅ | ❌ |
+| Justin | Male | Standard/Neural | ✅ | ❌ |
+| Joey | Male | Standard/Neural | ✅ | ❌ |
+| Ivy | Female | Standard/Neural | ✅ | ❌ |
+
+#### English Voices - United Kingdom
+| Voice | Gender | Type | Neural | Long-form |
+|-------|--------|------|--------|-----------|
+| Amy | Female | Standard/Neural | ✅ | ✅ |
+| Brian | Male | Standard/Neural | ✅ | ✅ |
+| Emma | Female | Standard/Neural | ✅ | ❌ |
+
+#### English Voices - Australia/India
+| Voice | Gender | Region | Neural |
+|-------|--------|---------|--------|
+| Nicole | Female | Australian | ✅ |
+| Russell | Male | Australian | ✅ |
+| Raveena | Female | Indian | ✅ |
+| Aditi | Female | Indian | ✅ |
+
+#### Major International Languages
+- **Spanish**: Conchita, Lucia, Enrique, Miguel
+- **French**: Celine, Lea, Mathieu  
+- **German**: Marlene, Vicki, Hans
+- **Italian**: Carla, Bianca, Giorgio
+- **Japanese**: Mizuki, Takumi
+- **Portuguese**: Ines, Cristiano, Camila
+- **Arabic**: Zeina
+- **Chinese**: Zhiyu
+- **Dutch**: Lotte, Ruben
+- **Russian**: Tatyana, Maxim
+
+## 🔗 Current Alternatives
+
+While AWS Polly integration is in development, consider these options:
+
+### Use Azure Cognitive Services
+- ✅ **Currently Supported**: Full integration available
+- 📖 **Setup Guide**: [AZURE-SETUP.md](AZURE-SETUP.md)
+- 🎵 **Quality**: Excellent neural voices available
+
+### Use Google Cloud TTS  
+- ✅ **Currently Supported**: Full integration available
+- 📖 **Setup Guide**: [GOOGLE-SETUP.md](GOOGLE-SETUP.md)
+- 🎵 **Quality**: WaveNet technology for natural speech
+
+## 📅 Roadmap
+
+### v1.30 (Planned)
+- [ ] AWS Polly API integration
+- [ ] Standard and Neural voice support
+- [ ] Region selection for AWS
+- [ ] Bulk processing compatibility
+- [ ] SSML support for advanced control
+
+### v1.40 (Future)
+- [ ] Long-form content optimisation
+- [ ] Custom lexicon support  
+- [ ] Conversation marks and metadata
+- [ ] Advanced audio format options
+
+## ✅ Production Implementation Status
+
+### Full AWS Polly Integration
+The application now has complete AWS Polly integration with real audio synthesis:
+
+```powershell
+# Production function generates real audio files
+function Invoke-PollyTTS {
+    # Full AWS Polly API implementation
+    # Creates actual MP3/WAV audio files using AWS Polly service
+    
+    $audioData = Invoke-RestMethod -Uri $pollyEndpoint -Method POST -Body $requestBody -Headers $headers
+    [System.IO.File]::WriteAllBytes($OutputPath, $audioData)
+    
+    return @{ Success = $true; Message = "Generated successfully"; FileSize = $audioData.Length }
+}
+```
+
+**Result**: Files are created as actual audio with high-quality AWS Polly speech synthesis.
+
+### How to Help
+Interested in AWS Polly support? You can:
+
+1. **Star the Repository**: Show interest in the feature
+2. **Create Feature Request**: Open GitHub issue with specific use cases
+3. **Contribute**: Submit pull request with AWS implementation
+4. **Provide Feedback**: Share requirements and preferences
+
+### Technical Requirements (For Developers)
+
+When implementing AWS Polly support, consider:
+
+```powershell
+# Planned API structure
+$pollyConfig = @{
+    AccessKey = "AKIA..."
+    SecretKey = "..."
+    Region = "us-east-1"
+    OutputFormat = "mp3"
+    VoiceId = "Joanna"
+    Engine = "neural"  # or "standard"
+}
+
+# Planned API call structure  
+$pollyRequest = @{
+    Text = $scriptText
+    VoiceId = $voiceId
+    OutputFormat = "mp3"
+    Engine = "neural"
+    SampleRate = "24000"
+}
+```
+
+## 📞 Stay Updated
+
+### Get Notified
+- **GitHub**: Watch the repository for release notifications
+- **Issues**: Subscribe to AWS Polly feature request issues
+- **Releases**: Check release notes for implementation updates
+
+### Documentation Updates
+This documentation will be updated with full setup instructions once AWS Polly integration is implemented.
+
+---
+
+**Current Options**: While waiting for AWS Polly, explore our fully supported providers:
+- [Azure Cognitive Services Setup](AZURE-SETUP.md)  
+- [Google Cloud TTS Setup](GOOGLE-SETUP.md)
+
+**Contribute**: Interested in implementing AWS Polly support? Check our [GitHub repository](https://github.com/sjackson0109/TextToSpeech-Generator) for contribution guidelines.

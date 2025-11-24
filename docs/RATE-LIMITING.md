@@ -105,14 +105,6 @@ This guide explains how to handle API rate limits, quotas, and billing across al
 }
 ```
 
-### CloudPronouncer
-
-#### Typical Limits
-- **Rate Limit**: 60 requests per minute
-- **Character Limit**: Varies by plan
-- **Concurrent Requests**: 5
-- **File Size**: Up to 1MB per audio file
-
 ### Twilio
 
 #### Rate Limits

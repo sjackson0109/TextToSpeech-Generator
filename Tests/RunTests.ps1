@@ -1,4 +1,4 @@
-# Test Runner for TextToSpeech Generator v3.2
+﻿# Test Runner for TextToSpeech Generator v3.2
 # Executes all test suites and generates comprehensive reports
 
 param(
@@ -16,7 +16,7 @@ if (-not (Get-Module -Name Pester -ListAvailable)) {
 
 Import-Module Pester -Force
 
-# Initialize test environment
+# Initialise test environment
 $TestRoot = $PSScriptRoot
 $ModuleRoot = Split-Path $TestRoot -Parent
 $OutputDirectory = Join-Path $TestRoot $OutputPath
@@ -90,9 +90,9 @@ foreach ($suite in $TestSuites) {
         $totalResults.SkippedTests += $result.SkippedCount
         
         # Display suite results
-        $color = if ($suiteResult.Result -eq "Passed") { "Green" } else { "Red" }
+        $colour = if ($suiteResult.Result -eq "Passed") { "Green" } else { "Red" }
         Write-Host "$suite Tests: " -NoNewline
-        Write-Host $suiteResult.Result -ForegroundColor $color
+        Write-Host $suiteResult.Result -ForegroundColor $colour
         Write-Host "  Total: $($result.TotalCount), Passed: $($result.PassedCount), Failed: $($result.FailedCount), Skipped: $($result.SkippedCount)"
         Write-Host "  Duration: $($suiteStopwatch.Elapsed.TotalSeconds.ToString('F2'))s"
         
