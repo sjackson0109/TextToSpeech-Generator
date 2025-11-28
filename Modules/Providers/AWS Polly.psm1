@@ -16,7 +16,7 @@ function ApplyConfigurationToGUI {
 	if ($Window.AWS_Region) { $Window.AWS_Region.Text = $Configuration.Region }
 }
 Export-ModuleMember -Function ApplyConfigurationToGUI
-function Test-PollyCredentials {
+function Test-AWSPollyCredentials {
 	param(
 		[hashtable]$Config
 	)
@@ -59,9 +59,9 @@ function Test-PollyCredentials {
 	Add-ApplicationLog -Module "AWSPolly" -Message "AWS credentials validation passed for region: $($Config.Region)" -Level "INFO"
 	return $true
 }
-Export-ModuleMember -Function 'Test-PollyCredentials', 'Get-PollyProviderSetupFields', 'Get-PollyVoiceOptions', 'Invoke-PollyTTS', 'Get-PollyCapabilities'
+Export-ModuleMember -Function 'Test-AWSPollyCredentials', 'Get-AWSPollyProviderSetupFields', 'Get-AWSPollyVoiceOptions', 'Invoke-PollyTTS', 'Get-PollyCapabilities'
 
-function Get-PollyVoiceOptions {
+function Get-AWSPollyVoiceOptions {
 	<#
 	.SYNOPSIS
 		Returns voice configuration options for AWS Polly TTS with dynamic voice retrieval
@@ -235,7 +235,7 @@ function Get-PollyVoiceOptions {
 	
 	return $defaultOptions
 }
-Export-ModuleMember -Function 'Get-PollyVoiceOptions'
+Export-ModuleMember -Function 'Get-AWSPollyVoiceOptions'
 function Show-PollyProviderSetup {
 	param(
 		$Window,
@@ -429,7 +429,7 @@ class PollyTTSProvider : TTSProvider {
 		}
 	}
 	[bool] ValidateConfiguration([hashtable]$config) {
-		return Test-PollyCredentials $config
+		return Test-AWSPollyCredentials $config
 	}
 	
 	[hashtable] ShowConfigurationDialog([hashtable]$currentConfig) {
@@ -642,7 +642,7 @@ class PollyTTSProvider : TTSProvider {
 					return
 				}
 				
-				$testResult = Test-PollyCredentials -Config @{ AccessKey = $accessKey; SecretKey = $secretKey; Region = $region }
+				$testResult = Test-AWSPollyCredentials -Config @{ AccessKey = $accessKey; SecretKey = $secretKey; Region = $region }
 				Add-ApplicationLog -Module "AWSPolly" -Message "Test result: $testResult" -Level "INFO"
 				
 				if ($testResult) {

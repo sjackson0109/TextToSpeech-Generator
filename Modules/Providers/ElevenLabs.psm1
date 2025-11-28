@@ -12,27 +12,26 @@ function Test-ElevenLabsCredentials {
 	param(
 		[hashtable]$Config
 	)
-	
-	# Validate API Key format (ElevenLabs uses 32-character alphanumeric keys)
-	if (-not $Config.ApiKey -or $Config.ApiKey.Length -lt 20) {
-		Add-ApplicationLog -Module "ElevenLabs" -Message "ElevenLabs Validate-ElevenLabsCredentials: Invalid ApiKey format" -Level "WARNING"
+
+	$apiKey = $Config.ApiKey.Trim()
+	# Validate API Key format (ElevenLabs uses 32+ character keys, typically starting with 'sk_')
+	if (-not $apiKey -or $apiKey.Length -lt 20) {
+		Add-ApplicationLog -Module "ElevenLabs" -Message "ElevenLabs Validate-ElevenLabsCredentials: Invalid ApiKey format (length: $($apiKey.Length), value: $apiKey)" -Level "WARNING"
 		return $false
 	}
-	
+
 	# Try to make an actual API call to verify credentials
 	try {
-		$apiKey = $Config.ApiKey.Trim()
-		
 		Add-ApplicationLog -Module "ElevenLabs" -Message "Testing ElevenLabs API key (length: $($apiKey.Length))" -Level "DEBUG"
-		
+
 		$headers = @{
 			"xi-api-key" = $apiKey
 			"Accept" = "application/json"
 		}
 		$endpoint = "https://api.elevenlabs.io/v1/voices"
-		
+
 		$response = Invoke-RestMethod -Uri $endpoint -Method Get -Headers $headers -TimeoutSec 10 -ErrorAction Stop
-		
+
 		if ($response.voices) {
 			Add-ApplicationLog -Module "ElevenLabs" -Message "ElevenLabs credentials validated successfully - $($response.voices.Count) voices available" -Level "INFO"
 			return $true
