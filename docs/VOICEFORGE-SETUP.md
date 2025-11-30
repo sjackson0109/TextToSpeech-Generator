@@ -1,4 +1,4 @@
-# VoiceForge TTS Setup Guide
+﻿# VoiceForge TTS Setup Guide
 
 **Updated: October 2025** | **Status: ✅ FULLY IMPLEMENTED**
 
@@ -34,10 +34,10 @@ Setup guide for VoiceForge Text-to-Speech integration with TextToSpeech Generato
 
 ## 🔍 About VoiceForge
 
-VoiceForge specializes in high-quality, custom voice synthesis with a focus on professional and branded voice solutions. They offer unique voice personalities and specialized industry voices.
+VoiceForge specialises in high-quality, custom voice synthesis with a focus on professional and branded voice solutions. They offer unique voice personalities and specialised industry voices.
 
 ### Key Features (When Implemented)
-- **Custom Voice Library**: Specialized voices for different industries
+- **Custom Voice Library**: Specialised voices for different industries
 - **Professional Quality**: Studio-grade voice synthesis  
 - **Brand Voices**: Custom voice development for brands
 - **Multiple Languages**: Global language support
@@ -102,7 +102,7 @@ Enter your credentials in the TextToSpeech Generator:
 ### Authentication Method (Production Ready)
 ```http
 POST /api/v1/synthesize
-Authorization: Bearer {api_key}
+Authorisation: Bearer {api_key}
 Content-Type: application/json
 ```
 
@@ -132,8 +132,8 @@ Content-Type: application/json
 | emma_retail | Female | Enthusiastic | Retail/Sales | Standard |
 | james_technical | Male | Clear/Precise | Technology | Premium |
 
-### Specialized Voice Collections
-- **Healthcare Voices**: Medical terminology optimized
+### Specialised Voice Collections
+- **Healthcare Voices**: Medical terminology optimised
 - **Financial Voices**: Business and finance focused
 - **Educational Voices**: Clear pronunciation for learning
 - **Entertainment Voices**: Dynamic and engaging styles
@@ -145,7 +145,7 @@ Content-Type: application/json
 
 VoiceForge implementation has lower priority due to:
 
-1. **Specialized Market**: Niche use cases vs. general TTS
+1. **Specialised Market**: Niche use cases vs. general TTS
 2. **Higher Pricing**: Premium positioning limits user base
 3. **API Complexity**: Custom voice system complexity
 4. **Market Size**: Smaller community compared to major cloud providers
@@ -153,7 +153,7 @@ VoiceForge implementation has lower priority due to:
 ### Estimated Timeline
 - **Phase 1**: Q3 2026 - Basic API integration
 - **Phase 2**: Q4 2026 - Custom voice support
-- **Phase 3**: Q1 2027 - Advanced voice customization
+- **Phase 3**: Q1 2027 - Advanced voice customisation
 
 ### Accelerate Development
 
@@ -186,9 +186,9 @@ If you need custom voice capabilities now:
 
 ### When VoiceForge Makes Sense
 - **Brand Voice Development**: Creating unique brand personalities
-- **Specialized Industries**: Healthcare, finance, education specific voices
+- **Specialised Industries**: Healthcare, finance, education specific voices
 - **Professional Content**: High-end audiobook narration, corporate training
-- **Accessibility**: Specialized voices for assistive technology
+- **Accessibility**: Specialised voices for assistive technology
 
 ### Current Workarounds
 For professional needs while waiting for VoiceForge:
@@ -246,7 +246,7 @@ function Invoke-VoiceForgeTTS {
     
     # API call with authentication
     $headers = @{
-        "Authorization" = "Bearer $APIKey"
+        "Authorisation" = "Bearer $APIKey"
         "Content-Type" = "application/json"
     }
     
@@ -281,7 +281,7 @@ function Invoke-VoiceForgeTTS {
 
 ### Choose VoiceForge When Available If:
 - You need branded/custom voice development
-- You require specialized industry voices
+- You require specialised industry voices
 - You have budget for premium TTS services
 - You need unique voice personalities
 
@@ -294,7 +294,7 @@ function Invoke-VoiceForgeTTS {
 ### Professional Quality Comparison
 | Provider | Quality | Custom Voices | Enterprise | Price |
 |----------|---------|---------------|------------|-------|
-| **VoiceForge** | Ultra | ✅ Full Custom | ✅ Specialized | $$$$ |
+| **VoiceForge** | Ultra | ✅ Full Custom | ✅ Specialised | $$$$ |
 | **Azure** | Premium | ✅ Custom Neural | ✅ Enterprise | $$$ |
 | **Google Cloud** | Premium | ✅ Custom WaveNet | ✅ Enterprise | $$$ |
 

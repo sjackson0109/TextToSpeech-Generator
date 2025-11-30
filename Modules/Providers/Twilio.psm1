@@ -1,8 +1,15 @@
-﻿if (-not (Get-Module -Name 'Logging')) {
+﻿# Exported provider-specific optimisation settings
+$ProviderOptimisationSettings = @{
+	MinPoolSize = 1
+	MaxPoolSize = 3
+	ConnectionTimeout = 30
+}
+Export-ModuleMember -Variable 'ProviderOptimisationSettings'
+if (-not (Get-Module -Name 'Logging')) {
 	Import-Module (Join-Path $PSScriptRoot '..\Logging.psm1')
 }
 
-# Load required assemblies for GUI dialogs
+# Load required assemblies for GUI Dialogues
 Add-Type -AssemblyName PresentationFramework -ErrorAction SilentlyContinue
 
 function Test-TwilioCredentials {
@@ -28,7 +35,7 @@ function Test-TwilioCredentials {
 		$authToken = $Config.AuthToken
 		$endpoint = "https://api.twilio.com/2010-04-01/Accounts/$accountSid.json"
 		$credentials = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("${accountSid}:${authToken}"))
-		$headers = @{ 'Authorization' = "Basic $credentials" }
+		$headers = @{ 'Authorisation' = "Basic $credentials" }
 		
 		$response = Invoke-RestMethod -Uri $endpoint -Method Get -Headers $headers -TimeoutSec 10 -ErrorAction Stop
 		
@@ -241,7 +248,7 @@ class TwilioTTSProvider : TTSProvider {
 		try {
 			$endpoint = "https://api.twilio.com/2010-04-01/Accounts/$accountSid/Voices.json"
 			$credentials = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("${accountSid}:${authToken}"))
-			$headers = @{ 'Authorization' = "Basic $credentials" }
+			$headers = @{ 'Authorisation' = "Basic $credentials" }
 			$response = Invoke-RestMethod -Uri $endpoint -Method Get -Headers $headers -TimeoutSec 10
 			
 			if ($response.voices) {
@@ -256,7 +263,7 @@ class TwilioTTSProvider : TTSProvider {
 	}
 	
 	[hashtable] ShowConfigurationDialog([hashtable]$currentConfig) {
-		# Create Twilio configuration dialog
+		# Create Twilio configuration Dialogue
 		$xaml = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -292,11 +299,11 @@ class TwilioTTSProvider : TTSProvider {
 				</Grid.RowDefinitions>
 				
 				<!-- Account SID -->
-				<TextBlock Grid.Row="0" Grid.Column="0" Text="Account SID:" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,8"/>
-				<TextBox x:Name="AccountSidBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,8" Height="24" VerticalContentAlignment="Center"/>
+				<TextBlock Grid.Row="0" Grid.Column="0" Text="Account SID:" Foreground="White" VerticalAlignment="Centre" Margin="0,0,8,8"/>
+				<TextBox x:Name="AccountSidBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,8" Height="24" VerticalContentAlignment="Centre"/>
 				
 				<!-- Auth Token -->
-				<TextBlock Grid.Row="1" Grid.Column="0" Text="Auth Token:" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,0"/>
+				<TextBlock Grid.Row="1" Grid.Column="0" Text="Auth Token:" Foreground="White" VerticalAlignment="Centre" Margin="0,0,8,0"/>
 				<PasswordBox x:Name="AuthTokenBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,0" Height="24" Padding="5"/>
 			</Grid>
 		</GroupBox>
@@ -309,7 +316,7 @@ class TwilioTTSProvider : TTSProvider {
 					<ColumnDefinition Width="Auto"/>
 				</Grid.ColumnDefinitions>
 				
-				<TextBlock x:Name="TestStatus" Grid.Column="0" Text="Ready to test connection..." Foreground="White" VerticalAlignment="Center"/>
+				<TextBlock x:Name="TestStatus" Grid.Column="0" Text="Ready to test connection..." Foreground="White" VerticalAlignment="Centre"/>
 				<Button x:Name="TestConnectionBtn" Grid.Column="1" Content="🔌 Test Connection" Width="140" Height="28" 
 						Background="#FF28A745" Foreground="White" BorderBrush="#FF1E7E34" BorderThickness="1"/>
 			</Grid>
@@ -417,18 +424,18 @@ class TwilioTTSProvider : TTSProvider {
 					AccountSID = $accountSid
 					AuthToken = $authToken
 				}
-				$window.DialogResult = $true
+				$window.DialogueResult = $true
 				$window.Close()
 			}.GetNewClosure())
 			
 			# Cancel handler
 			$cancelBtn.add_Click({
 				$window.Tag = @{ Success = $false }
-				$window.DialogResult = $false
+				$window.DialogueResult = $false
 				$window.Close()
 			})
 			
-			# Show dialog
+			# Show Dialogue
 			$result = $window.ShowDialog()
 			
 			if ($window.Tag -and $window.Tag.Success) {

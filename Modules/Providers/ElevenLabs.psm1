@@ -1,7 +1,14 @@
-﻿# ElevenLabs TTS Provider Module
+﻿# Exported provider-specific optimisation settings
+$ProviderOptimisationSettings = @{
+	MinPoolSize = 1
+	MaxPoolSize = 3
+	ConnectionTimeout = 30
+}
+Export-ModuleMember -Variable 'ProviderOptimisationSettings'
+# ElevenLabs TTS Provider Module
 # Provides Text-to-Speech synthesis via ElevenLabs API
 
-# Load required assemblies for GUI dialogs
+# Load required assemblies for GUI Dialogues
 Add-Type -AssemblyName PresentationFramework -ErrorAction SilentlyContinue
 
 if (-not (Get-Module -Name 'Logging')) {
@@ -286,7 +293,7 @@ class ElevenLabsTTSProvider : TTSProvider {
 	}
 	
 	[hashtable] ShowConfigurationDialog([hashtable]$currentConfig) {
-		# Create ElevenLabs configuration dialog
+		# Create ElevenLabs configuration Dialogue
 		$xaml = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -321,7 +328,7 @@ class ElevenLabsTTSProvider : TTSProvider {
 				</Grid.RowDefinitions>
 				
 				<!-- API Key -->
-				<TextBlock Grid.Row="0" Grid.Column="0" Text="API Key:" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,0"/>
+				<TextBlock Grid.Row="0" Grid.Column="0" Text="API Key:" Foreground="White" VerticalAlignment="Centre" Margin="0,0,8,0"/>
 				<PasswordBox x:Name="ApiKeyBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,0" Height="24" Padding="5"/>
 			</Grid>
 		</GroupBox>
@@ -334,7 +341,7 @@ class ElevenLabsTTSProvider : TTSProvider {
 					<ColumnDefinition Width="Auto"/>
 				</Grid.ColumnDefinitions>
 				
-				<TextBlock x:Name="TestStatus" Grid.Column="0" Text="Ready to test connection..." Foreground="White" VerticalAlignment="Center"/>
+				<TextBlock x:Name="TestStatus" Grid.Column="0" Text="Ready to test connection..." Foreground="White" VerticalAlignment="Centre"/>
 				<Button x:Name="TestConnectionBtn" Grid.Column="1" Content="🔌 Test Connection" Width="140" Height="28" 
 						Background="#FF28A745" Foreground="White" BorderBrush="#FF1E7E34" BorderThickness="1"/>
 			</Grid>
@@ -438,18 +445,18 @@ class ElevenLabsTTSProvider : TTSProvider {
 					Success = $true
 					ApiKey = $apiKey
 				}
-				$window.DialogResult = $true
+				$window.DialogueResult = $true
 				$window.Close()
 			}.GetNewClosure())
 			
 			# Cancel handler
 			$cancelBtn.add_Click({
 				$window.Tag = @{ Success = $false }
-				$window.DialogResult = $false
+				$window.DialogueResult = $false
 				$window.Close()
 			})
 			
-			# Show dialog
+			# Show Dialogue
 			$result = $window.ShowDialog()
 			
 			if ($window.Tag -and $window.Tag.Success) {

@@ -1,4 +1,4 @@
-# Advanced Voice Options - Implementation Guide
+﻿# Advanced Voice Options - Implementation Guide
 
 **Version:** 3.2.1  
 **Last Updated:** 2025-11-23  
@@ -398,13 +398,13 @@ These are **basic dropdowns** in the main GUI, NOT advanced options.
 - **Twilio ShowAdvancedVoiceDialog**: LanguageOverride textbox, Loop numeric, SSML checkbox
 
 ### Testing Required 🧪
-- OpenAI: Verify Format removed from advanced dialog, Model in Quality dropdown
+- OpenAI: Verify Format removed from advanced Dialogue, Model in Quality dropdown
 - All Providers: Test that AdvancedOptions save/load from config.json
 - All Providers: Test that AdvancedOptions merge with provider configuration
 
 ---
 
-## GUI Pattern for Advanced Dialogs
+## GUI Pattern for Advanced Dialogues
 
 ### Common Structure
 All `ShowAdvancedVoiceDialog` implementations should follow this pattern:
@@ -412,7 +412,7 @@ All `ShowAdvancedVoiceDialog` implementations should follow this pattern:
 ```powershell
 [hashtable] ShowAdvancedVoiceDialog([hashtable]$CurrentConfig) {
     # 1. Define XAML with dark theme (#FF1E1E1E background)
-    # 2. Create WPF window (420-540 height, 540 width, centered)
+    # 2. Create WPF window (420-540 height, 540 width, centred)
     # 3. Get control references via FindName()
     # 4. Populate dropdowns/sliders with provider-specific values
     # 5. Load current configuration from $CurrentConfig
@@ -456,10 +456,10 @@ return @{ Success = $false; Error = $_.Exception.Message }
 ### Save Flow
 1. User clicks **ADVANCED** button in main GUI
 2. Provider's `ShowAdvancedVoiceDialog($CurrentConfig)` method called
-3. Dialog displays current values from `$CurrentConfig.AdvancedOptions`
+3. Dialogue displays current values from `$CurrentConfig.AdvancedOptions`
 4. User adjusts sliders/dropdowns/checkboxes
 5. User clicks **Save and Close**
-6. Dialog returns hashtable with updated values
+6. Dialogue returns hashtable with updated values
 7. Main GUI merges returned values into `$this.ProviderInstance.Configuration`
 8. User clicks **Save** (top-right of main form)
 9. Configuration saved to `config.json` under `ProviderConfigurations.{Provider}`
@@ -471,7 +471,7 @@ return @{ Success = $false; Error = $_.Exception.Message }
 4. After successful credential test, voice options populate
 5. User clicks **ADVANCED** button
 6. Current provider configuration passed to `ShowAdvancedVoiceDialog()`
-7. Dialog pre-populates controls with saved values
+7. Dialogue pre-populates controls with saved values
 8. If no saved value exists, use Default.json fallback
 
 ---
@@ -479,7 +479,7 @@ return @{ Success = $false; Error = $_.Exception.Message }
 ## Testing Checklist
 
 ### Per Provider
-- [ ] Advanced dialog opens without errors
+- [ ] Advanced Dialogue opens without errors
 - [ ] All controls populate with correct values
 - [ ] Current configuration loads and displays correctly
 - [ ] Slider movements update real-time value displays
@@ -545,7 +545,7 @@ $audioConfig = @{
 ### Phase 1 (Current)
 - ✅ Define AdvancedOptions schema for all 8 providers
 - ✅ Update Default.json with complete advanced options
-- ✅ Remove Format from OpenAI advanced dialog
+- ✅ Remove Format from OpenAI advanced Dialogue
 
 ### Phase 2 (Next)
 - ⏸️ Implement ShowAdvancedVoiceDialog for remaining 7 providers
@@ -554,7 +554,7 @@ $audioConfig = @{
 
 ### Phase 3 (Future)
 - SSML Editor for Azure/Google Cloud/AWS Polly
-- Real-time audio preview in advanced dialog
+- Real-time audio preview in advanced Dialogue
 - Advanced options presets (e.g., "Audiobook", "News", "Casual Conversation")
 - Per-voice advanced option validation (some styles only work with specific voices)
 

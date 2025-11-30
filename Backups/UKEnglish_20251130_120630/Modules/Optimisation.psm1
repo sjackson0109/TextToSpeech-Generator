@@ -1,184 +1,31 @@
-# Performance Optimization Module for TextToSpeech Generator v3.2
+﻿# Performance Optimisation Module for TextToSpeech Generator v3.2
 # Advanced performance features including connection pooling, async operations, and intelligent caching
 
 # Import required modules
-Import-Module -Name "$PSScriptRoot\..\Logging\Logging.psm1" -Force
+Import-Module -Name "$PSScriptRoot\Logging.psm1" -Force
 
-# Connection Pool Manager Class (PowerShell 5.1 compatible)
-Add-Type -TypeDefinition @'
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-public class ConnectionPool
-{
-    private readonly ConcurrentQueue<Connection> _availableConnections;
-    private readonly ConcurrentDictionary<string, Connection> _activeConnections;
-    private readonly int _maxPoolSize;
-    private readonly int _minPoolSize;
-    private readonly string _provider;
-    private int _currentPoolSize;
-    private readonly object _lock = new object();
-
-    public ConnectionPool(string provider, int minSize = 2, int maxSize = 10)
-    {
-        _provider = provider;
-        _minPoolSize = minSize;
-        _maxPoolSize = maxSize;
-        _availableConnections = new ConcurrentQueue<Connection>();
-        _activeConnections = new ConcurrentDictionary<string, Connection>();
-        _currentPoolSize = 0;
+# Load C# type definitions
+try {
+    [ConnectionPool] | Out-Null
+    Write-ApplicationLog -Message "ConnectionPool type already loaded" -Level "DEBUG"
+} catch {
+    try {
+        $typeDefinitionPath = Join-Path $PSScriptRoot "OptimisationTypes.cs"
         
-        // Initialize minimum connections
-        for (int i = 0; i < _minPoolSize; i++)
-        {
-            var connection = CreateConnection();
-            _availableConnections.Enqueue(connection);
+        if (Test-Path $typeDefinitionPath) {
+            Add-Type -Path $typeDefinitionPath -ErrorAction Stop
+            Write-ApplicationLog -Message "Loaded performance optimization types from external file" -Level "INFO"
+        } else {
+            Write-ApplicationLog -Message "Type definition file not found at: $typeDefinitionPath" -Level "ERROR"
+            throw "Required type definitions file not found: $typeDefinitionPath"
         }
-    }
-
-    public Connection AcquireConnection()
-    {
-        Connection connection;
-        
-        if (_availableConnections.TryDequeue(out connection))
-        {
-            if (connection.IsValid())
-            {
-                _activeConnections.TryAdd(connection.Id, connection);
-                return connection;
-            }
-        }
-
-        // No available connection or invalid, create new one if under limit
-        lock (_lock)
-        {
-            if (_currentPoolSize < _maxPoolSize)
-            {
-                connection = CreateConnection();
-                _activeConnections.TryAdd(connection.Id, connection);
-                return connection;
-            }
-        }
-
-        // Wait for available connection (simplified timeout)
-        Thread.Sleep(1000);
-        return AcquireConnection();
-    }
-
-    public void ReleaseConnection(Connection connection)
-    {
-        if (connection != null)
-        {
-            _activeConnections.TryRemove(connection.Id, out _);
-            
-            if (connection.IsValid() && _availableConnections.Count < _maxPoolSize)
-            {
-                _availableConnections.Enqueue(connection);
-            }
-            else
-            {
-                connection.Dispose();
-                Interlocked.Decrement(ref _currentPoolSize);
-            }
-        }
-    }
-
-    private Connection CreateConnection()
-    {
-        Interlocked.Increment(ref _currentPoolSize);
-        return new Connection(_provider, Guid.NewGuid().ToString());
-    }
-
-    public ConnectionPoolStats GetStats()
-    {
-        return new ConnectionPoolStats
-        {
-            Provider = _provider,
-            TotalConnections = _currentPoolSize,
-            ActiveConnections = _activeConnections.Count,
-            AvailableConnections = _availableConnections.Count,
-            MaxPoolSize = _maxPoolSize,
-            MinPoolSize = _minPoolSize
-        };
+    } catch {
+        Write-ApplicationLog -Message "Failed to load types: $_" -Level "ERROR"
+        throw
     }
 }
 
-public class Connection : IDisposable
-{
-    public string Id { get; private set; }
-    public string Provider { get; private set; }
-    public DateTime CreatedAt { get; private set; }
-    public DateTime LastUsed { get; set; }
-    public bool IsDisposed { get; private set; }
-
-    public Connection(string provider, string id)
-    {
-        Provider = provider;
-        Id = id;
-        CreatedAt = DateTime.UtcNow;
-        LastUsed = DateTime.UtcNow;
-        IsDisposed = false;
-    }
-
-    public bool IsValid()
-    {
-        return !IsDisposed && (DateTime.UtcNow - CreatedAt).TotalMinutes < 30;
-    }
-
-    public void UpdateLastUsed()
-    {
-        LastUsed = DateTime.UtcNow;
-    }
-
-    public void Dispose()
-    {
-        IsDisposed = true;
-    }
-}
-
-public class ConnectionPoolStats
-{
-    public string Provider { get; set; }
-    public int TotalConnections { get; set; }
-    public int ActiveConnections { get; set; }
-    public int AvailableConnections { get; set; }
-    public int MaxPoolSize { get; set; }
-    public int MinPoolSize { get; set; }
-}
-
-public class AsyncOperationManager
-{
-    private readonly SemaphoreSlim _semaphore;
-    private readonly int _maxConcurrency;
-
-    public AsyncOperationManager(int maxConcurrency = 5)
-    {
-        _maxConcurrency = maxConcurrency;
-        _semaphore = new SemaphoreSlim(maxConcurrency, maxConcurrency);
-    }
-
-    public async Task<T> ExecuteAsync<T>(Func<Task<T>> operation)
-    {
-        await _semaphore.WaitAsync();
-        try
-        {
-            return await operation();
-        }
-        finally
-        {
-            _semaphore.Release();
-        }
-    }
-
-    public int AvailableSlots => _semaphore.CurrentCount;
-    public int MaxConcurrency => _maxConcurrency;
-}
-'@
-
-class PerformanceOptimizer {
+class PerformanceOptimiser {
     [hashtable] $ConnectionPools
     [hashtable] $CacheManager
     [hashtable] $PerformanceMetrics
@@ -186,7 +33,7 @@ class PerformanceOptimizer {
     [int] $MaxConcurrentRequests
     [int] $ConnectionTimeout
     
-    PerformanceOptimizer() {
+    PerformanceOptimiser() {
         $this.ConnectionPools = @{}
         $this.CacheManager = @{}
         $this.PerformanceMetrics = @{
@@ -201,37 +48,48 @@ class PerformanceOptimizer {
         $this.MaxConcurrentRequests = 10
         $this.ConnectionTimeout = 30
         
-        $this.InitializeConnectionPools()
-        $this.InitializeCacheManager()
-        $this.InitializeAsyncManager()
+        $this.InitialiseConnectionPools()
+        $this.InitialiseCacheManager()
+        $this.InitialiseAsyncManager()  
     }
     
-    [void] InitializeConnectionPools() {
-        # Initialize connection pools for major TTS providers
-        $providers = @{
-            "Azure" = @{ MinSize = 2; MaxSize = 8 }
-            "AWSPolly" = @{ MinSize = 2; MaxSize = 6 }
-            "GoogleCloud" = @{ MinSize = 1; MaxSize = 5 }
-            "CloudPronouncer" = @{ MinSize = 1; MaxSize = 3 }
-            "Twilio" = @{ MinSize = 1; MaxSize = 3 }
-            "VoiceForge" = @{ MinSize = 1; MaxSize = 3 }
-        }
-        
-        foreach ($provider in $providers.Keys) {
+    [void] InitialiseConnectionPools() {
+        # Dynamically discover provider modules and initialise connection pools using provider-exported settings
+        $providerFiles = Get-ChildItem -Path (Join-Path $PSScriptRoot 'Providers') -Filter '*.psm1' -ErrorAction SilentlyContinue | Sort-Object Name
+        foreach ($file in $providerFiles) {
+            $providerName = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
+            $minSize = 2
+            $maxSize = 6
+            $timeout = 30
+
+            # Import provider module in current session and get settings
+            $providerModulePath = $file.FullName
+            $providerSettings = $null
             try {
-                $config = $providers[$provider]
-                $pool = [ConnectionPool]::new($provider, $config.MinSize, $config.MaxSize)
-                $this.ConnectionPools[$provider] = $pool
-                
-                Write-ApplicationLog -Message "Initialized connection pool for $provider (Min: $($config.MinSize), Max: $($config.MaxSize))" -Level "INFO"
+                Import-Module -Name $providerModulePath -Force -Global
+                if (Get-Variable -Name 'ProviderOptimisationSettings' -Scope Global -ErrorAction SilentlyContinue) {
+                    $providerSettings = Get-Variable -Name 'ProviderOptimisationSettings' -Scope Global -ValueOnly
+                }
             } catch {
-                Write-ApplicationLog -Message "Failed to initialize connection pool for $provider`: $_" -Level "ERROR"
+                $providerSettings = $null
+            }
+
+            if ($providerSettings -and $providerSettings.ContainsKey('MinPoolSize')) { $minSize = $providerSettings.MinPoolSize }
+            if ($providerSettings -and $providerSettings.ContainsKey('MaxPoolSize')) { $maxSize = $providerSettings.MaxPoolSize }
+            if ($providerSettings -and $providerSettings.ContainsKey('ConnectionTimeout')) { $timeout = $providerSettings.ConnectionTimeout }
+
+            try {
+                $pool = [ConnectionPool]::new($providerName, $minSize, $maxSize)
+                $this.ConnectionPools[$providerName] = $pool
+                Write-ApplicationLog -Message "Initialized connection pool for $providerName (Min: $minSize, Max: $maxSize, Timeout: $timeout)" -Level "INFO"
+            } catch {
+                Write-ApplicationLog -Message "Failed to initialize connection pool for $providerName`: $_" -Level "ERROR"
             }
         }
     }
     
-    [void] InitializeCacheManager() {
-        # Initialize intelligent caching system
+    [void] InitialiseCacheManager() {
+        # Initialise intelligent caching system
         $this.CacheManager = @{
             AudioCache = @{
                 MaxSizeGB = 2
@@ -260,15 +118,15 @@ class PerformanceOptimizer {
             }
         }
         
-        Write-ApplicationLog -Message "Initialized intelligent caching system with compression support" -Level "INFO"
+        Write-ApplicationLog -Message "Initialised intelligent caching system with compression support" -Level "INFO"
     }
     
-    [void] InitializeAsyncManager() {
+    [void] InitialiseAsyncManager() {
         try {
             $this.AsyncOperations["Manager"] = [AsyncOperationManager]::new($this.MaxConcurrentRequests)
-            Write-ApplicationLog -Message "Initialized async operation manager (Max Concurrency: $($this.MaxConcurrentRequests))" -Level "INFO"
+            Write-ApplicationLog -Message "Initialised async operation manager (Max Concurrency: $($this.MaxConcurrentRequests))" -Level "INFO"
         } catch {
-            Write-ApplicationLog -Message "Failed to initialize async operation manager: $_" -Level "ERROR"
+            Write-ApplicationLog -Message "Failed to initialise async operation manager: $_" -Level "ERROR"
         }
     }
     
@@ -509,7 +367,7 @@ class PerformanceOptimizer {
         
         # Response time recommendations
         if ($metrics.AverageResponseTime -gt 5000) {
-            $recommendations += "Average response time is high ($([math]::Round($metrics.AverageResponseTime))ms). Consider optimizing network connections or increasing connection pool sizes."
+            $recommendations += "Average response time is high ($([math]::Round($metrics.AverageResponseTime))ms). Consider optimising network connections or increasing connection pool sizes."
         }
         
         # Cache hit rate recommendations
@@ -532,7 +390,7 @@ class PerformanceOptimizer {
         return $recommendations
     }
     
-    [void] OptimizeConnectionPools() {
+    [void] OptimiseConnectionPools() {
         foreach ($provider in $this.ConnectionPools.Keys) {
             $stats = $this.ConnectionPools[$provider].GetStats()
             
@@ -560,35 +418,87 @@ class PerformanceOptimizer {
     }
 }
 
-# Export functions
-function New-PerformanceOptimizer {
-    return [PerformanceOptimizer]::new()
+function New-OptimisationConnectionPool {
+    param(
+        [string]$Provider,
+        [int]$MinSize = 2,
+        [int]$MaxSize = 10
+    )
+    return [ConnectionPool]::new($Provider, $MinSize, $MaxSize)
+}
+
+function New-OptimisationAsyncManager {
+    param(
+        [int]$MaxConcurrency = 5
+    )
+    return [AsyncOperationManager]::new($MaxConcurrency)
+}
+
+function New-OptimisationConnection {
+    param(
+        [string]$Provider,
+        [string]$Id = ([guid]::NewGuid().ToString())
+    )
+    return [Connection]::new($Provider, $Id)
+}
+
+function Remove-OptimisationConnection {
+    param(
+        [object]$ConnectionPool,
+        [object]$Connection
+    )
+    $ConnectionPool.ReleaseConnection($Connection)
+}
+
+function Get-OptimisationConnection {
+    param(
+        [object]$ConnectionPool
+    )
+    return $ConnectionPool.AcquireConnection()
+}
+
+function Get-OptimisationAsyncSlot {
+    param(
+        [object]$AsyncManager
+    )
+    return $AsyncManager.AvailableSlots
+}
+
+# Existing PerformanceOptimiser functions
+function New-PerformanceOptimiser {
+    return [PerformanceOptimiser]::new()
 }
 
 function Get-PerformanceReport {
-    param([PerformanceOptimizer]$Optimizer)
-    return $Optimizer.GetPerformanceReport()
+    param([PerformanceOptimiser]$Optimiser)
+    return $Optimiser.GetPerformanceReport()
 }
 
-function Optimize-ConnectionPools {
-    param([PerformanceOptimizer]$Optimizer)
-    $Optimizer.OptimizeConnectionPools()
+function Optimise-ConnectionPools {
+    param([PerformanceOptimiser]$Optimiser)
+    $Optimiser.OptimiseConnectionPools()
 }
 
 function Clear-PerformanceCaches {
     param(
-        [PerformanceOptimizer]$Optimizer,
+        [PerformanceOptimiser]$Optimiser,
         [string[]]$CacheTypes = @()
     )
-    $Optimizer.ClearCaches($CacheTypes)
+    $Optimiser.ClearCaches($CacheTypes)
 }
 
-# Export module members
+# Export all required module members
 Export-ModuleMember -Function @(
-    'New-PerformanceOptimizer',
+    'New-OptimisationConnectionPool',
+    'New-OptimisationAsyncManager',
+    'New-OptimisationConnection',
+    'Remove-OptimisationConnection',
+    'Get-OptimisationConnection',
+    'Get-OptimisationAsyncSlot',
+    'New-PerformanceOptimiser',
     'Get-PerformanceReport', 
-    'Optimize-ConnectionPools',
+    'Optimise-ConnectionPools',
     'Clear-PerformanceCaches'
 ) -Variable @() -Cmdlet @() -Alias @()
 
-Write-ApplicationLog -Message "PerformanceOptimization module loaded successfully" -Level "INFO"
+Write-ApplicationLog -Message "Optimisation module loaded successfully" -Level "INFO"

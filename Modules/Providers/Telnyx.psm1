@@ -1,7 +1,14 @@
-﻿# Telnyx TTS Provider Module
+﻿# Exported provider-specific optimisation settings
+$ProviderOptimisationSettings = @{
+    MinPoolSize = 1
+    MaxPoolSize = 3
+    ConnectionTimeout = 30
+}
+Export-ModuleMember -Variable 'ProviderOptimisationSettings'
+# Telnyx TTS Provider Module
 # Provides Text-to-Speech synthesis via Telnyx WebSocket streaming API
 
-# Load required assemblies for GUI dialogs
+# Load required assemblies for GUI Dialogues
 Add-Type -AssemblyName PresentationFramework -ErrorAction SilentlyContinue
 
 function Test-TelnyxCredentials {
@@ -23,7 +30,7 @@ function Test-TelnyxCredentials {
         # Test connectivity with a simple HTTP request to Telnyx API
         # Note: WebSocket connections require more complex setup, so we'll test with a simple API call
         $headers = @{
-            "Authorization" = "Bearer $ApiKey"
+            "Authorisation" = "Bearer $ApiKey"
             "Content-Type" = "application/json"
         }
         
@@ -157,7 +164,7 @@ function Get-TelnyxVoiceOptions {
         Add-ApplicationLog -Module "Telnyx" -Message "Fetching available voices from Telnyx API" -Level "INFO"
         
         $headers = @{
-            "Authorization" = "Bearer $ApiKey"
+            "Authorisation" = "Bearer $ApiKey"
             "Content-Type" = "application/json"
         }
         
@@ -231,11 +238,11 @@ using System.IO;
 class TelnyxWebSocketClient {
     public static async Task ConnectAndSynthesize(string url, string apiKey, string text, string outputPath) {
         using (var ws = new ClientWebSocket()) {
-            ws.Options.SetRequestHeader("Authorization", "Bearer " + apiKey);
+            ws.Options.SetRequestHeader("Authorisation", "Bearer " + apiKey);
             
             await ws.ConnectAsync(new Uri(url), CancellationToken.None);
             
-            // Send initialization frame
+            // Send initialisation frame
             var initFrame = "{\"text\":\" \"}";
             await ws.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(initFrame)), 
                 WebSocketMessageType.Text, true, CancellationToken.None);
@@ -350,7 +357,7 @@ class TelnyxWebSocketClient {
 				</Grid.RowDefinitions>
 				
 				<!-- API Key -->
-				<TextBlock Grid.Row="0" Grid.Column="0" Text="API Key:" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,0"/>
+				<TextBlock Grid.Row="0" Grid.Column="0" Text="API Key:" Foreground="White" VerticalAlignment="Centre" Margin="0,0,8,0"/>
 				<PasswordBox x:Name="ApiKeyBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,0" Height="24" Padding="5"/>
 			</Grid>
 		</GroupBox>
@@ -363,7 +370,7 @@ class TelnyxWebSocketClient {
 					<ColumnDefinition Width="Auto"/>
 				</Grid.ColumnDefinitions>
 				
-				<TextBlock x:Name="TestStatus" Grid.Column="0" Text="Ready to test connection..." Foreground="White" VerticalAlignment="Center"/>
+				<TextBlock x:Name="TestStatus" Grid.Column="0" Text="Ready to test connection..." Foreground="White" VerticalAlignment="Centre"/>
 				<Button x:Name="TestConnectionBtn" Grid.Column="1" Content="🔌 Test Connection" Width="140" Height="28" 
 						Background="#FF28A745" Foreground="White" BorderBrush="#FF1E7E34" BorderThickness="1"/>
 			</Grid>
@@ -466,18 +473,18 @@ class TelnyxWebSocketClient {
                     Success = $true
                     ApiKey = $apiKey
                 }
-                $window.DialogResult = $true
+                $window.DialogueResult = $true
                 $window.Close()
             }.GetNewClosure())
             
             # Cancel button
             $cancelBtn.Add_Click({
                 $window.Tag = @{ Success = $false }
-                $window.DialogResult = $false
+                $window.DialogueResult = $false
                 $window.Close()
             })
             
-            # Show dialog
+            # Show Dialogue
             $result = $window.ShowDialog()
             
             if ($window.Tag -and $window.Tag.Success) {
@@ -488,7 +495,7 @@ class TelnyxWebSocketClient {
             
         }
         catch {
-            Add-ApplicationLog -Module "Telnyx" -Message "Error showing configuration dialog: $($_.Exception.Message)" -Level "ERROR"
+            Add-ApplicationLog -Module "Telnyx" -Message "Error showing configuration Dialogue: $($_.Exception.Message)" -Level "ERROR"
             return @{ Success = $false; Error = $_.Exception.Message }
         }
     }

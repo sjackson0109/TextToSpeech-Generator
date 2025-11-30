@@ -1,4 +1,4 @@
-# CloudPronouncer TTS Setup Guide
+﻿# CloudPronouncer TTS Setup Guide
 
 **Updated: October 2025** | **Status: ✅ FULLY IMPLEMENTED**
 
@@ -13,7 +13,7 @@ Setup guide for CloudPronouncer Text-to-Speech integration with TextToSpeech Gen
 - ✅ **UI Configuration**: Complete configuration panel implemented
 - ✅ **TTS Processing**: Full production implementation with real API calls
 - ✅ **API Integration**: Complete Invoke-CloudPronouncerTTS function with error handling
-- ✅ **Pronunciation Accuracy**: Specialized accuracy for names and complex terms
+- ✅ **Pronunciation Accuracy**: Specialised accuracy for names and complex terms
 - ✅ **Production Ready**: Fully functional with comprehensive logging and retry logic
 
 **What Works Now:**
@@ -33,12 +33,12 @@ Setup guide for CloudPronouncer Text-to-Speech integration with TextToSpeech Gen
 
 ## 🔍 About CloudPronouncer
 
-CloudPronouncer is a specialized text-to-speech service focusing on pronunciation accuracy and linguistic precision. They offer:
+CloudPronouncer is a specialised text-to-speech service focusing on pronunciation accuracy and linguistic precision. They offer:
 
 ### Key Features (When Implemented)
 - **Pronunciation Accuracy**: Advanced phonetic processing
 - **Multiple Engines**: US English, UK English, Australian English
-- **Custom Dictionaries**: Specialized terminology support
+- **Custom Dictionaries**: Specialised terminology support
 - **API Access**: RESTful API with JSON responses
 - **Flexible Pricing**: Pay-per-use and subscription models
 
@@ -107,7 +107,7 @@ Content-Type: application/json
 ### TTS Request Format (Planned)
 ```http
 POST /api/v1/synthesize
-Authorization: Bearer {token}
+Authorisation: Bearer {token}
 Content-Type: application/json
 
 {
@@ -121,7 +121,7 @@ Content-Type: application/json
 ```
 
 ### Voice Options (Available)
-| Voice ID | Gender | Accent | Quality | Specialization |
+| Voice ID | Gender | Accent | Quality | Specialisation |
 |----------|--------|--------|---------|----------------|
 | Emma | Female | US General | High | General purpose |
 | Brian | Male | US General | High | Professional |

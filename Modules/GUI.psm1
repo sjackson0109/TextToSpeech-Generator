@@ -1,5 +1,5 @@
 ﻿# GUIModule.psm1 - Unified GUI module for TextToSpeech Generator
-# Consolidates all GUI logic, event handlers, configuration, and provider setup Dialogueues
+# Consolidates all GUI logic, event handlers, configuration, and provider setup Dialogueueueueueues
 
 # Load required WPF assemblies for GUI functionality - check first, then load if needed
 if (-not [System.Type]::GetType('System.Windows.Markup.XamlReader', $false)) {
@@ -29,11 +29,11 @@ if (-not [System.Type]::GetType('System.Windows.Forms.Form', $false)) {
 		Write-Warning $msg
 		if ($_.Exception.LoaderExceptions) {
 			foreach ($loaderEx in $_.Exception.LoaderExceptions) {
-				Write-Warning "LoaderException: $($loaderEx.Message)"
+				Write-Warning "LoaderException: " + $($loaderEx.Message)
 			}
 		}
 		if ($_.Exception.GetType().FullName) {
-			Write-Warning "Exception type: $($_.Exception.GetType().FullName)"
+			Write-Warning "Exception type: " + $($_.Exception.GetType().FullName)
 		}
 	}
 }
@@ -57,346 +57,351 @@ class GUI {
 	[string]$Version = $script:TTSVersion
 	[string]$XAML = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-		Title="TextToSpeech Generator" Width="900" SizeToContent="Height" MinHeight="600" MaxHeight="1000" Background="#FF1E1E1E" WindowStartupLocation="CenterScreen" ResizeMode="CanResize">
-	<Window.Resources>
-		<Style TargetType="GroupBox">
-			<Setter Property="BorderBrush" Value="#FF3E3E42"/>
-			<Setter Property="BorderThickness" Value="1"/>
-			<Setter Property="Background" Value="#FF2D2D30"/>
-			<Setter Property="Foreground" Value="White"/>
-			<Setter Property="Padding" Value="10"/>
-			<Setter Property="Margin" Value="10,5"/>
-			<Setter Property="FontFamily" Value="Segoe UI"/>
-			<Setter Property="FontSize" Value="11"/>
-		</Style>
-		<Style TargetType="Label">
-			<Setter Property="FontFamily" Value="Segoe UI"/>
-			<Setter Property="FontSize" Value="11"/>
-			<Setter Property="Foreground" Value="White"/>
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="VerticalAlignment" Value="Center"/>
-			<Setter Property="Padding" Value="0"/>
-		</Style>
-		<Style TargetType="TextBlock">
-			<Setter Property="FontFamily" Value="Segoe UI"/>
-			<Setter Property="FontSize" Value="11"/>
-			<Setter Property="Foreground" Value="White"/>
-			<Setter Property="Background" Value="Transparent"/>
-		</Style>
-		<Style TargetType="ComboBox">
-			<Setter Property="FontFamily" Value="Segoe UI"/>
-			<Setter Property="FontSize" Value="11"/>
-			<Setter Property="Background" Value="#FF3E3E42"/>
-			<Setter Property="Foreground" Value="White"/>
-			<Setter Property="Height" Value="26"/>
-			<Setter Property="VerticalContentAlignment" Value="Center"/>
-			<Setter Property="VerticalAlignment" Value="Center"/>
-			<Setter Property="Template">
-				<Setter.Value>
-					<ControlTemplate TargetType="ComboBox">
-						<Grid>
-							<ToggleButton x:Name="ToggleButton" 
-								Background="#FF3E3E42" 
-								BorderBrush="#FF555555" 
-								BorderThickness="1"
-								Focusable="False"
-								IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" 
-								ClickMode="Press">
-								<ToggleButton.Template>
-									<ControlTemplate TargetType="ToggleButton">
-										<Grid Background="{TemplateBinding Background}">
-											<Grid.ColumnDefinitions>
-												<ColumnDefinition Width="*"/>
-												<ColumnDefinition Width="20"/>
-											</Grid.ColumnDefinitions>
-											<ContentPresenter x:Name="ContentSite" 
-												Grid.Column="0"
-												Content="{TemplateBinding Content}" 
-												VerticalAlignment="Center" 
-												HorizontalAlignment="Left" 
-												Margin="5,0,0,0"/>
-											<Path x:Name="Arrow" 
-												Grid.Column="1"
-												Fill="White" 
-												HorizontalAlignment="Center" 
-												VerticalAlignment="Center" 
-												Data="M 0 0 L 4 4 L 8 0 Z"/>
-										</Grid>
-									</ControlTemplate>
-								</ToggleButton.Template>
-								<ContentPresenter 
-									Content="{TemplateBinding SelectionBoxItem}" 
-									ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" 
-									ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" 
-									TextElement.Foreground="White"/>
-							</ToggleButton>
-							<Popup x:Name="Popup" 
-								Placement="Bottom" 
-								IsOpen="{TemplateBinding IsDropDownOpen}" 
-								AllowsTransparency="True" 
-								Focusable="False" 
-								PopupAnimation="Slide">
-								<Grid x:Name="DropDown" 
-									SnapsToDevicePixels="True" 
-									MinWidth="{TemplateBinding ActualWidth}" 
-									MaxHeight="{TemplateBinding MaxDropDownHeight}">
-									<Border x:Name="DropDownBorder" 
-										Background="#FF3E3E42" 
-										BorderBrush="#FF555555" 
-										BorderThickness="1"/>
-									<ScrollViewer Margin="2" SnapsToDevicePixels="True">
-										<StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
-									</ScrollViewer>
-								</Grid>
-							</Popup>
-						</Grid>
-					</ControlTemplate>
-				</Setter.Value>
-			</Setter>
-		</Style>
-		<Style TargetType="ComboBoxItem">
-			<Setter Property="FontFamily" Value="Segoe UI"/>
-			<Setter Property="FontSize" Value="11"/>
-			<Setter Property="Background" Value="#FF3E3E42"/>
-			<Setter Property="Foreground" Value="White"/>
-			<Setter Property="Padding" Value="5,3"/>
-			<Setter Property="Template">
-				<Setter.Value>
-					<ControlTemplate TargetType="ComboBoxItem">
-						<Border x:Name="Border" 
-							Background="{TemplateBinding Background}" 
-							BorderThickness="0" 
-							Padding="{TemplateBinding Padding}">
-							<ContentPresenter TextElement.Foreground="{TemplateBinding Foreground}"/>
-						</Border>
-						<ControlTemplate.Triggers>
-							<Trigger Property="IsHighlighted" Value="True">
-								<Setter TargetName="Border" Property="Background" Value="#FF007ACC"/>
-							</Trigger>
-							<Trigger Property="IsSelected" Value="True">
-								<Setter TargetName="Border" Property="Background" Value="#FF0E639C"/>
-							</Trigger>
-						</ControlTemplate.Triggers>
-					</ControlTemplate>
-				</Setter.Value>
-			</Setter>
-		</Style>
-		<Style TargetType="TextBox">
-			<Setter Property="FontFamily" Value="Segoe UI"/>
-			<Setter Property="FontSize" Value="11"/>
-			<Setter Property="Background" Value="#FF3E3E42"/>
-			<Setter Property="Foreground" Value="White"/>
-			<Setter Property="BorderBrush" Value="#FF555555"/>
-			<Setter Property="BorderThickness" Value="1"/>
-			<Setter Property="Height" Value="26"/>
-			<Setter Property="VerticalContentAlignment" Value="Center"/>
-		</Style>
-		<Style TargetType="CheckBox">
-			<Setter Property="FontFamily" Value="Segoe UI"/>
-			<Setter Property="FontSize" Value="11"/>
-			<Setter Property="Foreground" Value="White"/>
-			<Setter Property="VerticalAlignment" Value="Center"/>
-			<Setter Property="Margin" Value="0,0,12,0"/>
-		</Style>
-		<Style TargetType="Button">
-			<Setter Property="FontFamily" Value="Segoe UI"/>
-			<Setter Property="FontSize" Value="11"/>
-			<Setter Property="Padding" Value="8,4"/>
-		</Style>
-		<!-- Window.Resources (top of XAML) -->
-		<Style x:Key="EllipsisBtn" TargetType="Button">
-			<Setter Property="Width" Value="28"/>
-			<Setter Property="Height" Value="26"/>
-			<Setter Property="Padding" Value="0"/>
-			<Setter Property="Content" Value="..."/>
-			<Setter Property="FontFamily" Value="Segoe UI"/>
-			<Setter Property="FontSize" Value="14"/>
-			<Setter Property="VerticalAlignment" Value="Center"/>
-			<Setter Property="Margin" Value="6,4,0,0"/>
-		</Style>
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TextToSpeech Generator" Width="900" SizeToContent="Height" MinHeight="600" MaxHeight="1000" 
+        Background="#FF1E1E1E" WindowStartupLocation="CenterScreen" ResizeMode="CanResize">
+    <Window.Resources>
+        <Style TargetType="GroupBox">
+            <Setter Property="BorderBrush" Value="#FF3E3E42"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="#FF2D2D30"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="10,5"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Background" Value="#FF3E3E42"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="#FF555555"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Border x:Name="Border"
+                                  Grid.ColumnSpan="2"
+                                  Background="#FF3E3E42"
+                                  BorderBrush="#FF555555"
+                                  BorderThickness="1"/>
+                            
+                            <ToggleButton x:Name="ToggleButton"
+                                        Grid.ColumnSpan="2"
+                                        Focusable="False"
+                                        IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                        ClickMode="Press"
+                                        Background="Transparent"
+                                        BorderThickness="0"/>
+                            
+                            <ContentPresenter x:Name="ContentSite"
+                                            Grid.Column="0"
+                                            Content="{TemplateBinding SelectionBoxItem}"
+                                            ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                            ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Left"
+                                            Margin="5,0,5,0"
+                                            IsHitTestVisible="False"/>
+                            
+                            <Path x:Name="Arrow"
+                                Grid.Column="1"
+                                Fill="White"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Data="M 0 0 L 4 4 L 8 0 Z"
+                                IsHitTestVisible="False"/>
+                            
+                            <Popup x:Name="Popup"
+                                 Placement="Bottom"
+                                 IsOpen="{TemplateBinding IsDropDownOpen}"
+                                 AllowsTransparency="True"
+                                 Focusable="False"
+                                 PopupAnimation="Slide">
+                                <Grid x:Name="DropDown"
+                                    SnapsToDevicePixels="True"
+                                    MinWidth="{TemplateBinding ActualWidth}"
+                                    MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <Border x:Name="DropDownBorder"
+                                          Background="#FF3E3E42"
+                                          BorderThickness="1"
+                                          BorderBrush="#FF555555"/>
+                                    <ScrollViewer Margin="1" SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                    </ScrollViewer>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Background" Value="#FF3E3E42"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="Padding" Value="5,3"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="Background" Value="#FF3E3E42"/>
+                            </Trigger>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter Property="Background" Value="#FF505050"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#FF3E3E42"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#FF555555"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-		<Style x:Key="SmallAction" TargetType="Button">
-			<Setter Property="Height" Value="26"/>
-			<Setter Property="MinWidth" Value="96"/>
-			<Setter Property="Margin" Value="10,0,0,0"/>
-			<Setter Property="VerticalAlignment" Value="Center"/>
-		</Style>
+        <!-- Header Section -->
+        <GroupBox Grid.Row="0" Header="" Padding="12,10,12,8" BorderThickness="0" BorderBrush="#FF3E3E42" 
+                  Background="#FF2D2D30" Margin="10,6,10,6">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="44"/>
+                    <ColumnDefinition Width="44"/>
+                    <ColumnDefinition Width="44"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Left: Title -->
+                <StackPanel Grid.Column="0" Orientation="Vertical">
+                    <TextBlock x:Name="HeaderTitle" Text="TTS Generator" FontSize="18" FontWeight="SemiBold" Foreground="White"/>
+                </StackPanel>
+                
+                <!-- Save Config Button -->
+                <StackPanel Grid.Column="1" Orientation="Vertical">
+                    <Button x:Name="SaveConfig" Content="Save" Background="#FF28A745" Foreground="White" BorderThickness="0"/>
+                </StackPanel>
+                
+                <!-- Load Config Button -->
+                <StackPanel Grid.Column="2" Orientation="Vertical">
+                    <Button x:Name="LoadConfig" Content="Load" Background="#FF0E639C" Foreground="White" BorderThickness="0"/>
+                </StackPanel>
+                
+                <!-- Reset Config Button -->
+                <StackPanel Grid.Column="3" Orientation="Vertical">
+                    <Button x:Name="ResetConfig" Content="Reset" Background="#FFDC3545" Foreground="White" BorderThickness="0"/>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+        
+        <!-- Main Content -->
+        <StackPanel Grid.Row="1">
+            <!-- Provider Selection -->
+            <GroupBox Header="Provider Selection">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Label Content="Provider:" Grid.Row="0" Grid.Column="0" Margin="0,4,8,0" VerticalAlignment="Center"/>
+					<ComboBox x:Name="ProviderSelect" Grid.Row="0" Grid.Column="1" Margin="0,4,0,0" VerticalAlignment="Center"/>
+                    <Button x:Name="Configure" Grid.Row="0" Grid.Column="2" Content="Configure" Height="26" MinWidth="92" 
+                            Margin="10,4,0,0" Background="#FF0E639C" Foreground="White" BorderThickness="0" 
+                            FontWeight="Normal" VerticalAlignment="Center"/>
+                    <Button x:Name="Connect" Grid.Row="0" Grid.Column="3" Content="Connect" Height="26" MinWidth="92" 
+                            Margin="8,4,0,0" Background="#FF28A745" Foreground="White" BorderThickness="0" 
+                            FontWeight="Normal" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="ConfigurationStatus" Grid.Row="1" Grid.Column="2" Text="Not Configured" 
+                               Foreground="#FFFFCC00" Margin="10,4,0,0" VerticalAlignment="Top" FontSize="11" 
+                               HorizontalAlignment="Center" Visibility="Visible"/>
+                    <StackPanel Grid.Row="1" Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,4,0,0">
+                        <TextBlock x:Name="CredentialsStatus" Text="Not Connected" Foreground="#FFFF6B6B" Margin="0,0,12,0" 
+                                   VerticalAlignment="Center" FontSize="11"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
 
-		<BooleanToVisibilityConverter x:Key="InverseBooleanConverter" />
-	</Window.Resources>
-	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="*"/>
-			<RowDefinition Height="Auto"/>
-		</Grid.RowDefinitions>
-		
-		<!-- Header with Icon and Version -->
-		<GroupBox Grid.Row="0" Header="" Padding="12,10,12,8" BorderThickness="0" BorderBrush="#FF3E3E42" Background="#FF2D2D30" Margin="10,6,10,6">
-			<Grid>
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="*"/>
-					<ColumnDefinition Width="44"/>
-					<ColumnDefinition Width="44"/>
-					<ColumnDefinition Width="44"/>
-				</Grid.ColumnDefinitions>
-				
-				<!-- Left: Title -->
-				<StackPanel Grid.Column="0" Orientation="Vertical">
-					<TextBlock x:Name="HeaderTitle" Text="TTS Generator" FontSize="18" FontWeight="SemiBold" Foreground="White"/>
-				</StackPanel>
-				
-				<!-- Save Config Button -->
-				<StackPanel Grid.Column="1" Orientation="Vertical">
-					<Button Content="Save" />
-				</StackPanel>
-				
-				<!-- Load Config Button -->
-				<StackPanel Grid.Column="2" Orientation="Vertical">
-					<Button Content="Load"/>
-				</StackPanel>
-				
-				<!-- Reset Config Button -->
-				<StackPanel Grid.Column="3" Orientation="Vertical">
-					<Button Content="Reset"/>
-				</StackPanel>
-			</Grid>
-		</GroupBox>
-		
-		<!-- Main Content -->
-		<StackPanel Grid.Row="1">
-		<!-- TTS Provider Selection -->
-		<GroupBox Header="Provider Selection">
-			<Grid Background="Transparent">
-				<!-- Simplified structure -->
-				<Label Content="Provider:" Grid.Row="0" Grid.Column="0" Margin="0,4,8,0" VerticalAlignment="Center"/>
-				<ComboBox x:Name="ProviderSelect" Grid.Row="0" Grid.Column="1" Height="26" Margin="0,4,0,0" VerticalAlignment="Center"/>
+            <!-- Voice Selection -->
+            <GroupBox Header="Voice Selection" Margin="10,5">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto"/>   <!-- Voice label -->
+						<ColumnDefinition Width="*"/>      <!-- Voice combo -->
 
-				<!-- Configure button -->
-				<Button x:Name="Configure" Grid.Row="0" Grid.Column="3" Content="Configure" Height="26" MinWidth="92" Margin="10,4,0,0" Background="#FF0E639C" Foreground="White" BorderThickness="0" FontWeight="Normal" VerticalAlignment="Center"/>
-				
-		<!-- Configuration status label (below Configure button) -->
-		<TextBlock x:Name="ConfigurationStatus" Grid.Row="1" Grid.Column="3" Text="Not Configured" Foreground="#FFFFCC00" Margin="10,4,0,0" VerticalAlignment="Top" FontSize="11" HorizontalAlignment="Center" Visibility="Hidden"/>			<!-- Connect button -->
-			<Button x:Name="Connect" Grid.Row="0" Grid.Column="4" Content="Connect" Height="26" MinWidth="92" Margin="8,4,0,0" Background="#FF28A745" Foreground="White" BorderThickness="0" FontWeight="Normal" VerticalAlignment="Center"/>				<!-- Right status block -->
-				<StackPanel Grid.Row="1" Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,4,0,0">
-					<TextBlock x:Name="CredentialsStatus" Text="Status" Foreground="#FFFF6B6B" Margin="0,0,12,0" VerticalAlignment="Center" FontSize="11"/>
-				</StackPanel>
-			</Grid>
-		</GroupBox>
-				
-		
-		<!-- Voice Selection GroupBox -->
-		<GroupBox Header="Voice Selection" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="8" Margin="0,4,0,0" VerticalAlignment="Center">
-			<StackPanel Orientation="Horizontal" Margin="0,4,0,0" VerticalAlignment="Center">
-				<Label Content="Voice:" Margin="0,0,8,0" VerticalAlignment="Center"/>
-				<ComboBox x:Name="VoiceSelect" Width="120" Margin="0,0,12,0" VerticalContentAlignment="Center"/>
-				<Label Content="Language:" Margin="0,0,8,0" VerticalAlignment="Center"/>
-				<ComboBox x:Name="LanguageSelect" Width="120" Margin="0,0,12,0" VerticalContentAlignment="Center"/>
-				<Label Content="Format:" Margin="0,0,8,0" VerticalAlignment="Center"/>
-				<ComboBox x:Name="FormatSelect" Width="120" Margin="0,0,12,0" VerticalContentAlignment="Center"/>
-				<Label Content="Quality:" Margin="0,0,8,0" VerticalAlignment="Center"/>
-				<ComboBox x:Name="QualitySelect" Width="120" Margin="0,0,12,0" VerticalContentAlignment="Center"/>
-				<Button x:Name="AdvancedVoice" Content="Advanced" Height="26" Width="80" Margin="10,0,0,0" Background="#FF6C3483" Foreground="White" BorderThickness="0" FontSize="11" FontWeight="Normal" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-			</StackPanel>
-		</GroupBox>
+						<ColumnDefinition Width="Auto"/>   <!-- Language label -->
+						<ColumnDefinition Width="180"/>    <!-- Language combo -->
 
-		<!-- Input & Output Section Logic -->
-		<GroupBox Header="Input &amp; Output" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="8" Margin="0,4,0,0" VerticalAlignment="Center">
-			<Grid Background="Transparent" UseLayoutRounding="True" SnapsToDevicePixels="True">
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto"/>
-					<RowDefinition Height="Auto"/>
-				</Grid.RowDefinitions>
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="50"/>
-					<ColumnDefinition Width="580"/>
-					<ColumnDefinition Width="32"/>
-					<ColumnDefinition Width="55"/>
-					<ColumnDefinition Width="95"/>
-				</Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto"/>   <!-- Format label -->
+						<ColumnDefinition Width="180"/>    <!-- Format combo -->
 
-				<!-- Row 0: File + Bulk Mode -->
-				<Label Content="File:" Grid.Row="0" Grid.Column="0" Margin="0,4,12,0" VerticalAlignment="Center"/>
-				<TextBox x:Name="InputFile" Grid.Row="0" Grid.Column="1" Height="26" Margin="0,4,0,0" BorderThickness="0" VerticalContentAlignment="Center" IsEnabled="{Binding ElementName=BulkMode, Path=IsChecked, Converter={StaticResource InverseBooleanConverter}}"/>
-				<Button Grid.Row="0" Grid.Column="2" x:Name="BrowseInputButton" Content="..." Width="28" Height="26" Padding="0" FontSize="16" Background="#FF3E3E42" Foreground="White" Margin="6,4,0,0" VerticalAlignment="Center" IsEnabled="{Binding ElementName=BulkMode, Path=IsChecked, Converter={StaticResource InverseBooleanConverter}}"/>
+						<ColumnDefinition Width="Auto"/>   <!-- Quality label -->
+						<ColumnDefinition Width="120"/>    <!-- Quality combo -->
 
-				<!-- Bulk Mode Checkbox -->
-				<CheckBox x:Name="BulkMode" Content="Bulk" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" Margin="0,0,12,0"/>
+						<ColumnDefinition Width="Auto"/>   <!-- Advanced button -->
+                    </Grid.ColumnDefinitions>
+                    
+					<!-- Dynamic voice options will be rendered here after provider connection -->
+					<StackPanel x:Name="VoiceOptionsPanel" Grid.ColumnSpan="9" Orientation="Horizontal" Margin="0,0,0,0"/>
+                </Grid>
+            </GroupBox>
 
-				<!-- Row 1: Output + File Type -->
-				<Label Content="Output:" Grid.Row="1" Grid.Column="0" Margin="0,4,12,0" VerticalAlignment="Center"/>
-				<TextBox x:Name="OutputFile" Grid.Row="1" Grid.Column="1" Height="26" Margin="0,4,0,0" BorderThickness="0" VerticalContentAlignment="Center"/>
-				<Button Grid.Row="1" Grid.Column="2" x:Name="BrowseOutputButton" Content="..." Width="28" Height="26" Padding="0" FontSize="16" Background="#FF3E3E42" Foreground="White" Margin="6,4,0,0" VerticalAlignment="Center"/>
+            <!-- Input & Output -->
+            <GroupBox Header="Input &amp; Output" Margin="10,5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50"/> <!-- Left Labels -->
+                        <ColumnDefinition Width="570"/> <!-- Paths -->
+                        <ColumnDefinition Width="32"/> <!-- Browse Buttons -->
+                        <ColumnDefinition Width="70"/> <!-- Checkboxes -->
+                        <ColumnDefinition Width="95"/> <!-- Far right Button -->
+                    </Grid.ColumnDefinitions>
+                    
+                    <Label Content="File:" Grid.Row="0" Grid.Column="0" Margin="0,4,12,0" VerticalAlignment="Center"/>
+                    <TextBox x:Name="InputFile" Grid.Row="0" Grid.Column="1" Height="26" Margin="0,4,0,0" 
+                             Background="#FF3E3E42" Foreground="White" BorderThickness="1" BorderBrush="#FF555555"
+                             VerticalContentAlignment="Center" Padding="5,0"/>
+                    <Button Grid.Row="0" Grid.Column="2" x:Name="BrowseInputButton" Content="..." Width="28" Height="26" 
+                            Padding="0" FontSize="16" Background="#FF3E3E42" Foreground="White" BorderThickness="1"
+                            BorderBrush="#FF555555" Margin="6,4,0,0" VerticalAlignment="Center"/>
+					<CheckBox x:Name="BulkMode" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" Margin="5,4,5,0" Foreground="White" Width="70">
+						<TextBlock Text="Bulk Mode" TextWrapping="Wrap" />
+					</CheckBox>
+                    <Button x:Name="ImportCSV" Grid.Row="0" Grid.Column="4" Content="Import CSV" Height="26" 
+                            Margin="0,4,0,0" Background="#FF0E639C" Foreground="White" BorderThickness="0" 
+                            VerticalAlignment="Center"/>
+                    
+                    <Label Content="Output:" Grid.Row="1" Grid.Column="0" Margin="0,4,12,0" VerticalAlignment="Center"/>
+                    <TextBox x:Name="OutputFile" Grid.Row="1" Grid.Column="1" Height="26" Margin="0,4,0,0" 
+                             Background="#FF3E3E42" Foreground="White" BorderThickness="1" BorderBrush="#FF555555"
+                             VerticalContentAlignment="Center" Padding="5,0"/>
+                    <Button Grid.Row="1" Grid.Column="2" x:Name="BrowseOutputButton" Content="..." Width="28" Height="26" 
+                            Padding="0" FontSize="16" Background="#FF3E3E42" Foreground="White" BorderThickness="1"
+                            BorderBrush="#FF555555" Margin="6,4,0,0" VerticalAlignment="Center"/>
+                    <Label Content="File Type:" Grid.Row="1" Grid.Column="3" Margin="5,4,12,0" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="FileTypeSelect" Grid.Row="1" Grid.Column="4" Height="26" Margin="0,4,0,0" 
+                              VerticalContentAlignment="Center" Width="95">
+                        <ComboBoxItem Content="MP3"/>
+                    </ComboBox>
+                    
+                    <Label Content="Text:" Grid.Row="2" Grid.Column="0" Margin="0,8,12,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="TextInput" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="4" Height="80" 
+                             Margin="0,8,0,0" Background="#FF3E3E42" Foreground="White" BorderThickness="1" 
+                             BorderBrush="#FF555555" Padding="5" TextWrapping="Wrap" AcceptsReturn="True" 
+                             VerticalScrollBarVisibility="Auto" Text="Enter your text here for single mode processing..."/>
+                </Grid>
+            </GroupBox>
 
-				<!-- File Type Dropdown -->
-				<Label Content="File Type:" Grid.Row="1" Grid.Column="3" Margin="0,4,12,0" VerticalAlignment="Center"/>
-				<ComboBox x:Name="FileTypeSelect" Grid.Row="1" Grid.Column="4" Height="26" Margin="0,4,0,0" VerticalContentAlignment="Center" Width="95"/>
-			</Grid>
-		</GroupBox>
-		
-		<!-- Ready -->
-		<GroupBox Header="Ready">
-			<!-- Generate Speech & Actions -->
-			<Grid Margin="10,0,10,5">
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="*"/>
-					<ColumnDefinition Width="Auto"/>
-					<ColumnDefinition Width="Auto"/>
-					<ColumnDefinition Width="Auto"/>
-				</Grid.ColumnDefinitions>
-				<Button x:Name="GenerateSpeech" Grid.Column="0" Height="32" MinWidth="240" Margin="20,0,20,0" Background="#FF007ACC" Foreground="White" BorderThickness="0" VerticalAlignment="Center">
-					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-						<TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14" Text="&#xE768;" Margin="0,0,8,0" VerticalAlignment="Center"/>
-						<TextBlock Text="Generate Speech" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
-					</StackPanel>
-				</Button>
-			</Grid>
-		</GroupBox>
-				
-		<!-- Progress -->
-		<GroupBox Header="Progress">
-			<Grid Background="Transparent">
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto"/>
-					<RowDefinition Height="Auto"/>
-				</Grid.RowDefinitions>
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="*"/>
-					<ColumnDefinition Width="Auto"/>
-				</Grid.ColumnDefinitions>
-				
-				<ProgressBar x:Name="ProgressBar" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Height="10" Minimum="0" Maximum="100" Value="0" Margin="0,0,0,6" Background="#FF3E3E42" BorderThickness="0"/>
-				
-				<TextBlock x:Name="ProgressStatus" Grid.Row="1" Grid.Column="0" Text="Ready - Select provider and configure settings to begin" Foreground="#FFDDDDDD" FontSize="11" VerticalAlignment="Center"/>
-				<StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-					<TextBlock x:Name="APIStatus" Text="API: Not Tested" Foreground="#FFFF6B6B" FontSize="11" VerticalAlignment="Center"/>
-				</StackPanel>
-			</Grid>
-		</GroupBox>
+            <!-- Ready -->
+            <GroupBox Header="Ready" Margin="10,5">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button x:Name="GenerateSpeech" Grid.Column="0" Height="32" MinWidth="240" Margin="20,0,20,0" 
+                            Background="#FF007ACC" Foreground="White" BorderThickness="0" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14" Text="&#xE768;" Margin="0,0,8,0" 
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="Generate Speech" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </GroupBox>
 
-			
-		<!-- Activity Log -->
-		<GroupBox Header=" Activity Log" Margin="10,8,10,10">
-			<Grid Background="Transparent">
-				<Grid.RowDefinitions>
-					<RowDefinition Height="*"/>
-					<RowDefinition Height="Auto"/>
-				</Grid.RowDefinitions>
-				<TextBox x:Name="LogOutput" Grid.Row="0" Height="120" FontSize="10" FontFamily="Consolas" 
-					IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
-					Background="#FF0C0C0C" Foreground="#FFDCDCDC" BorderThickness="0" 
-					Padding="5" TextWrapping="Wrap"/>
-				<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,4,0,0">
-					<Button x:Name="ClearLog" Width="85" Height="26" Content="Clear Log" 
-						Background="#FF3E3E42" Foreground="White" BorderThickness="0" Margin="0,0,5,0"/>
-					<Button x:Name="ExportLog" Width="85" Height="26" Content="Export Log" 
-						Background="#FF3E3E42" Foreground="White" BorderThickness="0"/>
-				</StackPanel>
-			</Grid>
-		</GroupBox>
-		</StackPanel>
-	</Grid>
+            <!-- Progress -->
+            <GroupBox Header="Progress" Margin="10,5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <ProgressBar x:Name="ProgressBar" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Height="10" 
+                                 Minimum="0" Maximum="100" Value="0" Margin="0,0,0,6" Background="#FF3E3E42" 
+                                 BorderThickness="0"/>
+                    <TextBlock x:Name="ProgressStatus" Grid.Row="1" Grid.Column="0" 
+                               Text="Ready - Select provider and configure settings to begin" Foreground="#FFDDDDDD" 
+                               FontSize="11" VerticalAlignment="Center"/>
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" 
+                                VerticalAlignment="Center">
+                        <TextBlock x:Name="APIStatus" Text="API: Not Tested" Foreground="#FFFF6B6B" FontSize="11" 
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+            <!-- Activity Log -->
+            <GroupBox Header="Activity Log" Margin="10,8,10,10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBox x:Name="LogOutput" Grid.Row="0" Height="120" FontSize="10" FontFamily="Consolas" 
+                             IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+                             Background="#FF0C0C0C" Foreground="#FFDCDCDC" BorderThickness="0" Padding="5" 
+                             TextWrapping="Wrap"/>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,4,0,0">
+                        <Button x:Name="ClearLog" Width="85" Height="26" Content="Clear Log" Background="#FF3E3E42" 
+                                Foreground="White" BorderThickness="0" Margin="0,0,5,0"/>
+                        <Button x:Name="ExportLog" Width="85" Height="26" Content="Export Log" Background="#FF3E3E42" 
+                                Foreground="White" BorderThickness="0"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+        </StackPanel>
+    </Grid>
 </Window>
 "@
 
@@ -408,13 +413,13 @@ class GUI {
 		$this.AutoSaveTimer = $null
 		
 		# Automatically initialise the modern GUI
-		$this.InitialiseModernGUI($profile, $null)
+		$this.initialiseModernGUI($profile, $null)
 	}
 
-	[object]InitialiseModernGUI($Profile = "Default", $ConfigurationManager = $null) {
+	[object]initialiseModernGUI($Profile = "Default", $ConfigurationManager = $null) {
 		$this.CurrentProfile = $Profile
 		$this.ConfigManager = $ConfigurationManager
-		$this.WriteSafeLog("Initialising Modern GUI with profile: $Profile", "INFO")
+		$this.WriteSafeLog("initialising Modern GUI with profile: $Profile", "INFO")
 		
 		# Verify WPF availability before proceeding
 		$wpfAvailable = $false
@@ -443,56 +448,67 @@ class GUI {
 			# Load optional assemblies for GUI functionality
 			[void][System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
 			[void][System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
-			
+
 			$this.WriteSafeLog("DEBUG: About to call ConvertXAMLtoWindow with XAML length: $($this.XAML.Length)", "DEBUG")
-			$this.Window = $this.ConvertXAMLtoWindow($this.XAML)
-			$this.WriteSafeLog("DEBUG: ConvertXAMLtoWindow returned: $($this.Window -ne $null)", "DEBUG")
-			
+			# If window is null or closed, re-create it
+			if ($null -eq $this.Window -or ($this.Window.GetType().FullName -ne 'System.Windows.Window' -or -not $this.Window.IsLoaded)) {
+				$this.Window = $this.ConvertXAMLtoWindow($this.XAML)
+				$this.WriteSafeLog("DEBUG: ConvertXAMLtoWindow returned: $($this.Window -ne $null)", "DEBUG")
+			}
+
 			if ($null -eq $this.Window -or ($this.Window.GetType().FullName -ne 'System.Windows.Window')) {
 				$this.WriteSafeLog("ERROR: Failed to create GUI window from XAML.", "ERROR")
 				return $null
 			}
-			
+
 			# Set the window title with version
 			$this.Window.Title = "TextToSpeech Generator $($this.Version)"
-			
+
 			# Update header title with version
 			if ($this.Window.HeaderTitle) {
 				$this.Window.HeaderTitle.Text = "TextToSpeech Generator $($this.Version)"
 			}
-			
+
 			# initialise Voice Selection to empty state (before wiring events)
 			$this.ClearVoiceOptions()
-			
+
 			# Wire up event handlers
 			$this.WireEventHandlers()
-			
+
 			# Set global window reference for external logging modules
 			$global:window = $this.Window
-			
+
 			# Debug: Check provider dropdown
 			if ($this.Window.ProviderSelect) {
 				$providerCount = $this.Window.ProviderSelect.Items.Count
 				$this.WriteSafeLog("ProviderSelect has $providerCount items", "INFO")
 				if ($providerCount -eq 0) {
-					$this.WriteSafeLog("WARNING: ProviderSelect dropdown is empty! Adding providers manually...", "WARNING")
+					$this.WriteSafeLog("ProviderSelect dropdown is empty! Adding providers manually...", "WARNING")
 					$this.PopulateProviderDropdown()
 				} else {
 					$this.WriteSafeLog("ProviderSelect items loaded from XAML successfully", "INFO")
 				}
 			} else {
-				$this.WriteSafeLog("ERROR: ProviderSelect control not found in window!", "ERROR")
+				$this.WriteSafeLog("ProviderSelect control not found in window!", "ERROR")
 			}
-			
-			# Show the window using direct type access
-			$this.Window.Visibility = [System.Windows.Visibility]::Visible
-			$this.Window.WindowState = [System.Windows.WindowState]::Normal
-			
+
+			# Show the window using ShowDialog for modal Behaviour
+			if ($this.Window.Visibility -eq [System.Windows.Visibility]::Visible) {
+				$this.WriteSafeLog("Window is already visible. Hiding before ShowDialog to avoid error.", "WARNING")
+				$this.Window.Hide()
+			}
+			if ($this.Window.IsLoaded -and $this.Window.Visibility -ne [System.Windows.Visibility]::Visible) {
+				$this.WriteSafeLog("Window is loaded but not visible, showing Dialogue.", "DEBUG")
+				$null = $this.Window.ShowDialog()
+			} elseif (-not $this.Window.IsLoaded) {
+				$this.WriteSafeLog("Window not loaded, creating and showing Dialogue.", "DEBUG")
+				$this.Window = $this.ConvertXAMLtoWindow($this.XAML)
+				$null = $this.Window.ShowDialog()
+			}
+
 			$this.WriteSafeLog("Modern GUI initialised successfully", "INFO")
-			
 			# Auto-load configuration if it exists
 			$this.AutoLoadConfiguration()
-			
 			return $this.Window
 		} catch {
 			$this.WriteSafeLog("ERROR: Exception during GUI initialisation: $($_.Exception.Message)", "ERROR")
@@ -524,50 +540,15 @@ class GUI {
 			
 			# Apply to GUI fields
 			if ($config.Provider) {
-				foreach ($item in $this.Window.ProviderSelect.Items) {
-					if ($item.Content -eq $config.Provider) {
-						$this.Window.ProviderSelect.SelectedItem = $item
-						$this.WriteSafeLog("Auto-loaded provider: $($config.Provider)", "DEBUG")
-						break
-					}
-				}
+						foreach ($item in $this.Window.ProviderSelect.Items) {
+							if ($item.Content -eq $config.Provider) {
+								$this.Window.ProviderSelect.SelectedItem = $item
+								$this.WriteSafeLog("Auto-loaded provider: $($config.Provider)", "DEBUG")
+								break
+							}
+						}
 			}
-			
-			if ($config.Voice -and $this.Window.VoiceSelect.Items.Count -gt 0) {
-				foreach ($item in $this.Window.VoiceSelect.Items) {
-					if ($item.Content -eq $config.Voice) {
-						$this.Window.VoiceSelect.SelectedItem = $item
-						break
-					}
-				}
-			}
-			
-			if ($config.Language -and $this.Window.LanguageSelect.Items.Count -gt 0) {
-				foreach ($item in $this.Window.LanguageSelect.Items) {
-					if ($item.Content -eq $config.Language) {
-						$this.Window.LanguageSelect.SelectedItem = $item
-						break
-					}
-				}
-			}
-			
-			if ($config.Format -and $this.Window.FormatSelect.Items.Count -gt 0) {
-				foreach ($item in $this.Window.FormatSelect.Items) {
-					if ($item.Content -eq $config.Format) {
-						$this.Window.FormatSelect.SelectedItem = $item
-						break
-					}
-				}
-			}
-			
-			if ($config.Quality -and $this.Window.QualitySelect.Items.Count -gt 0) {
-				foreach ($item in $this.Window.QualitySelect.Items) {
-					if ($item.Content -eq $config.Quality) {
-						$this.Window.QualitySelect.SelectedItem = $item
-						break
-					}
-				}
-			}
+			# Voice, Language, Format, Quality controls are now dynamic; selection will be handled after provider connection
 			
 			# Load provider-specific configurations into provider instances
 			if ($config.ProviderConfigurations -and $config.Provider) {
@@ -591,18 +572,10 @@ class GUI {
 		}
 	}
 
-	[void]SetGUIConfiguration($Configuration) {
-		# ... Set GUI configuration logic ...
-	}
-
-	[void]ShowProviderSetup($Provider) {
-		# ... Show provider setup dialogue logic ...
-	}
-
 	[void]ShowProviderConfigurationDialog($Provider) {
 		<#
 		.SYNOPSIS
-			Shows provider-specific configuration dialog
+			Shows provider-specific configuration Dialogue
 		.DESCRIPTION
 			Calls the provider's ShowConfigurationDialog method
 		#>
@@ -626,7 +599,7 @@ class GUI {
 			if (-not ($providerInstance.PSObject.Methods.Name -contains 'ShowConfigurationDialog')) {
 				$this.WriteSafeLog("Configuration not yet implemented for $Provider", "WARNING")
 				[System.Windows.MessageBox]::Show(
-					"Configuration dialog is not yet implemented for $Provider",
+					"Configuration Dialogue is not yet implemented for $Provider",
 					"Configuration",
 					[System.Windows.MessageBoxButton]::OK,
 					[System.Windows.MessageBoxImage]::Information
@@ -670,8 +643,8 @@ class GUI {
 				}
 			}
 			
-			# Call provider's configuration dialog
-			$this.WriteSafeLog("Opening configuration dialog for $Provider", "INFO")
+			# Call provider's configuration Dialogue
+			$this.WriteSafeLog("Opening configuration Dialogue for $Provider", "INFO")
 			$this.WriteSafeLog("CurrentConfig for $Provider has $($currentConfig.Count) keys: $($currentConfig.Keys -join ', ')", "INFO")
 			$result = $providerInstance.ShowConfigurationDialog($currentConfig)
 			
@@ -694,9 +667,9 @@ class GUI {
 					
 					$this.WriteSafeLog("Configuration saved for $Provider", "INFO")
 				}		} catch {
-			$this.WriteSafeLog("Error showing configuration dialog for $Provider`: $($_.Exception.Message)", "ERROR")
+			$this.WriteSafeLog("Error showing configuration Dialogue for $Provider`: $($_.Exception.Message)", "ERROR")
 			[System.Windows.MessageBox]::Show(
-				"Error opening configuration dialog:`n$($_.Exception.Message)",
+				"Error opening configuration Dialogue:`n$($_.Exception.Message)",
 				"Configuration Error",
 				[System.Windows.MessageBoxButton]::OK,
 				[System.Windows.MessageBoxImage]::Error
@@ -717,171 +690,96 @@ class GUI {
 	}
 
 	[void]UpdateVoiceOptions($Provider) {
-        # Clear existing options
-        $this.Window.VoiceSelect.Items.Clear()
-        $this.Window.LanguageSelect.Items.Clear()
-        $this.Window.FormatSelect.Items.Clear()
-        $this.Window.QualitySelect.Items.Clear()
+		# Remove all hard-coded clearing and population of voice option controls
+		# Instead, dynamically create and populate controls strictly from provider response
+		# Hide or disable controls for unsupported options
 
-        # Get provider-specific voice options
-        $voiceOptions = $null
-        switch ($Provider) {
-            "AWS Polly" {
-                if (Get-Command Get-AWSPollyVoiceOptions -ErrorAction SilentlyContinue) {
-                    $voiceOptions = Get-AWSPollyVoiceOptions
+		# Remove all items from the voice options panel
+		$voicePanel = $this.Window.FindName('VoiceOptionsPanel')
+		if ($null -eq $voicePanel) {
+			$this.WriteSafeLog('VoiceOptionsPanel not found in window', 'ERROR')
+			return
+		}
+		$voicePanel.Children.Clear()
 
-                    # Populate Voice dropdown
-                    foreach ($voice in $voiceOptions.Voices) {
-                        $this.Window.VoiceSelect.Items.Add([System.Windows.Controls.ComboBoxItem]@{
-                            Content = $voice
-                        })
-                    }
+		# Get provider instance
+		$providerInstance = Get-TTSProvider -ProviderName $Provider
+		if (-not $providerInstance) {
+			$this.WriteSafeLog("Provider instance not found for $Provider", "ERROR")
+			return
+		}
 
-                    # Populate Quality dropdown
-                    foreach ($quality in $voiceOptions.Quality) {
-                        $this.Window.QualitySelect.Items.Add([System.Windows.Controls.ComboBoxItem]@{
-                            Content = $quality
-                        })
-                    }
-                }
-            }
-            "ElevenLabs" {
-                if (Get-Command Get-ElevenLabsVoiceOptions -ErrorAction SilentlyContinue) {
-                    $voiceOptions = Get-ElevenLabsVoiceOptions
-                }
-            }
-            "Google Cloud" {
-                if (Get-Command Get-GoogleCloudVoiceOptions -ErrorAction SilentlyContinue) {
-                    $voiceOptions = Get-GoogleCloudVoiceOptions
-                }
-            }
-            "Microsoft Azure" {
-                if (Get-Command Get-AzureVoiceOptions -ErrorAction SilentlyContinue) {
-                    $voiceOptions = Get-AzureVoiceOptions
-                }
-            }
-            "Murf AI" {
-                if (Get-Command Get-MurfAIVoiceOptions -ErrorAction SilentlyContinue) {
-                    $voiceOptions = Get-MurfAIVoiceOptions
-                }
-            }
-            "OpenAI" {
-                if (Get-Command Get-OpenAIVoiceOptions -ErrorAction SilentlyContinue) {
-                    $voiceOptions = Get-OpenAIVoiceOptions
-                }
-            }
-            "Telnyx" {
-                if (Get-Command Get-TelnyxVoiceOptions -ErrorAction SilentlyContinue) {
-                    $voiceOptions = Get-TelnyxVoiceOptions
-                }
-            }
-            "Twilio" {
-                if (Get-Command Get-TwilioVoiceOptions -ErrorAction SilentlyContinue) {
-                    $voiceOptions = Get-TwilioVoiceOptions
-                }
-            }
-            default {
-                # Handle unsupported providers
-            }
-        }
+		# Get dynamic voice options from provider class
+		$voiceOptions = $null
+		if ($providerInstance.PSObject.Methods.Name -contains 'GetVoiceOptions') {
+			$voiceOptions = $providerInstance.GetVoiceOptions()
+		} elseif ($providerInstance.PSObject.Methods.Name -contains 'GetAvailableVoices') {
+			$voiceOptions = @{ Voices = $providerInstance.GetAvailableVoices() }
+		} else {
+			$this.WriteSafeLog("Provider $Provider does not implement GetVoiceOptions or GetAvailableVoices", "WARNING")
+			return
+		}
 
-        # Load defaults from Default.json if voiceOptions is null or incomplete
-        $defaultConfigPath = Join-Path $PSScriptRoot "..\Default.json"
-        if (Test-Path $defaultConfigPath) {
-            $defaultConfig = Get-Content $defaultConfigPath -Raw | ConvertFrom-Json
-            $providerDefaults = $defaultConfig.Profiles.Default.Providers.$Provider
+		# Dynamically create controls for each option returned by provider
+		foreach ($key in $voiceOptions.Keys) {
+			if ($key -eq 'Defaults' -or $key -eq 'SupportsAdvanced') { continue }
+			$values = $voiceOptions[$key]
+			if ($null -eq $values) { continue }
+			if ($values -is [System.Collections.IEnumerable]) {
+				$array = @($values)
+				if ($array.Count -eq 0) { continue }
+			}
 
-            if ($null -eq $voiceOptions) {
-                $voiceOptions = @{ 
-                    Voices = @($providerDefaults.DefaultVoice)
-                    Languages = @($providerDefaults.DefaultLanguage)
-                    Formats = @($providerDefaults.DefaultFormat)
-                    Quality = @($providerDefaults.DefaultQuality)
-                    Defaults = @{ 
-                        Voice = $providerDefaults.DefaultVoice
-                        Language = $providerDefaults.DefaultLanguage
-                        Format = $providerDefaults.DefaultFormat
-                        Quality = $providerDefaults.DefaultQuality
-                    }
-                }
-            } else {
-                # Fill in missing defaults from Default.json
-                if (-not $voiceOptions.Defaults.Voice) { $voiceOptions.Defaults.Voice = $providerDefaults.DefaultVoice }
-                if (-not $voiceOptions.Defaults.Language) { $voiceOptions.Defaults.Language = $providerDefaults.DefaultLanguage }
-                if (-not $voiceOptions.Defaults.Format) { $voiceOptions.Defaults.Format = $providerDefaults.DefaultFormat }
-                if (-not $voiceOptions.Defaults.Quality) { $voiceOptions.Defaults.Quality = $providerDefaults.DefaultQuality }
-            }
-        }
+			# Create label
+			$label = New-Object System.Windows.Controls.Label
+			$label.Content = $key
+			$voicePanel.Children.Add($label)
 
-        if ($null -eq $voiceOptions) {
-            $this.WriteSafeLog("Failed to retrieve voice options for provider: $Provider", "WARNING")
-            return
-        }
+			# Create ComboBox for array options
+			if ($values -is [System.Collections.IEnumerable] -and @($values).Count -gt 0) {
+				$combo = New-Object System.Windows.Controls.ComboBox
+				foreach ($val in $values) {
+					$item = New-Object System.Windows.Controls.ComboBoxItem
+					$item.Content = $val
+					if ($voiceOptions.Defaults[$key] -and $val -eq $voiceOptions.Defaults[$key]) {
+						$item.IsSelected = $true
+					}
+					$combo.Items.Add($item) | Out-Null
+				}
+				$voicePanel.Children.Add($combo)
+			} elseif ($values -is [bool]) {
+				# Create CheckBox for boolean options
+				$check = New-Object System.Windows.Controls.CheckBox
+				$check.Content = $key
+				$check.IsChecked = $values
+				$voicePanel.Children.Add($check)
+			} elseif ($values -is [int] -or $values -is [double]) {
+				# Create Slider for numeric options
+				$slider = New-Object System.Windows.Controls.Slider
+				$slider.Minimum = 0
+				$slider.Maximum = 100
+				$slider.Value = $values
+				$voicePanel.Children.Add($slider)
+			}
+		}
 
-        # Populate Voice dropdown
-        foreach ($voice in $voiceOptions.Voices) {
-            $item = New-Object System.Windows.Controls.ComboBoxItem
-            $item.Content = $voice
-            if ($voice -eq $voiceOptions.Defaults.Voice) {
-                $item.IsSelected = $true
-            }
-            $this.Window.VoiceSelect.Items.Add($item) | Out-Null
-        }
-        
-        # Populate Language dropdown
-        foreach ($language in $voiceOptions.Languages) {
-            $item = New-Object System.Windows.Controls.ComboBoxItem
-            $item.Content = $language
-            if ($language -eq $voiceOptions.Defaults.Language) {
-                $item.IsSelected = $true
-            }
-            $this.Window.LanguageSelect.Items.Add($item) | Out-Null
-        }
-        
-        # Populate Format dropdown
-        foreach ($format in $voiceOptions.Formats) {
-            $item = New-Object System.Windows.Controls.ComboBoxItem
-            $item.Content = $format
-            if ($format -eq $voiceOptions.Defaults.Format) {
-                $item.IsSelected = $true
-            }
-            $this.Window.FormatSelect.Items.Add($item) | Out-Null
-        }
-        
-        # Populate Quality dropdown
-        foreach ($quality in $voiceOptions.Quality) {
-            $item = New-Object System.Windows.Controls.ComboBoxItem
-            $item.Content = $quality
-            if ($quality -eq $voiceOptions.Defaults.Quality) {
-                $item.IsSelected = $true
-            }
-            $this.Window.QualitySelect.Items.Add($item) | Out-Null
-        }
-        
-        # Enable/disable Advanced button based on provider support
-        if ($this.Window.AdvancedVoice) {
-            $this.Window.AdvancedVoice.IsEnabled = $voiceOptions.SupportsAdvanced
-        }
-        
-        $this.WriteSafeLog("Voice options updated for provider: $Provider", "INFO")
-    }
+		# Enable/disable Advanced button based on provider support
+		if ($this.Window.AdvancedVoice) {
+			$this.Window.AdvancedVoice.IsEnabled = $voiceOptions.SupportsAdvanced
+		}
+
+		$this.WriteSafeLog("Voice options updated for provider: $Provider", "INFO")
+	}
 
 	[void]ClearVoiceOptions() {
-		# Clear all voice selection dropdowns and disable controls
-		$this.Window.VoiceSelect.Items.Clear()
-		$this.Window.LanguageSelect.Items.Clear()
-		$this.Window.FormatSelect.Items.Clear()
-		$this.Window.QualitySelect.Items.Clear()
-		
-		# Optionally disable controls until provider is selected
-		$this.Window.VoiceSelect.IsEnabled = $false
-		$this.Window.LanguageSelect.IsEnabled = $false
-		$this.Window.FormatSelect.IsEnabled = $false
-		$this.Window.QualitySelect.IsEnabled = $false
+		# Clear all dynamic voice option controls from the panel
+		$voicePanel = $this.Window.FindName('VoiceOptionsPanel')
+		if ($null -ne $voicePanel) {
+			$voicePanel.Children.Clear()
+		}
 		if ($this.Window.AdvancedVoice) {
 			$this.Window.AdvancedVoice.IsEnabled = $false
 		}
-		
 		$this.WriteSafeLog("Voice options cleared - waiting for provider selection", "INFO")
 	}
 
@@ -892,25 +790,14 @@ class GUI {
 		#>
 		$this.WriteSafeLog("Populating provider dropdown manually", "INFO")
 		
-		$providers = @(
-			"AWS Polly",
-			"ElevenLabs",
-			"Google Cloud",
-			"Microsoft Azure",
-			"Murf AI",
-			"OpenAI",
-			"Telnyx",
-			"Twilio"
-		)
-
+		$providerFiles = Get-ChildItem -Path (Join-Path $PSScriptRoot 'Providers') -Filter '*.psm1' | Sort-Object Name
 		$this.Window.ProviderSelect.Items.Clear()
-		
-		foreach ($provider in $providers) {
+		foreach ($file in $providerFiles) {
+			$providerName = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
 			$item = New-Object System.Windows.Controls.ComboBoxItem
-			$item.Content = $provider
+			$item.Content = $providerName
 			$this.Window.ProviderSelect.Items.Add($item) | Out-Null
 		}
-		
 		# Select first provider by default
 		if ($this.Window.ProviderSelect.Items.Count -gt 0) {
 			$this.Window.ProviderSelect.SelectedIndex = 0
@@ -929,10 +816,7 @@ class GUI {
 				$gui.WriteSafeLog("Provider selected: $selectedProvider", "INFO")
 				
 				# Re-enable voice controls
-				$gui.Window.VoiceSelect.IsEnabled = $true
-				$gui.Window.LanguageSelect.IsEnabled = $true
-				$gui.Window.FormatSelect.IsEnabled = $true
-				$gui.Window.QualitySelect.IsEnabled = $true
+				# Voice, Language, Format, Quality controls are now dynamic; enablement handled via VoiceOptionsPanel
 				
 				# Reset credentials status when provider changes
 				if ($gui.Window.CredentialsStatus) {
@@ -981,14 +865,11 @@ class GUI {
 			$this.Window.Configure.add_Click({
 				$selectedProvider = $gui.Window.ProviderSelect.SelectedItem.Content
 				if ($selectedProvider) {
-					$gui.WriteSafeLog("Opening configuration for provider: $selectedProvider", "INFO")
-					
-					# Call the GUI method to show provider configuration dialog
+					$gui.WriteSafeLog("Configuring provider: $selectedProvider", "INFO")
 					$gui.ShowProviderConfigurationDialog($selectedProvider)
 				} else {
-					$gui.WriteSafeLog("No provider selected for configuration", "WARNING")
 					[System.Windows.MessageBox]::Show(
-						"Please select a TTS provider first",
+						"Please select a provider before configuring.",
 						"Configuration",
 						[System.Windows.MessageBoxButton]::OK,
 						[System.Windows.MessageBoxImage]::Warning
@@ -996,8 +877,7 @@ class GUI {
 				}
 			}.GetNewClosure())
 		}
-		
-		# Connect button event
+
 		if ($this.Window.Connect) {
 			$this.Window.Connect.add_Click({
 				$selectedProvider = $gui.Window.ProviderSelect.SelectedItem.Content
@@ -1188,10 +1068,7 @@ class GUI {
 					# Build configuration object from GUI fields
 					$config = @{
 						Provider = if ($gui.Window.ProviderSelect.SelectedItem) { $gui.Window.ProviderSelect.SelectedItem.Content } else { "" }
-						Voice = if ($gui.Window.VoiceSelect.SelectedItem) { $gui.Window.VoiceSelect.SelectedItem.Content } else { "" }
-						Language = if ($gui.Window.LanguageSelect.SelectedItem) { $gui.Window.LanguageSelect.SelectedItem.Content } else { "" }
-						Format = if ($gui.Window.FormatSelect.SelectedItem) { $gui.Window.FormatSelect.SelectedItem.Content } else { "" }
-						Quality = if ($gui.Window.QualitySelect.SelectedItem) { $gui.Window.QualitySelect.SelectedItem.Content } else { "" }
+						# Voice, Language, Format, Quality are now dynamic; handled via VoiceOptionsPanel
 						LastSaved = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
 						ProviderConfigurations = @{}
 					}
@@ -1274,55 +1151,6 @@ class GUI {
 							}
 						}
 					}
-					
-					if ($config.Voice -and $gui.Window.VoiceSelect.Items.Count -gt 0) {
-						foreach ($item in $gui.Window.VoiceSelect.Items) {
-							if ($item.Content -eq $config.Voice) {
-								$gui.Window.VoiceSelect.SelectedItem = $item
-								break
-							}
-						}
-					}
-					
-					if ($config.Language -and $gui.Window.LanguageSelect.Items.Count -gt 0) {
-						foreach ($item in $gui.Window.LanguageSelect.Items) {
-							if ($item.Content -eq $config.Language) {
-								$gui.Window.LanguageSelect.SelectedItem = $item
-								break
-							}
-						}
-					}
-					
-					if ($config.Format -and $gui.Window.FormatSelect.Items.Count -gt 0) {
-						foreach ($item in $gui.Window.FormatSelect.Items) {
-							if ($item.Content -eq $config.Format) {
-								$gui.Window.FormatSelect.SelectedItem = $item
-								break
-							}
-						}
-					}
-					
-					if ($config.Quality -and $gui.Window.QualitySelect.Items.Count -gt 0) {
-						foreach ($item in $gui.Window.QualitySelect.Items) {
-							if ($item.Content -eq $config.Quality) {
-								$gui.Window.QualitySelect.SelectedItem = $item
-								break
-							}
-						}
-					}
-					
-					# Load provider-specific configurations into provider instances
-					if ($config.ProviderConfigurations -and $config.Provider) {
-						$providerConfig = $config.ProviderConfigurations[$config.Provider]
-						if ($providerConfig) {
-							$providerInstance = Get-TTSProvider -ProviderName $config.Provider
-							if ($providerInstance) {
-								$providerInstance.Configuration = $providerConfig
-								$gui.WriteSafeLog("Loaded configuration for provider: $($config.Provider)", "DEBUG")
-							}
-						}
-					}
-					
 					$gui.WriteSafeLog("Configuration loaded from: $configPath", "INFO")
 					[System.Windows.MessageBox]::Show(
 						"Configuration loaded successfully!",
@@ -1357,18 +1185,11 @@ class GUI {
 						# Reset provider selection
 						$gui.Window.ProviderSelect.SelectedIndex = -1
 						
-						# Clear voice options
-						$gui.Window.VoiceSelect.Items.Clear()
-						$gui.Window.VoiceSelect.IsEnabled = $false
-						
-						$gui.Window.LanguageSelect.Items.Clear()
-						$gui.Window.LanguageSelect.IsEnabled = $false
-						
-						$gui.Window.FormatSelect.Items.Clear()
-						$gui.Window.FormatSelect.IsEnabled = $false
-						
-						$gui.Window.QualitySelect.Items.Clear()
-						$gui.Window.QualitySelect.IsEnabled = $false
+						# Clear dynamic voice options
+						$voicePanel = $gui.Window.FindName('VoiceOptionsPanel')
+						if ($null -ne $voicePanel) {
+							$voicePanel.Children.Clear()
+						}
 						
 						# Clear provider configurations
 						$providers = Get-AvailableTTSProviders
@@ -1417,13 +1238,13 @@ class GUI {
 			# Fallback: Write to console and GUI manually
 			$timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
 			$consoleEntry = "[$timestamp] [$Level] [GUI] $Message"
-			$color = switch ($Level) {
+			$Colour = switch ($Level) {
 				"ERROR" { "Red" }
 				"WARNING" { "Yellow" }
 				"DEBUG" { "Gray" }
 				default { "White" }
 			}
-			Write-Host $consoleEntry -ForegroundColor $color
+			Write-Host $consoleEntry -ForegroundColor $Colour
 			
 			# Update GUI log output
 			if ($this.Window -and $this.Window.LogOutput) {
@@ -1495,6 +1316,117 @@ function New-GUI {
 		[string]$Profile = "Default"
 	)
 	return [GUI]::new($Profile)
+}
+
+function Show-AdvancedVoiceSettings {
+	<#
+	.SYNOPSIS
+		Shows advanced voice settings Dialogue for the specified TTS provider
+	.DESCRIPTION
+		This function displays provider-specific advanced voice options Dialogue.
+		Currently only OpenAI is fully implemented.
+	.PARAMETER Provider
+		The name of the TTS provider (e.g., "OpenAI", "ElevenLabs", etc.)
+	#>
+	[CmdletBinding()]
+	param(
+		[Parameter(Mandatory = $true)]
+		[string]$Provider
+	)
+
+	try {
+		Add-ApplicationLog -Module "GUI" -Message "Opening advanced voice settings for provider: $Provider" -Level "INFO"
+
+		# Get provider instance
+		$providerInstance = Get-TTSProvider -ProviderName $Provider
+		if (-not $providerInstance) {
+			Add-ApplicationLog -Module "GUI" -Message "Provider instance not found for $Provider" -Level "ERROR"
+			[System.Windows.MessageBox]::Show(
+				"Provider not found. Please ensure the provider module is loaded.",
+				"Advanced Settings Error",
+				[System.Windows.MessageBoxButton]::OK,
+				[System.Windows.MessageBoxImage]::Error
+			)
+			return
+		}
+
+		# Check if provider has ShowAdvancedVoiceDialog method
+		if (-not ($providerInstance.PSObject.Methods.Name -contains 'ShowAdvancedVoiceDialog')) {
+			Add-ApplicationLog -Module "GUI" -Message "Advanced voice Dialogue not yet implemented for $Provider" -Level "WARNING"
+			[System.Windows.MessageBox]::Show(
+				"Advanced voice settings are not yet implemented for $Provider.`n`nThis feature is currently available for OpenAI only.",
+				"Advanced Settings",
+				[System.Windows.MessageBoxButton]::OK,
+				[System.Windows.MessageBoxImage]::Information
+			)
+			return
+		}
+
+		# Get current configuration for the provider
+		$currentConfig = @{}
+		if ($providerInstance.Configuration -and $providerInstance.Configuration.Count -gt 0) {
+			$currentConfig = $providerInstance.Configuration
+			Add-ApplicationLog -Module "GUI" -Message "Using existing configuration for $Provider advanced Dialogue" -Level "DEBUG"
+		} else {
+			# Try to load from config.json
+			try {
+				$configPath = Join-Path $PSScriptRoot "..\config.json"
+				if (Test-Path $configPath) {
+					$savedConfig = Get-Content $configPath -Raw | ConvertFrom-Json
+					if ($savedConfig.ProviderConfigurations -and $savedConfig.ProviderConfigurations.$Provider) {
+						$providerConfig = $savedConfig.ProviderConfigurations.$Provider
+						# Convert PSCustomObject to hashtable
+						foreach ($key in $providerConfig.PSObject.Properties.Name) {
+							$currentConfig[$key] = $providerConfig.$key
+						}
+						Add-ApplicationLog -Module "GUI" -Message "Loaded saved configuration for $Provider from config.json" -Level "DEBUG"
+					}
+				}
+			} catch {
+				Add-ApplicationLog -Module "GUI" -Message "Failed to load saved config for $Provider`: $($_.Exception.Message)" -Level "WARNING"
+			}
+		}
+
+		# Call the provider's advanced Dialogue
+		Add-ApplicationLog -Module "GUI" -Message "Calling ShowAdvancedVoiceDialog for $Provider" -Level "DEBUG"
+		$result = $providerInstance.ShowAdvancedVoiceDialog($currentConfig)
+
+		# Handle the result
+		if ($result -and $result.Success) {
+			# Update provider instance configuration with advanced options
+			if (-not $providerInstance.Configuration) {
+				$providerInstance.Configuration = @{}
+			}
+
+			# Merge advanced options into configuration
+			foreach ($key in $result.Keys) {
+				if ($key -ne 'Success') {
+					$providerInstance.Configuration[$key] = $result[$key]
+				}
+			}
+
+			Add-ApplicationLog -Module "GUI" -Message "Advanced voice settings saved for $Provider" -Level "INFO"
+			[System.Windows.MessageBox]::Show(
+				"Advanced voice settings saved successfully for $Provider!",
+				"Advanced Settings",
+				[System.Windows.MessageBoxButton]::OK,
+				[System.Windows.MessageBoxImage]::Information
+			)
+		} elseif ($result -and -not $result.Success) {
+			Add-ApplicationLog -Module "GUI" -Message "Advanced voice settings Dialogue Cancelled for $Provider" -Level "DEBUG"
+		} else {
+			Add-ApplicationLog -Module "GUI" -Message "Advanced voice settings Dialogue failed for $Provider" -Level "WARNING"
+		}
+
+	} catch {
+		Add-ApplicationLog -Module "GUI" -Message "Error in Show-AdvancedVoiceSettings for $Provider`: $($_.Exception.Message)" -Level "ERROR"
+		[System.Windows.MessageBox]::Show(
+			"Error opening advanced voice settings:`n$($_.Exception.Message)",
+			"Advanced Settings Error",
+			[System.Windows.MessageBoxButton]::OK,
+			[System.Windows.MessageBoxImage]::Error
+		)
+	}
 }
 
 Export-ModuleMember -Function New-GUI

@@ -1,4 +1,4 @@
-# Murf AI TTS Provider Setup Guide
+﻿# Murf AI TTS Provider Setup Guide
 
 ## Overview
 Murf AI is a leading AI voice synthesis platform offering ultra-fast, high-quality text-to-speech with 150+ voices across 35+ languages. Features include Gen2 for content generation and Falcon for real-time voice agents.
@@ -9,7 +9,7 @@ Murf AI is a leading AI voice synthesis platform offering ultra-fast, high-quali
 - **Extensive Voice Library**: 150+ voices across genders, ages, and accents
 - **Multiple Models**: Gen2 for studio-quality content, Falcon for ultra-low latency (<130ms)
 - **Speaking Styles**: 20+ styles including Conversational, Promo, Newscast, Storytelling, Calm, and more
-- **Advanced Customization**: Control pitch, speed, emphasis, pauses, and pronunciation
+- **Advanced Customisation**: Control pitch, speed, emphasis, pauses, and pronunciation
 
 ## Prerequisites
 - Murf AI account (free trial available)
@@ -183,7 +183,7 @@ https://api.murf.ai
    - Consider accent and tone for your audience
    - Match voice to content type (promo vs. conversational)
 
-3. **Performance Optimization**
+3. **Performance Optimisation**
    - Use streaming API for real-time applications
    - Leverage Falcon model for voice agents (<130ms latency)
    - Cache generated audio when appropriate

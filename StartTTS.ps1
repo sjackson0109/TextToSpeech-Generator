@@ -36,66 +36,55 @@ $WarningPreference = 'SilentlyContinue'
 
 
 # Import Logging.psm1 FIRST, before any logging calls
-if (Get-Command New-LoggingSystem -ErrorAction SilentlyContinue) {
-    Remove-Item Function:New-LoggingSystem -ErrorAction SilentlyContinue
+try {
+    $loggingModulePath = (Resolve-Path (Join-Path $PSScriptRoot 'Modules\Logging.psm1')).Path
+    if (Get-Module -Name Logging) {
+        Remove-Module -Name Logging -Force
+    }
+    Import-Module $loggingModulePath -Force -Global
+} catch {
+    Write-Host "ERROR: Failed to import Logging.psm1 - $($_.Exception.Message)" -ForegroundColor Red
+    exit 1
 }
-Import-Module (Resolve-Path (Join-Path $PSScriptRoot 'Modules\Logging.psm1')).Path -Force
+
 Import-Module (Resolve-Path (Join-Path $PSScriptRoot 'Modules\Optimisation.psm1')).Path -Force
 Import-Module (Resolve-Path (Join-Path $PSScriptRoot 'Modules\Performance.psm1')).Path -Force
 
-# Ensure Write-Log is defined before any usage
-function Write-Log {
-    param(
-        [string]$Message,
-        [string]$Level = "INFO",
-        [string]$Module = "StartTTS"
-    )
-    if (Get-Command Add-ApplicationLog -ErrorAction SilentlyContinue) {
-        Add-ApplicationLog -Module $Module -Message $Message -Level $Level
-    } else {
-        Write-Host "[$Level] [$Module] $Message" -ForegroundColor Yellow
-    }
-}
 
 # Import ShowUIHelper if available
 try {
     Import-Module (Resolve-Path (Join-Path $PSScriptRoot 'Modules\ShowUIHelper.psm1')).Path -ErrorAction Stop
     $ShowUIAvailable = $true
-    Write-Log -Message "ShowUIHelper module loaded successfully." -Level "INFO"
+    Add-ApplicationLog -Message "ShowUIHelper module loaded successfully." -Level "INFO"
 } catch {
     $ShowUIAvailable = $false
-    Write-Log -Message "ShowUIHelper module not available (ShowUI not installed). Using fallback GUI." -Level "INFO"
+    Add-ApplicationLog -Message "ShowUIHelper module not available (ShowUI not installed). Using fallback GUI." -Level "INFO"
 }
 
-# Write-Log function already defined above - no need to redefine
-
 # Initialise global optimisation objects
-
-# Initialise global optimisation objects with approved verbs
-# Initialise global optimisation objects with approved verbs
 $Global:ConnectionPool = New-OptimisationConnectionPool -Provider 'Default' -MinSize 2 -MaxSize 10
 $Global:AsyncManager = New-OptimisationAsyncManager -MaxConcurrency 5
-Write-Log -Message "Performance optimisation module loaded." -Level "INFO"
+Add-ApplicationLog -Message "Performance optimisation module loaded." -Level "INFO"
 # Example usage (can be replaced with real logic):
 $exampleConn = New-OptimisationConnection -Provider 'example-conn'
 Remove-OptimisationConnection $Global:ConnectionPool $exampleConn
 $connCount = $Global:ConnectionPool.Available.Count + $Global:ConnectionPool.Active.Count
 $conn = Get-OptimisationConnection $Global:ConnectionPool
 $asyncResult = Get-OptimisationAsyncSlot $Global:AsyncManager
-Write-Log -Message "ConnectionPool count: $connCount, Got: $conn, Async result: $asyncResult" -Level "DEBUG"
+Add-ApplicationLog -Message "ConnectionPool count: $connCount, Got: $conn, Async result: $asyncResult" -Level "DEBUG"
 
 $ErrorActionPreference = "Continue"
 
 # Show GUI using ShowUI if available
 if ($ShowUIAvailable -and -not $RunTests -and -not $ValidateOnly -and -not $ShowHelp) {
-    Write-Log -Message "Launching GUI using ShowUI..." -Level "INFO"
+    Add-ApplicationLog -Message "Launching GUI using ShowUI..." -Level "INFO"
     $null = Show-TTSGeneratorGUI -Profile $ConfigProfile
     return
 }
 
 function Show-ApplicationHelp {
     Write-Host @"
-TextToSpeech Generator v3.2 - Command Line Reference
+TextToSpeech Generator - Command Line Reference
 
 USAGE:
   .\StartTTS.ps1 [OPTIONS]
@@ -133,48 +122,54 @@ if ($Verbose) {
     $VerbosePreference = "Continue"
 }
 
+# ===========================================================================
+# Start application initialisation
+# ============================================================================
+
+
 Add-ApplicationLog -Module "StartTTS" -Message "=== TextToSpeech Generator ===" -Level "INFO"
 if ($DryRun) {
-    Write-Log -Message "DRY RUN MODE - No API calls will be made" -Level "WARNING"
+    Add-ApplicationLog -Message "DRY RUN MODE - No API calls will be made" -Level "WARNING"
 }
 if ($ValidateOnly) {
-    Write-Log -Message "VALIDATION ONLY - System validation check" -Level "WARNING"
+    Add-ApplicationLog -Message "VALIDATION ONLY - System validation check" -Level "WARNING"
 }
-Write-Log -Message "Initialising modular system..." -Level "INFO"
+Add-ApplicationLog -Message "Initialising modular system..." -Level "INFO"
 
 try {
     # Import all modules with error handling
-    Write-Log -Message "Loading modules..." -Level "INFO"
+    Add-ApplicationLog -Message "Loading modules..." -Level "INFO"
     
+
     $ModulesToLoad = @(
         "Modules\Security.psm1",
-        "Modules\Performance.psm1",
-        # "Modules\Optimisation.psm1", # Already imported above
+        # "Modules\Optimisation.psm1",  # Already imported at top
+        # "Modules\Performance.psm1",   # Already imported at top
         "Modules\Utilities.psm1",
         "Modules\Configuration.psm1",
         "Modules\Validator.psm1",
-        "Modules\CircuitBreaker.psm1",      # Must load before ErrorRecovery
-        "Modules\ErrorHandling.psm1",       # Must load before ErrorRecovery
+        "Modules\CircuitBreaker.psm1",
+        "Modules\ErrorHandling.psm1",
         "Modules\ErrorRecovery.psm1",
         "Modules\Providers.psm1"
     )
-    
+
     foreach ($Module in $ModulesToLoad) {
         try {
             $modulePath = Join-Path $PSScriptRoot $Module
             if (Test-Path $modulePath) {
-                # Suppress warnings for all modules during import (particularly for CircuitBreaker's custom verbs)
-                Import-Module $modulePath -Force -ErrorAction Stop -WarningAction SilentlyContinue 3>$null
-                Write-Log -Message "OK $Module" -Level "INFO"
+                # Use -Global for all modules except Logging.psm1 (already imported)
+                Import-Module $modulePath -Force -Global -ErrorAction Stop -WarningAction SilentlyContinue 3>$null
+                Add-ApplicationLog -Message "OK $Module" -Level "INFO"
             }
             else {
-                Write-Log -Message "MISSING $Module - Check file path: $modulePath" -Level "WARNING"
-                Write-Log -Message "Module not found: $modulePath" -Level "WARNING"
+                Add-ApplicationLog -Message "MISSING $Module - Check file path: $modulePath" -Level "WARNING"
+                Add-ApplicationLog -Message "Module not found: $modulePath" -Level "WARNING"
             }
         }
         catch {
-            Write-Log -Message "FAILED $Module : $($_.Exception.Message)" -Level "WARNING"
-            Write-Log -Message "Failed to load $Module : $($_.Exception.Message)" -Level "ERROR"
+            Add-ApplicationLog -Message "FAILED $Module : $($_.Exception.Message)" -Level "WARNING"
+            Add-ApplicationLog -Message "Failed to load $Module : $($_.Exception.Message)" -Level "ERROR"
         }
     }
 
@@ -185,18 +180,18 @@ try {
         Add-Type -AssemblyName PresentationFramework -ErrorAction Stop
         $wpfAvailable = $true
     } catch {
-        Write-Log -Message "WPF PresentationFramework assembly not available. GUI will be disabled. CLI mode only." -Level "WARNING"
+        Add-ApplicationLog -Message "WPF PresentationFramework assembly not available. GUI will be disabled. CLI mode only." -Level "WARNING"
     }
     if ($wpfAvailable -and (Test-Path $guiModulePath)) {
         try {
             Import-Module $guiModulePath -Force -ErrorAction Stop
-            Write-Log -Message "OK Modules\GUI.psm1" -Level "INFO"
+            Add-ApplicationLog -Message "OK Modules\GUI.psm1" -Level "INFO"
         } catch {
-            Write-Log -Message "FAILED Modules\GUI.psm1 : $($_.Exception.Message)" -Level "WARNING"
-            Write-Log -Message "Failed to load Modules\GUI.psm1 : $($_.Exception.Message)" -Level "ERROR"
+            Add-ApplicationLog -Message "FAILED Modules\GUI.psm1 : $($_.Exception.Message)" -Level "WARNING"
+            Add-ApplicationLog -Message "Failed to load Modules\GUI.psm1 : $($_.Exception.Message)" -Level "ERROR"
         }
     } else {
-        Write-Log -Message "Skipping GUI module import. Running in CLI mode only." -Level "INFO"
+        Add-ApplicationLog -Message "Skipping GUI module import. Running in CLI mode only." -Level "INFO"
     }
     
     if ($EnablePerformanceMonitoring) {
@@ -219,9 +214,9 @@ try {
     try {
         # Call New-LoggingSystem with proper named parameters (already imported at top)
         New-LoggingSystem -LogPath $logPath -Level $LogLevel -MaxSizeMB 10 -MaxFiles 5
-        Write-Log -Message "Logging system initialised successfully" -Level "INFO"
+        Add-ApplicationLog -Message "Logging system initialised successfully" -Level "INFO"
     } catch {
-        Write-Log -Message "Logging system already initialised or parameter mismatch - continuing with existing logging" -Level "INFO"
+        Add-ApplicationLog -Message "Logging system already initialised or parameter mismatch - continuing with existing logging" -Level "INFO"
     }
     Add-ApplicationLog -Module "StartTTS" -Message "TextToSpeech Generator v3.2 starting" -Level "INFO"
     
@@ -385,21 +380,21 @@ try {
             Add-ApplicationLog -Module "StartTTS" -Message "Application loaded successfully" -Level "INFO"
         }
         else {
-                Write-Log -Message "Main application script not found - test mode only" -Level "WARNING"
+                Add-ApplicationLog -Message "Main application script not found - test mode only" -Level "WARNING"
         }
     }
     else {
-        Write-Log -Message "Test mode - skipping main application" -Level "INFO"
+        Add-ApplicationLog -Message "Test mode - skipping main application" -Level "INFO"
     }
     
 }
 catch {
-        Write-Log -Message "Failed to Initialise application: $($_.Exception.Message)" -Level "ERROR"
+        Add-ApplicationLog -Message "Failed to Initialise application: $($_.Exception.Message)" -Level "ERROR"
         try {
-            Write-Log -Message "Application initialisation failed: $($_.Exception.Message)" -Level "ERROR"
+            Add-ApplicationLog -Message "Application initialisation failed: $($_.Exception.Message)" -Level "ERROR"
         }
         catch {
-            Write-Log -Message "Unable to log error: $($_.Exception.Message)" -Level "ERROR"
+            Add-ApplicationLog -Message "Unable to log error: $($_.Exception.Message)" -Level "ERROR"
         }
     if ($EnablePerformanceMonitoring) {
         try {
@@ -449,4 +444,4 @@ catch {
     # Ignore logging errors during shutdown
 }
 
-Write-Log -Message "=== Application Ready ===" -Level "INFO"
+Add-ApplicationLog -Message "=== Application Ready ===" -Level "INFO"

@@ -1,4 +1,4 @@
-# Dynamic Voice Options Implementation Status
+﻿# Dynamic Voice Options Implementation Status
 
 ## Overview
 Implementation of dynamic voice retrieval using **native REST API calls only** - no SDKs, no executables, pure PowerShell `Invoke-RestMethod`.
@@ -54,10 +54,10 @@ Format (MP3/WAV/FLAC) removed from AdvancedOptions:
 - **Function**: `Get-OpenAIVoiceOptions -ApiKey [string] -UseCache [bool]`
 - **Endpoint**: `https://api.openai.com/v1/models`
 - **Method**: GET
-- **Headers**: `Authorization: Bearer {API_KEY}`
+- **Headers**: `Authorisation: Bearer {API_KEY}`
 - **Response Processing**: Filters `$response.data` for models matching `tts-*`
 - **Caching**: 30-minute session cache with `CachedVoiceOptions`, `CacheTimestamp`, `GetVoiceOptions([bool]$ForceRefresh)` method
-- **Advanced Dialog**: `ShowAdvancedVoiceDialog` with Speed slider (0.25-4.0), Format dropdown, Model dropdown
+- **Advanced Dialogue**: `ShowAdvancedVoiceDialog` with Speed slider (0.25-4.0), Format dropdown, Model dropdown
 - **Status**: **PRODUCTION READY** - Full reference implementation for all other providers
 
 ### ✅ ElevenLabs
@@ -90,7 +90,7 @@ Format (MP3/WAV/FLAC) removed from AdvancedOptions:
      - Headers: `Ocp-Apim-Subscription-Key: {API_KEY}`
      - Returns Bearer token
   2. **Voice List**: `GET https://{region}.tts.speech.microsoft.com/cognitiveservices/voices/list`
-     - Headers: `Authorization: Bearer {TOKEN}`
+     - Headers: `Authorisation: Bearer {TOKEN}`
 - **Response Processing**:
   - Voices: `$response | ForEach-Object { $_.ShortName }`
   - Languages: `$response | ForEach-Object { $_.Locale } | Select-Object -Unique`
@@ -103,7 +103,7 @@ Format (MP3/WAV/FLAC) removed from AdvancedOptions:
 - **Function**: `Get-MurfAIVoiceOptions -ApiKey [string] -UseCache [bool]`
 - **Endpoint**: `https://api.murf.ai/v1/speech/voices`
 - **Method**: GET
-- **Headers**: `Authorization: Bearer {API_KEY}`, `Content-Type: application/json`
+- **Headers**: `Authorisation: Bearer {API_KEY}`, `Content-Type: application/json`
 - **Response Processing**:
   - Voices: `$response.data | ForEach-Object { $_.name }`
   - Languages: `$response.data | ForEach-Object { $_.language } | Select-Object -Unique`
@@ -115,7 +115,7 @@ Format (MP3/WAV/FLAC) removed from AdvancedOptions:
 - **Function**: `Get-TelnyxVoiceOptions -ApiKey [string] -UseCache [bool]`
 - **Endpoint**: `https://api.telnyx.com/v2/text-to-speech/voices` (INFERRED - needs verification)
 - **Method**: GET
-- **Headers**: `Authorization: Bearer {API_KEY}`, `Content-Type: application/json`
+- **Headers**: `Authorisation: Bearer {API_KEY}`, `Content-Type: application/json`
 - **Response Processing**: Extracts `$response.data | Select-Object -ExpandProperty name`
 - **Fallback**: Returns 33 voices across KokoroTTS/Natural/NaturalHD models
 - **Status**: Get-VoiceOptions COMPLETE (endpoint inferred), class caching PENDING, ShowAdvancedVoiceDialog PENDING
@@ -130,7 +130,7 @@ Format (MP3/WAV/FLAC) removed from AdvancedOptions:
   1. Create canonical request with sorted headers and SHA256 hashed payload
   2. Create string to sign with scope (date/region/service)
   3. Calculate signature using HMAC-SHA256 with derived signing key
-  4. Add `Authorization` header with signature
+  4. Add `Authorisation` header with signature
 - **Current Implementation**: Returns comprehensive static list of 63 voices across 14 languages (Neural/Standard/Long-form)
 - **Status**: **FALLBACK ONLY** - Full native REST implementation requires AWS SigV4 signing algorithm
 - **Future Enhancement**: Implement AWS Signature Version 4 for live voice retrieval
@@ -229,7 +229,7 @@ function Get-{Provider}VoiceOptions {
 4. **Verify Telnyx Endpoint**: Test `https://api.telnyx.com/v2/text-to-speech/voices` with live API key to confirm endpoint
 5. **AWS Polly SigV4**: Research implementing AWS Signature Version 4 for native REST calls (complex but feasible)
 
-### Low Priority (Advanced Dialogs)
+### Low Priority (Advanced Dialogues)
 6. **Google Cloud Advanced**: Speaking rate, pitch, volume gain, effects profiles sliders
 7. **Azure Advanced**: Speech rate, pitch, volume, style, emphasis (SSML controls)
 8. **Murf AI Advanced**: Style selection dropdown, speed/pitch sliders

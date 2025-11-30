@@ -1,4 +1,4 @@
-﻿# Attribution and licence Information
+﻿# Attribution and Licence Information
 
 ## Original Work
 
@@ -6,12 +6,12 @@ This project is derived from and builds upon the excellent foundation provided b
 
 ### **Luca Vitali - AzureTTSVoiceGeneratorGUI (2019)**
 - **Repository**: https://github.com/LucaVitali/AzureTTSVoiceGeneratorGUI
-- **licence**: MIT licence
+- **Licence**: MIT Licence
 - **Contribution**: Original PowerShell-based TTS application with WPF GUI for Azure Cognitive Services
 
-**Original licence Statement:**
+**Original Licence Statement:**
 ```
-The MIT licence (MIT)
+The MIT Licence (MIT)
 
 Copyright (c) 2019 Luca Vitali
 
@@ -38,7 +38,7 @@ SOFTWARE.
 
 ### **Simon Jackson - TextToSpeech Generator v2.0 (2024-2025)**
 - **Repository**: https://github.com/sjackson0109/TextToSpeech-Generator
-- **licence**: MIT licence
+- **Licence**: MIT Licence
 - **Enhancements and Extensions**:
 
 #### **Major Feature Additions:**
@@ -50,7 +50,7 @@ SOFTWARE.
   - VoiceForge (new)
   - VoiceWare (new)
 
-- ✅ **Advanced Voice Options**: Provider-specific advanced configuration Dialogueues with:
+- ✅ **Advanced Voice Options**: Provider-specific advanced configuration Dialogueueueueueues with:
   - Speech rate, pitch, and volume controls
   - Audio encoding options
   - SSML processing capabilities
@@ -81,9 +81,9 @@ SOFTWARE.
 - Provider-specific API credential validation
 - Comprehensive documentation and user guides
 
-## licence Compliance
+## Licence Compliance
 
-Both the original work by **Luca Vitali** and the derivative work by **Simon Jackson** are licenced under the **MIT licence**, ensuring:
+Both the original work by **Luca Vitali** and the derivative work by **Simon Jackson** are Licenced under the **MIT Licence**, ensuring:
 
 - ✅ **Freedom to Use**: Commercial and non-commercial use permitted
 - ✅ **Freedom to Modify**: Full modification and enhancement rights
@@ -94,18 +94,18 @@ Both the original work by **Luca Vitali** and the derivative work by **Simon Jac
 
 When using, modifying, or redistributing this software:
 
-1. **Include the licence file** containing both original and derivative work licences
+1. **Include the Licence file** containing both original and derivative work Licences
 2. **Preserve attribution** to both Luca Vitali (original) and Simon Jackson (enhancements)
-3. **Maintain licence notices** in source code headers
+3. **Maintain Licence notices** in source code headers
 4. **Reference original repository** when publicly sharing or documenting
 
 ## Acknowledgments
 
-- **Luca Vitali**: Thank you for creating the original foundation and sharing it under the permissive MIT licence, enabling community enhancement and growth
+- **Luca Vitali**: Thank you for creating the original foundation and sharing it under the permissive MIT Licence, enabling community enhancement and growth
 - **Microsoft, Amazon, Google, Twilio, VoiceForge, VoiceWare**: For providing the TTS APIs that make this application valuable
 - **PowerShell and WPF Communities**: For the frameworks and resources that enable rich desktop applications
 
 ---
 
 **Last Updated**: October 13, 2025  
-**licence Compliance**: ✅ Verified MIT licence Requirements Met
+**Licence Compliance**: ✅ Verified MIT Licence Requirements Met

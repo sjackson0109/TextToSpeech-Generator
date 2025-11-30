@@ -1,11 +1,11 @@
-# Go-to-Market Strategy: Dual-Brand TTS Platform
+﻿# Go-to-Market Strategy: Dual-Brand TTS Platform
 ## WhisperSpeaks.com & AudioPhilent.com
 
 ### Executive Summary
 - **Document Version**: 1.0
 - **Date**: October 15, 2025
 - **Strategy**: Premium dual-brand market segmentation
-- **Platform**: Shared-core architecture with customized frontends
+- **Platform**: Shared-core architecture with customised frontends
 - **Target Launch**: Q1 2026
 
 ---
@@ -54,7 +54,7 @@
 
 #### Visual Identity
 ```css
-/* WhisperSpeaks Brand Colors */
+/* WhisperSpeaks Brand Colours */
 Primary:   #4F46E5 (Indigo - friendly, trustworthy)
 Secondary: #10B981 (Emerald - success, growth)
 Accent:    #F59E0B (Amber - energy, warmth)
@@ -80,7 +80,7 @@ UI Style:  Light, rounded, colourful, mobile-first
 
 #### Visual Identity
 ```css
-/* AudioPhilent Brand Colors */
+/* AudioPhilent Brand Colours */
 Primary:   #1F2937 (Dark gray - sophisticated, premium)
 Secondary: #6366F1 (Blue - trust, technology)
 Accent:    #EF4444 (Red - power, attention)
@@ -414,7 +414,7 @@ interface RevenueTracking {
 - 90% customer satisfaction
 - 3+ case studies published
 
-### 6.3 Phase 3: Scale & Optimize (Month 5-8)
+### 6.3 Phase 3: Scale & Optimise (Month 5-8)
 
 #### Growth Acceleration
 **Target**: £100K ARR, 5,000 paying customers
@@ -442,7 +442,7 @@ interface RevenueTracking {
 #### Digital Marketing Strategy
 ```
 Content Marketing (40% of budget)
-├── Blog content (SEO-optimized)
+├── Blog content (SEO-optimised)
 ├── Video tutorials (YouTube)
 ├── Social media (Twitter, TikTok)
 └── Email newsletter
@@ -595,7 +595,7 @@ Week 3-4: Frontend Foundation
 Week 5-6: WhisperSpeaks.com
 ├── Consumer-focused UI design
 ├── Simplified workflow implementation
-├── Mobile-responsive optimization
+├── Mobile-responsive optimisation
 ├── Social sharing features
 └── Free tier limitations
 
@@ -821,13 +821,13 @@ interface TechnicalKPIs {
 - **Freemium model** reduces acquisition costs
 - **Organic growth** through content marketing
 - **Customer referrals** program for lower CAC
-- **Lifetime value optimization** through retention
+- **Lifetime value optimisation** through retention
 
 **Risk**: Payment processor issues or high fees
 **Mitigation**:
 - **Dual payment processors** (SumUp + PayPal)
 - **Multiple backup options** ready for deployment
-- **Fee monitoring** and optimization
+- **Fee monitoring** and optimisation
 - **Direct bank integration** for enterprise customers
 
 ---
@@ -863,7 +863,7 @@ interface TechnicalKPIs {
 - **Voice cloning** and custom voice training
 - **Real-time TTS** for live applications  
 - **Multi-language** expansion (50+ languages)
-- **AI-powered** voice selection and optimization
+- **AI-powered** voice selection and optimisation
 - **White-label** platform for enterprise customers
 
 #### Market Expansion
@@ -877,14 +877,14 @@ interface TechnicalKPIs {
 
 ## Conclusion
 
-The dual-brand strategy for **WhisperSpeaks.com** and **AudioPhilent.com** positions us to capture both the mass market and premium segments of the TTS industry. By leveraging a shared core platform with customized frontends, we can maximize development efficiency while delivering tailored experiences for each audience.
+The dual-brand strategy for **WhisperSpeaks.com** and **AudioPhilent.com** positions us to capture both the mass market and premium segments of the TTS industry. By leveraging a shared core platform with customised frontends, we can maximize development efficiency while delivering tailored experiences for each audience.
 
 **Key Success Factors**:
 1. **Rapid execution** on technical implementation
 2. **Strong brand differentiation** and marketing
 3. **Excellent customer experience** across both platforms
 4. **Scalable infrastructure** built on Cloudflare
-5. **Data-driven optimization** of pricing and features
+5. **Data-driven optimisation** of pricing and features
 
 With projected **£3.9M ARR** by year one and a clear path to profitability, this dual-brand platform represents a significant opportunity in the growing TTS market.
 

@@ -254,7 +254,7 @@ function Invoke-TwilioTTS {
 - You need immediate TTS capability
 - You want the highest quality voices
 - You prefer per-character pricing
-- You need advanced voice customization
+- You need advanced voice customisation
 
 ---
 

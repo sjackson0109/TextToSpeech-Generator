@@ -1,10 +1,6 @@
 ﻿# Performance Optimisation and Monitoring Implementation
 # This file is dot-sourced after types are loaded
 
-
-Import-Module -Name "$PSScriptRoot\Logging.psm1" -Force
-
-
 # ============================================================================
 # CONNECTION POOLING AND ASYNC OPERATIONS
 # ============================================================================
@@ -65,9 +61,9 @@ class PerformanceOptimiser {
             try {
                 $pool = [ConnectionPool]::new($providerName, $minSize, $maxSize)
                 $this.ConnectionPools[$providerName] = $pool
-                Add-ApplicationLog -Module "Performance" -Message "Initialised connection pool for $providerName (Min: $minSize, Max: $maxSize, Timeout: $timeout)" -Level "INFO"
+                Write-ApplicationLog -Message "Initialised connection pool for $providerName (Min: $minSize, Max: $maxSize, Timeout: $timeout)" -Level "INFO"
             } catch {
-                Add-ApplicationLog -Module "Performance" -Message "Failed to initialise connection pool for $providerName`: $_" -Level "ERROR"
+                Write-ApplicationLog -Message "Failed to initialise connection pool for $providerName`: $_" -Level "ERROR"
             }
         }
     }
@@ -102,21 +98,21 @@ class PerformanceOptimiser {
             }
         }
         
-        Add-ApplicationLog -Module "Performance" -Message "Initialised intelligent caching system with compression support" -Level "INFO"
+        Write-ApplicationLog -Message "Initialised intelligent caching system with compression support" -Level "INFO"
     }
     
     [void] InitialiseAsyncManager() {
         try {
             $this.AsyncOperations["Manager"] = [AsyncOperationManager]::new($this.MaxConcurrentRequests)
-            Add-ApplicationLog -Module "Performance" -Message "Initialised async operation manager (Max Concurrency: $($this.MaxConcurrentRequests))" -Level "INFO"
+            Write-ApplicationLog -Message "Initialised async operation manager (Max Concurrency: $($this.MaxConcurrentRequests))" -Level "INFO"
         } catch {
-            Add-ApplicationLog -Module "Performance" -Message "Failed to initialise async operation manager: $_" -Level "ERROR"
+            Write-ApplicationLog -Message "Failed to initialise async operation manager: $_" -Level "ERROR"
         }
     }
     
     [object] AcquireConnection([string]$provider) {
         if (-not $this.ConnectionPools.ContainsKey($provider)) {
-            Add-ApplicationLog -Module "Performance" -Message "No connection pool available for provider: $provider" -Level "WARNING"
+            Write-ApplicationLog -Message "No connection pool available for provider: $provider" -Level "WARNING"
             return $null
         }
         
@@ -125,12 +121,12 @@ class PerformanceOptimiser {
             $connection = $this.ConnectionPools[$provider].AcquireConnection()
             $acquisitionTime = ((Get-Date) - $startTime).TotalMilliseconds
             
-            Add-ApplicationLog -Module "Performance" -Message "Acquired connection for $provider in $($acquisitionTime)ms" -Level "DEBUG"
+            Write-ApplicationLog -Message "Acquired connection for $provider in $($acquisitionTime)ms" -Level "DEBUG"
             $connection.UpdateLastUsed()
             
             return $connection
         } catch {
-            Add-ApplicationLog -Module "Performance" -Message "Failed to acquire connection for $provider`: $_" -Level "ERROR"
+            Write-ApplicationLog -Message "Failed to acquire connection for $provider`: $_" -Level "ERROR"
             return $null
         }
     }
@@ -139,9 +135,9 @@ class PerformanceOptimiser {
         if ($connection -and $this.ConnectionPools.ContainsKey($provider)) {
             try {
                 $this.ConnectionPools[$provider].ReleaseConnection($connection)
-                Add-ApplicationLog -Module "Performance" -Message "Released connection for provider: $provider" -Level "DEBUG"
+                Write-ApplicationLog -Message "Released connection for provider: $provider" -Level "DEBUG"
             } catch {
-                Add-ApplicationLog -Module "Performance" -Message "Failed to release connection for $provider`: $_" -Level "ERROR"
+                Write-ApplicationLog -Message "Failed to release connection for $provider`: $_" -Level "ERROR"
             }
         }
     }
@@ -169,12 +165,12 @@ class PerformanceOptimiser {
             
             if ($ttlValid) {
                 $cache.Stats.Hits++
-                Add-ApplicationLog -Module "Performance" -Message "Cache hit for $cacheType`: $key" -Level "DEBUG"
+                Write-ApplicationLog -Message "Cache hit for $cacheType`: $key" -Level "DEBUG"
                 return $entry.Value
             } else {
                 # Expired entry
                 $cache.Cache.Remove($key)
-                Add-ApplicationLog -Module "Performance" -Message "Cache entry expired for $cacheType`: $key" -Level "DEBUG"
+                Write-ApplicationLog -Message "Cache entry expired for $cacheType`: $key" -Level "DEBUG"
             }
         }
         
@@ -201,7 +197,7 @@ class PerformanceOptimiser {
         }
         
         $cache.Cache[$key] = $entry
-        Add-ApplicationLog -Module "Performance" -Message "Cached entry for $cacheType`: $key" -Level "DEBUG"
+        Write-ApplicationLog -Message "Cached entry for $cacheType`: $key" -Level "DEBUG"
     }
     
     [void] EvictOldestCacheEntries([string]$cacheType, [int]$count) {
@@ -217,7 +213,7 @@ class PerformanceOptimiser {
             $cache.Stats.Evictions++
         }
         
-        Add-ApplicationLog -Module "Performance" -Message "Evicted $count oldest entries from $cacheType cache" -Level "DEBUG"
+        Write-ApplicationLog -Message "Evicted $count oldest entries from $cacheType cache" -Level "DEBUG"
     }
     
     [hashtable] ExecuteWithPerformanceTracking([scriptblock]$operation, [hashtable]$context = @{}) {
@@ -225,7 +221,7 @@ class PerformanceOptimiser {
         $operationId = [System.Guid]::NewGuid().ToString()
         
         try {
-            Add-ApplicationLog -Module "Performance" -Message "Starting performance-tracked operation: $operationId" -Level "DEBUG"
+            Write-ApplicationLog -Message "Starting performance-tracked operation: $operationId" -Level "DEBUG"
             
             # Execute operation
             $result = & $operation $context
@@ -235,7 +231,7 @@ class PerformanceOptimiser {
             # Update performance metrics
             $this.UpdatePerformanceMetrics($executionTime, $true, $context)
             
-            Add-ApplicationLog -Module "Performance" -Message "Operation $operationId completed in $($executionTime)ms" -Level "INFO"
+            Write-ApplicationLog -Message "Operation $operationId completed in $($executionTime)ms" -Level "INFO"
             
             return @{
                 Success = $true
@@ -248,7 +244,7 @@ class PerformanceOptimiser {
             $executionTime = ((Get-Date) - $startTime).TotalMilliseconds
             $this.UpdatePerformanceMetrics($executionTime, $false, $context)
             
-            Add-ApplicationLog -Module "Performance" -Message "Operation $operationId failed after $($executionTime)ms`: $_" -Level "ERROR"
+            Write-ApplicationLog -Message "Operation $operationId failed after $($executionTime)ms`: $_" -Level "ERROR"
             
             return @{
                 Success = $false
@@ -383,7 +379,7 @@ class PerformanceOptimiser {
                 ($stats.ActiveConnections / $stats.TotalConnections) * 100
             } else { 0 }
             
-            Add-ApplicationLog -Module "Performance" -Message "Provider $provider connection utilisation: $([math]::Round($utilisation))%" -Level "INFO"
+            Write-ApplicationLog -Message "Provider $provider connection utilisation: $([math]::Round($utilisation))%" -Level "INFO"
         }
     }
     
@@ -396,7 +392,7 @@ class PerformanceOptimiser {
             if ($this.CacheManager.ContainsKey($cacheType)) {
                 $entriesCleared = $this.CacheManager[$cacheType].Cache.Count
                 $this.CacheManager[$cacheType].Cache.Clear()
-                Add-ApplicationLog -Module "Performance" -Message "Cleared $entriesCleared entries from $cacheType cache" -Level "INFO"
+                Write-ApplicationLog -Message "Cleared $entriesCleared entries from $cacheType cache" -Level "INFO"
             }
         }
     }
@@ -425,7 +421,7 @@ class PerformanceMonitor {
     [void] Initialise() {
         $this.InitialisePerformanceCounters()
         $this.IsMonitoring = $true
-        Add-ApplicationLog -Module "Performance" -Message "Performance monitor initialised" -Level "INFO"
+        Write-ApplicationLog -Message "Performance monitor initialised" -Level "INFO"
     }
     
     [void] InitialisePerformanceCounters() {
@@ -437,7 +433,7 @@ class PerformanceMonitor {
                 DiskQueue = Get-Counter -Counter "\PhysicalDisk(_Total)\Current Disk Queue Length" -MaxSamples 1 -ErrorAction SilentlyContinue
             }
         } catch {
-            Add-ApplicationLog -Module "Performance" -Message "Could not initialise performance counters: $($_.Exception.Message)" -Level "WARNING"
+            Write-ApplicationLog -Message "Could not initialise performance counters: $($_.Exception.Message)" -Level "WARNING"
         }
     }
     
@@ -740,109 +736,4 @@ class IntelligentCache {
 
 # ============================================================================
 # GLOBAL INSTANCES
-# ============================================================================
-$Global:PerformanceMonitor = [PerformanceMonitor]::new()
-$Global:IntelligentCache = [IntelligentCache]::new(1000, (New-TimeSpan -Hours 1))
-
-# Public functions
-function Start-OperationMonitoring {
-    <#
-    .SYNOPSIS
-    Starts monitoring an operation
-    #>
-    param([Parameter(Mandatory=$true)][string]$OperationName)
-    
-    $Global:PerformanceMonitor.StartOperation($OperationName)
-}
-
-function Stop-OperationMonitoring {
-    <#
-    .SYNOPSIS
-    Stops monitoring an operation and returns metrics
-    #>
-    param([Parameter(Mandatory=$true)][string]$OperationName)
-    
-    return $Global:PerformanceMonitor.EndOperation($OperationName)
-}
-
-function Get-PerformanceReport {
-    <#
-    .SYNOPSIS
-    Generates a comprehensive performance report
-    #>
-    return $Global:PerformanceMonitor.GenerateReport()
-}
-
-function Test-PerformanceThresholds {
-    <#
-    .SYNOPSIS
-    Tests performance thresholds and generates alerts
-    #>
-    $Global:PerformanceMonitor.AlertOnThresholds()
-}
-
-function Set-CacheItem {
-    <#
-    .SYNOPSIS
-    Sets an item in the intelligent cache
-    #>
-    param(
-        [Parameter(Mandatory=$true)][string]$Key,
-        [Parameter(Mandatory=$true)]$Value,
-        [timespan]$TTL = $null
-    )
-    
-    $Global:IntelligentCache.Set($Key, $Value, $TTL)
-}
-
-function Get-CacheItem {
-    <#
-    .SYNOPSIS
-    Gets an item from the intelligent cache
-    #>
-    param([Parameter(Mandatory=$true)][string]$Key)
-    
-    return $Global:IntelligentCache.Get($Key)
-}
-
-function Test-CacheItem {
-    <#
-    .SYNOPSIS
-    Tests if an item exists in the cache
-    #>
-    param([Parameter(Mandatory=$true)][string]$Key)
-    
-    return $Global:IntelligentCache.Contains($Key)
-}
-
-function Get-CacheStatistics {
-    <#
-    .SYNOPSIS
-    Gets cache usage statistics
-    #>
-    return $Global:IntelligentCache.GetStatistics()
-}
-
-function Clear-PerformanceCache {
-    <#
-    .SYNOPSIS
-    Clears the performance cache
-    #>
-    $Global:IntelligentCache.Clear()
-    Add-ApplicationLog -Message "Performance cache cleared" -Level "INFO"
-}
-
-# Export functions
-Export-ModuleMember -Function @(
-    'Start-OperationMonitoring',
-    'Stop-OperationMonitoring',
-    'Get-PerformanceReport',
-    'Test-PerformanceThresholds',
-    'optimise-MemoryUsage',
-    'Test-MemoryPressure',
-    'Set-CacheItem',
-    'Get-CacheItem',
-    'Test-CacheItem',
-    'Get-CacheStatistics',
-    'Clear-PerformanceCache'
-)
+#

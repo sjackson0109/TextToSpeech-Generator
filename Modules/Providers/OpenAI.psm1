@@ -1,7 +1,14 @@
-﻿# OpenAI TTS Provider Module
+﻿# Exported provider-specific optimisation settings
+$ProviderOptimisationSettings = @{
+    MinPoolSize = 1
+    MaxPoolSize = 5
+    ConnectionTimeout = 30
+}
+Export-ModuleMember -Variable 'ProviderOptimisationSettings'
+# OpenAI TTS Provider Module
 # Provides Text-to-Speech synthesis via OpenAI's Audio API
 
-# Load required assemblies for GUI dialogs
+# Load required assemblies for GUI Dialogues
 Add-Type -AssemblyName PresentationFramework -ErrorAction SilentlyContinue
 
 function Test-OpenAICredentials {
@@ -22,7 +29,7 @@ function Test-OpenAICredentials {
         
         # Test connectivity with a simple API call to list models
         $headers = @{
-            "Authorization" = "Bearer $($Config.ApiKey)"
+            "Authorisation" = "Bearer $($Config.ApiKey)"
             "Content-Type" = "application/json"
         }
         
@@ -133,7 +140,7 @@ function Get-OpenAIVoiceOptions {
         Add-ApplicationLog -Module "OpenAI" -Message "Fetching available models from OpenAI API" -Level "INFO"
         
         $headers = @{
-            "Authorization" = "Bearer $ApiKey"
+            "Authorisation" = "Bearer $ApiKey"
             "Content-Type" = "application/json"
         }
         
@@ -226,7 +233,7 @@ class OpenAITTSProvider {
             $selectedSpeed = if ($this.Speed -gt 0) { $this.Speed } else { 1.0 }
             
             $headers = @{
-                "Authorization" = "Bearer $($this.ApiKey)"
+                "Authorisation" = "Bearer $($this.ApiKey)"
                 "Content-Type" = "application/json"
             }
             
@@ -317,7 +324,7 @@ class OpenAITTSProvider {
 				</Grid.RowDefinitions>
 				
 				<!-- API Key -->
-				<TextBlock Grid.Row="0" Grid.Column="0" Text="API Key:" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,0"/>
+				<TextBlock Grid.Row="0" Grid.Column="0" Text="API Key:" Foreground="White" VerticalAlignment="Centre" Margin="0,0,8,0"/>
 				<PasswordBox x:Name="ApiKeyBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,0" Height="24" Padding="5"/>
 			</Grid>
 		</GroupBox>
@@ -330,7 +337,7 @@ class OpenAITTSProvider {
 					<ColumnDefinition Width="Auto"/>
 				</Grid.ColumnDefinitions>
 				
-				<TextBlock x:Name="TestStatus" Grid.Column="0" Text="Ready to test connection..." Foreground="White" VerticalAlignment="Center"/>
+				<TextBlock x:Name="TestStatus" Grid.Column="0" Text="Ready to test connection..." Foreground="White" VerticalAlignment="Centre"/>
 				<Button x:Name="TestConnectionBtn" Grid.Column="1" Content="🔌 Test Connection" Width="140" Height="28" 
 						Background="#FF28A745" Foreground="White" BorderBrush="#FF1E7E34" BorderThickness="1"/>
 			</Grid>
@@ -392,7 +399,7 @@ class OpenAITTSProvider {
                 Add-ApplicationLog -Module "OpenAI" -Message "ShowConfigurationDialog - CurrentConfig is hashtable with $($CurrentConfig.Count) keys: $($CurrentConfig.Keys -join ', ')" -Level "INFO"
                 if ($CurrentConfig.ApiKey -and -not [string]::IsNullOrWhiteSpace($CurrentConfig.ApiKey)) {
                     $apiKeyBox.Password = $CurrentConfig.ApiKey
-                    Add-ApplicationLog -Module "OpenAI" -Message "Loaded API key into dialog (length: $($CurrentConfig.ApiKey.Length))" -Level "INFO"
+                    Add-ApplicationLog -Module "OpenAI" -Message "Loaded API key into Dialogue (length: $($CurrentConfig.ApiKey.Length))" -Level "INFO"
                 } else {
                     Add-ApplicationLog -Module "OpenAI" -Message "CurrentConfig does not have ApiKey or it's empty" -Level "INFO"
                 }
@@ -442,18 +449,18 @@ class OpenAITTSProvider {
                     Success = $true
                     ApiKey = $apiKey
                 }
-                $window.DialogResult = $true
+                $window.DialogueResult = $true
                 $window.Close()
             }.GetNewClosure())
             
             # Cancel button
             $cancelBtn.Add_Click({
                 $window.Tag = @{ Success = $false }
-                $window.DialogResult = $false
+                $window.DialogueResult = $false
                 $window.Close()
             })
             
-            # Show dialog
+            # Show Dialogue
             $result = $window.ShowDialog()
             
             if ($window.Tag -and $window.Tag.Success) {
@@ -464,7 +471,7 @@ class OpenAITTSProvider {
             
         }
         catch {
-            Add-ApplicationLog -Module "OpenAI" -Message "Error showing configuration dialog: $($_.Exception.Message)" -Level "ERROR"
+            Add-ApplicationLog -Module "OpenAI" -Message "Error showing configuration Dialogue: $($_.Exception.Message)" -Level "ERROR"
             return @{ Success = $false; Error = $_.Exception.Message }
         }
     }
@@ -502,11 +509,11 @@ class OpenAITTSProvider {
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <TextBlock Grid.Column="0" Text="Playback Speed:" Foreground="White" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="0" Text="Playback Speed:" Foreground="White" VerticalAlignment="Centre"/>
                     <Slider Grid.Column="1" Name="SpeedSlider" Minimum="0.25" Maximum="4.0" Value="1.0" 
                             TickFrequency="0.25" IsSnapToTickEnabled="True" Margin="10,0"/>
                     <TextBlock Grid.Column="2" Name="SpeedValue" Text="1.0x" Foreground="#FF28A745" 
-                               MinWidth="45" FontWeight="Bold" VerticalAlignment="Center"/>
+                               MinWidth="45" FontWeight="Bold" VerticalAlignment="Centre"/>
                 </Grid>
                 <TextBlock Text="Adjust voice playback speed (0.25x = very slow, 4.0x = very fast)" 
                            Foreground="#FFB0B0B0" FontSize="10" Margin="0,5,0,0"/>
@@ -523,7 +530,7 @@ class OpenAITTSProvider {
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     
-                    <TextBlock Grid.Column="0" Text="Quality Model:" Foreground="White" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Grid.Column="0" Text="Quality Model:" Foreground="White" VerticalAlignment="Centre" Margin="0,0,10,0"/>
                     <ComboBox Grid.Column="1" Name="ModelComboBox" Height="25" Background="#FF3F3F46" 
                               Foreground="White" BorderBrush="#FF28A745"/>
                 </Grid>
@@ -605,30 +612,30 @@ class OpenAITTSProvider {
                     Speed = [double]$speedSlider.Value
                     Model = $modelComboBox.SelectedItem
                 }
-                $window.DialogResult = $true
+                $window.DialogueResult = $true
                 $window.Close()
             }.GetNewClosure())
             
             # Cancel button click
             $cancelButton.Add_Click({
                 $window.Tag = @{ Success = $false }
-                $window.DialogResult = $false
+                $window.DialogueResult = $false
                 $window.Close()
             }.GetNewClosure())
             
-            # Show dialog
+            # Show Dialogue
             $result = $window.ShowDialog()
             
             if ($window.Tag -and $window.Tag.Success) {
                 Add-ApplicationLog -Module "OpenAI" -Message "Advanced voice options saved: Speed=$($window.Tag.Speed), Model=$($window.Tag.Model)" -Level "INFO"
                 return $window.Tag
             } else {
-                Add-ApplicationLog -Module "OpenAI" -Message "Advanced voice options dialog cancelled" -Level "DEBUG"
+                Add-ApplicationLog -Module "OpenAI" -Message "Advanced voice options Dialogue cancelled" -Level "DEBUG"
                 return @{ Success = $false }
             }
             
         } catch {
-            Add-ApplicationLog -Module "OpenAI" -Message "Error showing advanced voice dialog: $($_.Exception.Message)" -Level "ERROR"
+            Add-ApplicationLog -Module "OpenAI" -Message "Error showing advanced voice Dialogue: $($_.Exception.Message)" -Level "ERROR"
             return @{ Success = $false; Error = $_.Exception.Message }
         }
     }
@@ -658,7 +665,7 @@ function New-OpenAITTSProviderInstance {
 function Show-OpenAIProviderSetup {
     <#
     .SYNOPSIS
-    Shows the OpenAI provider setup dialog for GUI configuration
+    Shows the OpenAI provider setup Dialogue for GUI configuration
     #>
     
     try {
@@ -670,11 +677,11 @@ function Show-OpenAIProviderSetup {
             @{}
         }
         
-        # Create and show configuration dialog
+        # Create and show configuration Dialogue
         $provider = [OpenAITTSProvider]::new()
         $provider.ShowConfigurationDialog($currentConfig)
         
-        # Save updated configuration if dialog was accepted
+        # Save updated configuration if Dialogue was accepted
         if ($provider.ApiKey) {
             if (-not $config.ProviderConfigurations) {
                 $config.ProviderConfigurations = @{}

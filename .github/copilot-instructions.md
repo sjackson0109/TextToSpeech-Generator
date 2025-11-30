@@ -4,8 +4,8 @@ TextToSpeech-Generator is a PowerShell-based application that converts text to s
 
 ## Current Status (v3.2.1 - 2025-11-23)
 - **8 Production-Ready TTS Providers:** AWS Polly, ElevenLabs, Google Cloud, Microsoft Azure, Murf AI, OpenAI, Telnyx, Twilio
-- **Core Infrastructure Complete:** Provider dropdown selection, configuration dialogs, credential testing, save/cancel operations all operational
-- **Dynamic Voice Options - Phase 1 Complete:** OpenAI fully implemented with live API retrieval, caching, and advanced dialog
+- **Core Infrastructure Complete:** Provider dropdown selection, configuration Dialogues, credential testing, save/cancel operations all operational
+- **Dynamic Voice Options - Phase 1 Complete:** OpenAI fully implemented with live API retrieval, caching, and advanced Dialogue
 - **Dynamic Voice Options - Phase 2 In Progress:** ElevenLabs updated with API-based voice retrieval pattern
 - **GUI Framework:** Modern dark-themed WPF GUI with real-time validation and colour-coded feedback
 - **Configuration System:** JSON-based config with provider-specific settings, Windows Credential Manager integration
@@ -77,7 +77,7 @@ TextToSpeech-Generator is a PowerShell-based application that converts text to s
 - **Configuration persistence:** Selected voice, language, quality, speed, format saved per provider in config.json
 - **Load behaviour:** On provider selection, load saved options from config.json and populate dropdowns from API, then select saved values
 
-### Objective 3: Advanced Voice Options Dialog
+### Objective 3: Advanced Voice Options Dialogue
 **The ADVANCED button should open an Advanced Voice Options form:**
 - Call a new `ShowAdvancedVoiceDialog([hashtable]$CurrentConfig)` method on the selected provider
 - Populate GUI with **advanced** or **specialist** voice options from the chosen TTS provider
@@ -85,7 +85,7 @@ TextToSpeech-Generator is a PowerShell-based application that converts text to s
 - Use appropriate controls (sliders, dropdowns, checkboxes) based on parameter type
 - **Save-And-Close** button must save these advanced options to config.json under the provider's configuration
 - Advanced options should be provider-specific (e.g., SSML support for Azure, emotional range for ElevenLabs, stability/similarity for voices)
-- **Dialog pattern:** Return [hashtable] with advanced settings, integrate with main configuration save workflow
+- **Dialogue pattern:** Return [hashtable] with advanced settings, integrate with main configuration save workflow
 
 ## Example: Adding Dynamic Voice Retrieval to a Provider
 1. Modify `Get-{Provider}VoiceOptions` to make live API call (e.g., GET /v1/voices for OpenAI)
@@ -96,9 +96,9 @@ TextToSpeech-Generator is a PowerShell-based application that converts text to s
 6. Implement Save handler to persist selected values to config.json
 7. Implement Load handler to restore saved values when provider re-selected
 
-## Example: Implementing Advanced Voice Dialog
+## Example: Implementing Advanced Voice Dialogue
 1. Create `ShowAdvancedVoiceDialog([hashtable]$CurrentConfig)` method in provider class
-2. Build WPF dialog with provider-specific advanced controls
+2. Build WPF Dialogue with provider-specific advanced controls
 3. Load current advanced settings from $CurrentConfig
 4. Provide sliders/controls for parameters like pitch, rate, volume, stability, emotional range
 5. Implement Save-And-Close to return [hashtable] with advanced settings
@@ -115,7 +115,7 @@ TextToSpeech-Generator is a PowerShell-based application that converts text to s
 ## Technical Debt & Known Limitations
 - **Hardcoded voice options:** Current implementations return static voice lists from `Get-{Provider}VoiceOptions`, need to implement live API calls
 - **Static GUI dropdowns:** Voice/language/quality dropdowns currently populate from hardcoded values, need dynamic population
-- **No advanced voice controls:** Missing provider-specific advanced settings dialogs (SSML, emotional parameters, prosody controls)
+- **No advanced voice controls:** Missing provider-specific advanced settings Dialogues (SSML, emotional parameters, prosody controls)
 - **Configuration schema:** Need to extend config.json to support per-provider voice selections and advanced options
 - **API caching:** No session-level caching of voice options, potential for excessive API calls
 

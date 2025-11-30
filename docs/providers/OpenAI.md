@@ -1,4 +1,4 @@
-# OpenAI TTS Provider Setup Guide
+﻿# OpenAI TTS Provider Setup Guide
 
 ## Overview
 
@@ -41,7 +41,7 @@ OpenAI's Text-to-Speech (TTS) API offers high-quality, natural-sounding voices w
 1. Launch the TextToSpeech-Generator application
 2. Select **OpenAI** from the provider dropdown
 3. Click the **Configure** button
-4. In the configuration dialog:
+4. In the configuration Dialogue:
    - Paste your API key in the **API Key** field
    - Click **Test Connection** to verify credentials
    - Click **Save & Close** to store the configuration
@@ -157,7 +157,7 @@ Bright and articulate, clear pronunciation.
 POST https://api.openai.com/v1/audio/speech
 ```
 
-**Authentication**: Bearer token in Authorization header
+**Authentication**: Bearer token in Authorisation header
 
 **Request Body**:
 ```json
@@ -309,7 +309,7 @@ POST https://api.openai.com/v1/audio/speech
 - **Character Limit**: 4,096 characters per request
 - **No SSML**: Text input only, no markup support
 - **Rate Limits**: 50 requests/minute (default tier)
-- **Voice Customization**: Limited to 6 preset voices
+- **Voice Customisation**: Limited to 6 preset voices
 - **Language**: Auto-detected, no manual override
 - **Streaming**: API returns complete file, not streaming chunks
 

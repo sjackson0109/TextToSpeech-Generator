@@ -1,4 +1,4 @@
-# Amazon Polly (AWS) Text-to-Speech Setup Guide
+﻿# Amazon Polly (AWS) Text-to-Speech Setup Guide
 
 **Updated: October 2025** | **Status: ✅ FULLY IMPLEMENTED**
 
@@ -34,12 +34,12 @@ Amazon Polly offers high-quality text-to-speech with advanced neural voices and 
 - **SSML Support**: Advanced speech markup for fine control
 - **Competitive Pricing**: $4.00 per 1M characters (Neural: $16.00)
 - **AWS Integration**: Native integration with AWS ecosystem
-- **Long-form Content**: Specialized for audiobooks and extended content
+- **Long-form Content**: Specialised for audiobooks and extended content
 
 ### Voice Categories Available
 - **Standard**: Traditional concatenative synthesis - reliable quality
 - **Neural**: Deep learning-based natural voices - premium quality
-- **Long-form**: Optimized for audiobooks and extended content
+- **Long-form**: Optimised for audiobooks and extended content
 - **Conversational**: Designed for interactive applications and chatbots
 
 ### Current Pricing (October 2025)
@@ -47,7 +47,7 @@ Amazon Polly offers high-quality text-to-speech with advanced neural voices and 
 |------------|-------------------|---------|----------|
 | **Standard** | $4.00 | Good | General purpose |
 | **Neural** | $16.00 | Premium | Professional content |
-| **Long-form** | $100.00 | Optimized | Audiobooks, podcasts |
+| **Long-form** | $100.00 | Optimised | Audiobooks, podcasts |
 
 ## 📋 Setup Process (Production Ready)
 

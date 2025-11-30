@@ -1,8 +1,15 @@
-﻿if (-not (Get-Module -Name 'Logging')) {
+﻿# Exported provider-specific optimisation settings
+$ProviderOptimisationSettings = @{
+	MinPoolSize = 2
+	MaxPoolSize = 8
+	ConnectionTimeout = 30
+}
+Export-ModuleMember -Variable 'ProviderOptimisationSettings'
+if (-not (Get-Module -Name 'Logging')) {
 	Import-Module (Join-Path $PSScriptRoot '..\Logging.psm1')
 }
 
-# Load required assemblies for GUI dialogs
+# Load required assemblies for GUI Dialogues
 Add-Type -AssemblyName PresentationFramework -ErrorAction SilentlyContinue
 
 function ApplyConfigurationToGUI {
@@ -226,7 +233,7 @@ function Get-AWSPollyVoiceOptions {
 	# 1. Creating canonical request with sorted headers and hashed payload
 	# 2. Creating string to sign with scope (date, region, service)
 	# 3. Calculating signature using HMAC-SHA256 with derived signing key
-	# 4. Adding Authorization header with signature
+	# 4. Adding Authorisation header with signature
 	#
 	# Endpoint would be: https://polly.$Region.amazonaws.com/v1/voices
 	# For now, logging that live API not implemented and returning comprehensive defaults
@@ -291,7 +298,7 @@ function Show-PollyProviderSetup {
 		$GUI.Window.AWS_SecretKey.Text = $secretKeyBox.Text
 		$GUI.Window.AWS_Region.SelectedItem = $regionBox.Text
 		Add-ApplicationLog -Module "AWSPolly" -Message "Amazon Polly setup saved" -Level "INFO"
-		$Window.DialogueueResult = $true
+		$Window.DialogueueueueueueResult = $true
 		$Window.Close()
 	}
 }
@@ -433,7 +440,7 @@ class PollyTTSProvider : TTSProvider {
 	}
 	
 	[hashtable] ShowConfigurationDialog([hashtable]$currentConfig) {
-		# Create AWS Polly configuration dialog
+		# Create AWS Polly configuration Dialogue
 		$xaml = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -471,15 +478,15 @@ class PollyTTSProvider : TTSProvider {
 				</Grid.RowDefinitions>
 				
 				<!-- Access Key -->
-				<TextBlock Grid.Row="0" Grid.Column="0" Text="Access Key ID:" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,8"/>
-				<TextBox x:Name="AccessKeyBox" Grid.Row="0" Grid.Column="1" Margin="0,0,8,8" Height="24" VerticalContentAlignment="Center"/>
+				<TextBlock Grid.Row="0" Grid.Column="0" Text="Access Key ID:" Foreground="White" VerticalAlignment="Centre" Margin="0,0,8,8"/>
+				<TextBox x:Name="AccessKeyBox" Grid.Row="0" Grid.Column="1" Margin="0,0,8,8" Height="24" VerticalContentAlignment="Centre"/>
 				
 				<!-- Region -->
-				<TextBlock Grid.Row="0" Grid.Column="2" Text="Region:" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,8"/>
+				<TextBlock Grid.Row="0" Grid.Column="2" Text="Region:" Foreground="White" VerticalAlignment="Centre" Margin="0,0,8,8"/>
 				<ComboBox x:Name="RegionCombo" Grid.Row="0" Grid.Column="3" Margin="0,0,0,8" Height="24"/>
 				
 				<!-- Secret Key -->
-				<TextBlock Grid.Row="1" Grid.Column="0" Text="Secret Access Key:" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,0"/>
+				<TextBlock Grid.Row="1" Grid.Column="0" Text="Secret Access Key:" Foreground="White" VerticalAlignment="Centre" Margin="0,0,8,0"/>
 				<PasswordBox x:Name="SecretKeyBox" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0,0,0" Height="24" Padding="5"/>
 			</Grid>
 		</GroupBox>
@@ -492,7 +499,7 @@ class PollyTTSProvider : TTSProvider {
 					<ColumnDefinition Width="Auto"/>
 				</Grid.ColumnDefinitions>
 				
-				<TextBlock x:Name="TestStatus" Grid.Column="0" Text="Ready to test connection..." Foreground="White" VerticalAlignment="Center"/>
+				<TextBlock x:Name="TestStatus" Grid.Column="0" Text="Ready to test connection..." Foreground="White" VerticalAlignment="Centre"/>
 				<Button x:Name="TestConnectionBtn" Grid.Column="1" Content="🔌 Test Connection" Width="140" Height="28" 
 						Background="#FF28A745" Foreground="White" BorderBrush="#FF1E7E34" BorderThickness="1"/>
 			</Grid>
@@ -673,29 +680,29 @@ class PollyTTSProvider : TTSProvider {
 					SecretKey = $secretKey
 					Region = $region
 				}
-				$window.DialogResult = $true
+				$window.DialogueResult = $true
 				$window.Close()
 			}.GetNewClosure())
 			
 			# Cancel handler
 			$cancelBtn.add_Click({
 				$window.Tag = @{ Success = $false }
-				$window.DialogResult = $false
+				$window.DialogueResult = $false
 				$window.Close()
 			}.GetNewClosure())
 			
-			Add-ApplicationLog -Module "AWSPolly" -Message "Showing AWS Polly configuration dialog" -Level "INFO"
+			Add-ApplicationLog -Module "AWSPolly" -Message "Showing AWS Polly configuration Dialogue" -Level "INFO"
 			$result = $window.ShowDialog()
 			
 			if ($window.Tag -and $window.Tag.Success) {
 				Add-ApplicationLog -Module "AWSPolly" -Message "AWS Polly configuration saved" -Level "INFO"
 				return $window.Tag
 			} else {
-				Add-ApplicationLog -Module "AWSPolly" -Message "AWS Polly configuration cancelled" -Level "INFO"
+				Add-ApplicationLog -Module "AWSPolly" -Message "AWS Polly configuration Cancelled" -Level "INFO"
 				return @{ Success = $false }
 			}
 		} catch {
-			Add-ApplicationLog -Module "AWSPolly" -Message "Error showing AWS Polly dialog: $($_.Exception.Message)" -Level "ERROR"
+			Add-ApplicationLog -Module "AWSPolly" -Message "Error showing AWS Polly Dialogue: $($_.Exception.Message)" -Level "ERROR"
 			return @{ Success = $false; Error = $_.Exception.Message }
 		}
 	}

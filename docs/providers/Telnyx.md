@@ -1,4 +1,4 @@
-# Telnyx TTS Provider Setup Guide
+﻿# Telnyx TTS Provider Setup Guide
 
 ## Overview
 
@@ -41,7 +41,7 @@ Telnyx provides real-time Text-to-Speech synthesis via WebSocket streaming API, 
 1. Launch the TextToSpeech-Generator application
 2. Select **Telnyx** from the provider dropdown
 3. Click the **Configure** button
-4. In the configuration dialog:
+4. In the configuration Dialogue:
    - Paste your API key in the **API Key** field
    - Click **Test Connection** to verify credentials
    - Click **Save** to store the configuration
@@ -136,11 +136,11 @@ Premium high-definition voices:
 wss://api.telnyx.com/v2/text-to-speech/speech?voice={voice_id}
 ```
 
-**Authentication**: Bearer token in Authorization header
+**Authentication**: Bearer token in Authorisation header
 
 **Flow**:
 1. Connect with authentication
-2. Send initialization frame: `{"text":" "}`
+2. Send initialisation frame: `{"text":" "}`
 3. Send text frame(s): `{"text":"Your text here"}`
 4. Receive audio frames: `{"audio":"base64_encoded_mp3"}`
 5. Send stop frame: `{"text":""}`
@@ -186,7 +186,7 @@ For voice agent integration and telephony applications.
 **Problem**: Connection succeeds but no audio generated
 
 **Solutions**:
-- Verify initialization frame sent first
+- Verify initialisation frame sent first
 - Check text frame contains valid content
 - Ensure voice ID is correctly formatted
 - Review application logs for WebSocket errors

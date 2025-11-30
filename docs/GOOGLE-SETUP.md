@@ -1,4 +1,4 @@
-# Google Cloud Text-to-Speech Setup Guide
+﻿# Google Cloud Text-to-Speech Setup Guide
 
 **Updated: October 2025** | **Status: ✅ PRODUCTION READY**
 
@@ -119,7 +119,7 @@ export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/service-account.json"
 
 # Test API call
 curl -X POST \
-  -H "Authorization: Bearer $(gcloud auth application-default print-access-token)" \
+  -H "Authorisation: Bearer $(gcloud auth application-default print-access-token)" \
   -H "Content-Type: application/json" \
   -d '{
     "input":{"text":"Hello, world!"},
@@ -185,8 +185,8 @@ Google Cloud offers several voice categories:
 - `en-US-Neural2-J` - Male, mature quality
 
 #### Journey Voices (2025 Conversational AI)
-- `en-US-Journey-D` - Male, conversational AI optimized
-- `en-US-Journey-F` - Female, conversational AI optimized
+- `en-US-Journey-D` - Male, conversational AI optimised
+- `en-US-Journey-F` - Female, conversational AI optimised
 - `en-US-Journey-O` - Gender-neutral, inclusive design
 
 #### Standard Voices (Cost-Effective)
@@ -362,7 +362,7 @@ for (let attempt = 0; attempt < maxRetries; attempt++) {
 #### "Voice not found" errors
 **Solution**: Use exact voice names from Google's voice list:
 ```bash
-curl -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+curl -H "Authorisation: Bearer $(gcloud auth print-access-token)" \
   "https://texttospeech.googleapis.com/v1/voices"
 ```
 
@@ -436,7 +436,7 @@ curl -H "Authorization: Bearer $(gcloud auth print-access-token)" \
 # Advanced Google Cloud TTS with SSML
 $apiKey = "YOUR_API_KEY"
 $headers = @{
-    "Authorization" = "Bearer $apiKey"
+    "Authorisation" = "Bearer $apiKey"
     "Content-Type" = "application/json"
 }
 

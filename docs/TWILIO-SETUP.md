@@ -1,4 +1,4 @@
-# Twilio Text-to-Speech Setup Guide
+﻿# Twilio Text-to-Speech Setup Guide
 
 **Updated: October 2025** | **Status: ✅ FULLY IMPLEMENTED**
 
@@ -102,7 +102,7 @@ Enter your credentials in the TextToSpeech Generator:
 ### Authentication Method (Production Ready)
 ```http
 POST https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Calls.json
-Authorization: Basic {base64(AccountSid:AuthToken)}
+Authorisation: Basic {base64(AccountSid:AuthToken)}
 Content-Type: application/x-www-form-urlencoded
 ```
 
@@ -254,7 +254,7 @@ function Invoke-TwilioTTS {
 - You need immediate TTS capability
 - You want the highest quality voices
 - You prefer per-character pricing
-- You need advanced voice customization
+- You need advanced voice customisation
 
 ---
 

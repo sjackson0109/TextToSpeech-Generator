@@ -1,4 +1,4 @@
-# API Rate Limiting & Quota Management Guide
+﻿# API Rate Limiting & Quota Management Guide
 
 ## Overview
 This guide explains how to handle API rate limits, quotas, and billing across all supported TTS providers in TextToSpeech Generator v3.2.
@@ -431,7 +431,7 @@ function Set-MonthlyBudget {
 - **Success Rates**: Monitor API call success rates
 - **Quota Utilization**: Track quota consumption
 - **Cost Analysis**: Monitor spending per provider
-- **Error Rates**: Track and categorize API errors
+- **Error Rates**: Track and categorise API errors
 
 ### Reporting Dashboard
 ```powershell

@@ -6,18 +6,18 @@
 - **OpenAI TTS Provider**: Complete implementation with 6 voices (alloy, echo, fable, onyx, nova, shimmer), 2 models (tts-1, tts-1-hd), 6 audio formats, variable speed control (0.25x-4.0x)
 - **Telnyx Provider**: WebSocket-based streaming implementation with 266+ voices across KokoroTTS, Natural, and NaturalHD models
 - **Murf AI Provider**: Gen2 and Falcon models with 150+ ultra-realistic voices across 20+ languages
-- **Provider Configuration Dialogs**: Consistent modern dark-themed dialogs for all 8 providers with real-time credential testing
+- **Provider Configuration Dialogues**: Consistent modern dark-themed Dialogues for all 8 providers with real-time credential testing
 - **Configuration Persistence**: Full support for saving and loading provider configurations via GUI
 
 ### Changed 🔄
 - **Provider Architecture**: All 8 providers now follow consistent class-based pattern with Configuration property
-- **Test Connection Feedback**: Unified label-based feedback (green/red status) across all providers, removed popup dialogs
+- **Test Connection Feedback**: Unified label-based feedback (green/red status) across all providers, removed popup Dialogues
 - **Configuration Loading**: Enhanced GUI configuration loading from config.json with detailed logging
 - **Provider Count**: Updated from 6 to 8 fully operational TTS providers
 
 ### Fixed 🐛
 - **OpenAI Configuration Loading**: Fixed API key auto-population from config.json using property access pattern
-- **Telnyx Dialog Pattern**: Corrected ShowConfigurationDialog return type from [void] to [hashtable]
+- **Telnyx Dialogue Pattern**: Corrected ShowConfigurationDialog return type from [void] to [hashtable]
 - **Configuration Property**: Added missing Configuration hashtable property to OpenAI and Telnyx provider classes
 - **Logging Consistency**: Replaced all Write-Log calls with Add-ApplicationLog across OpenAI and Telnyx modules
 - **Variable Naming**: Fixed PowerShell class method variable conflicts in OpenAI ProcessTTS method
@@ -47,7 +47,7 @@
   - **Multi-Environment Profiles**: Development, Production, and Testing configurations
   - **JSON-based Configuration**: Modern config.json replacing legacy XML format
   - **All 8 TTS Providers**: Complete configuration templates for Microsoft Azure, AWS Polly, ElevenLabs, Google Cloud TTS, Murf AI, OpenAI, Telnyx, and Twilio
-  - **GUI Integration Functions**: Dynamic provider configuration dialogs with credential testing and validation
+  - **GUI Integration Functions**: Dynamic provider configuration Dialogues with credential testing and validation
 
 - **Enterprise Security Framework**:
   - **Certificate-Based Encryption**: SecureConfigurationManager class for sensitive data protection

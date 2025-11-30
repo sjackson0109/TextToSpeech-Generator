@@ -1,8 +1,15 @@
-﻿if (-not (Get-Module -Name 'Logging')) {
+﻿# Exported provider-specific optimisation settings
+$ProviderOptimisationSettings = @{
+	MinPoolSize = 1
+	MaxPoolSize = 5
+	ConnectionTimeout = 30
+}
+Export-ModuleMember -Variable 'ProviderOptimisationSettings'
+if (-not (Get-Module -Name 'Logging')) {
 	Import-Module (Join-Path $PSScriptRoot '..\Logging.psm1')
 }
 
-# Load required assemblies for GUI dialogs
+# Load required assemblies for GUI Dialogues
 Add-Type -AssemblyName PresentationFramework -ErrorAction SilentlyContinue
 
 function ApplyConfigurationToGUI {
@@ -241,7 +248,7 @@ function Show-GoogleCloudProviderSetup {
         $GUI.Window.GC_APIKey.Text = $apiKeyBox.Text
         $GUI.Window.GC_Language.SelectedItem = $languageBox.Text
         Add-ApplicationLog -Module "GoogleCloud" -Message "Google Cloud TTS setup saved" -Level "INFO"
-        $Window.DialogueueResult = $true
+        $Window.DialogueueueueueueResult = $true
         $Window.Close()
     }
 }
@@ -334,7 +341,7 @@ class GoogleCloudTTSProvider : TTSProvider {
         }
 
 	[hashtable] ShowConfigurationDialog([hashtable]$currentConfig) {
-		# Create Google Cloud TTS configuration dialog
+		# Create Google Cloud TTS configuration Dialogue
 		$xaml = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -372,16 +379,16 @@ class GoogleCloudTTSProvider : TTSProvider {
 				</Grid.RowDefinitions>
 				
 				<!-- API Key -->
-				<TextBlock Grid.Row="0" Grid.Column="0" Text="API Key:" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,8"/>
+				<TextBlock Grid.Row="0" Grid.Column="0" Text="API Key:" Foreground="White" VerticalAlignment="Centre" Margin="0,0,8,8"/>
 				<PasswordBox x:Name="ApiKeyBox" Grid.Row="0" Grid.Column="1" Margin="0,0,8,8" Height="24" Padding="5"/>
 				
 				<!-- Region -->
-				<TextBlock Grid.Row="0" Grid.Column="2" Text="Region:" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,8"/>
+				<TextBlock Grid.Row="0" Grid.Column="2" Text="Region:" Foreground="White" VerticalAlignment="Centre" Margin="0,0,8,8"/>
 				<ComboBox x:Name="RegionCombo" Grid.Row="0" Grid.Column="3" Margin="0,0,0,8" Height="24"/>
 				
 				<!-- Project ID -->
-				<TextBlock Grid.Row="1" Grid.Column="0" Text="Project ID:" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,0"/>
-				<TextBox x:Name="ProjectIdBox" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0,0,0" Height="24" VerticalContentAlignment="Center"/>
+				<TextBlock Grid.Row="1" Grid.Column="0" Text="Project ID:" Foreground="White" VerticalAlignment="Centre" Margin="0,0,8,0"/>
+				<TextBox x:Name="ProjectIdBox" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0,0,0" Height="24" VerticalContentAlignment="Centre"/>
 			</Grid>
 		</GroupBox>
 		
@@ -393,7 +400,7 @@ class GoogleCloudTTSProvider : TTSProvider {
 					<ColumnDefinition Width="Auto"/>
 				</Grid.ColumnDefinitions>
 				
-				<TextBlock x:Name="TestStatus" Grid.Column="0" Text="Ready to test connection..." Foreground="White" VerticalAlignment="Center"/>
+				<TextBlock x:Name="TestStatus" Grid.Column="0" Text="Ready to test connection..." Foreground="White" VerticalAlignment="Centre"/>
 				<Button x:Name="TestConnectionBtn" Grid.Column="1" Content="🔌 Test Connection" Width="140" Height="28" 
 						Background="#FF28A745" Foreground="White" BorderBrush="#FF1E7E34" BorderThickness="1"/>
 			</Grid>
@@ -586,18 +593,18 @@ class GoogleCloudTTSProvider : TTSProvider {
 					ProjectID = $projectId
 					Region = $region
 				}
-				$window.DialogResult = $true
+				$window.DialogueResult = $true
 				$window.Close()
 			}.GetNewClosure())
 			
 			# Cancel handler
 			$cancelBtn.add_Click({
 				$window.Tag = @{ Success = $false }
-				$window.DialogResult = $false
+				$window.DialogueResult = $false
 				$window.Close()
 			})
 			
-			# Show dialog
+			# Show Dialogue
 			$result = $window.ShowDialog()
 			
 			if ($window.Tag -and $window.Tag.Success) {

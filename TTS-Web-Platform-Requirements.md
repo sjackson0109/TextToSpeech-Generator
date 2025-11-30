@@ -1,4 +1,4 @@
-# Functional Requirements Specification: TextToSpeech Generator Web Platform
+﻿# Functional Requirements Specification: TextToSpeech Generator Web Platform
 
 ## Project Overview
 
@@ -51,8 +51,8 @@ Convert the existing PowerShell-based TextToSpeech Generator to a modern, cloud-
 - ✅ Admin interface and user management
 
 #### Phase 4: Enterprise Polish (Weeks 7-8)
-**Priority**: Production readiness and optimization
-- ✅ Performance optimization and caching
+**Priority**: Production readiness and optimisation
+- ✅ Performance optimisation and caching
 - ✅ Security audit and compliance
 - ✅ Comprehensive monitoring and alerting
 - ✅ Documentation and API reference
@@ -253,7 +253,7 @@ export class AzureTTSProvider implements TTSProvider {
 **Reference**: `Modules/Configuration/AdvancedConfiguration.psm1`
 
 ```typescript
-// PowerShell Function: Initialize-AdvancedConfiguration
+// PowerShell Function: Initialise-AdvancedConfiguration
 export class ConfigurationManager {
   private db: D1Database;
   
@@ -457,7 +457,7 @@ interface WebPlatformConfig {
 - **FR-071**: Support for concurrent batch processing
 - **FR-072**: Asynchronous job processing with status updates
 - **FR-073**: Caching of frequently requested voices/providers
-- **FR-074**: CDN optimization for static assets
+- **FR-074**: CDN optimisation for static assets
 
 #### 2.6.2 Scalability Features
 - **FR-075**: Auto-scaling via Cloudflare Workers
@@ -720,11 +720,11 @@ export class MultiProviderTTSService {
   private providers: Map<string, TTSProvider> = new Map();
   
   constructor() {
-    // Initialize all providers that have valid configurations
-    this.initializeProviders();
+    // Initialise all providers that have valid configurations
+    this.initialiseProviders();
   }
   
-  private initializeProviders() {
+  private initialiseProviders() {
     const configs = this.loadProviderConfigs();
     
     if (configs.azure?.apiKey) {
@@ -750,7 +750,7 @@ npm install -g @cloudflare/wrangler-cli
 mkdir tts-web-platform
 cd tts-web-platform
 
-# Initialize Cloudflare project
+# Initialise Cloudflare project
 wrangler init tts-api --type="worker-router"
 wrangler pages project create tts-frontend
 
@@ -1091,8 +1091,8 @@ const setupWizard = {
 ```bash
 # Agent should follow this exact sequence:
 □ 1. Create new repository: tts-web-platform
-□ 2. Initialize React frontend with Vite + TypeScript
-□ 3. Initialize Cloudflare Workers project
+□ 2. Initialise React frontend with Vite + TypeScript
+□ 3. Initialise Cloudflare Workers project
 □ 4. Set up Cloudflare D1 database
 □ 5. Create basic authentication system
 □ 6. Implement single Azure TTS provider
@@ -1141,7 +1141,7 @@ const implementationOrder = [
   'aws-polly',                   // Second most common
   'google-cloud-tts',            // Third major cloud provider
   
-  // Phase 3: Specialized providers (Week 3)
+  // Phase 3: Specialised providers (Week 3)
   'cloudpronouncer',             // Niche but established
   'twilio',                      // Good for programmatic use
   'voiceforge'                   // Last priority
@@ -1270,7 +1270,7 @@ export default defineConfig({
 - **Integration Tests**: API endpoints and database operations
 - **E2E Tests**: Critical user journeys
 - **Performance Tests**: Load testing for API endpoints
-- **Security Tests**: Authentication and authorization
+- **Security Tests**: Authentication and authorisation
 
 ### 10.2 Test Files Structure
 ```
@@ -1352,12 +1352,12 @@ tests/
 - Batch processing system
 - Usage analytics and monitoring  
 - Admin interface
-- Performance optimization
+- Performance optimisation
 
 ### Phase 4: Polish & Launch (Weeks 7-8)
 - Security audit and testing
 - Documentation and training
-- Performance testing and optimization
+- Performance testing and optimisation
 - Production deployment and monitoring
 
 ---
@@ -1389,7 +1389,7 @@ mkdir tts-web-platform && cd tts-web-platform
 npm create vite@latest frontend -- --template react-ts
 npx create-cloudflare@latest backend -- --type worker-router
 
-# 2. Initialize Cloudflare services  
+# 2. Initialise Cloudflare services  
 npx wrangler d1 create tts-database
 npx wrangler r2 bucket create tts-audio-storage
 npx wrangler pages project create tts-frontend

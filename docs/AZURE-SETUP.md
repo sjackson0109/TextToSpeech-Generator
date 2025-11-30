@@ -1,4 +1,4 @@
-# Microsoft Azure Cognitive Services TTS Setup Guide
+﻿# Microsoft Azure Cognitive Services TTS Setup Guide
 
 **Updated: October 2025** | **Status: ✅ PRODUCTION READY**
 
@@ -152,7 +152,7 @@ Choose based on your use case:
 - **`riff-16khz-16bit-mono-pcm`** - Standard WAV (PSTN compatible)
 - **`audio-16khz-32kbitrate-mono-mp3`** - Standard MP3 (SIP compatible)
 
-#### Bandwidth Optimized
+#### Bandwidth Optimised
 - **`audio-16khz-64kbitrate-mono-mp3`** - Balanced quality/size
 - **`raw-16khz-16bit-mono-pcm`** - Uncompressed for processing
 
@@ -289,7 +289,7 @@ Get-AzCognitiveServicesAccount -ResourceGroupName "your-rg" -Name "your-resource
 **Diagnostic Steps**:
 1. Test manual API call:
 ```powershell
-$headers = @{"Authorization"="Bearer $token"}
+$headers = @{"Authorisation"="Bearer $token"}
 $uri = "https://eastus.tts.speech.microsoft.com/cognitiveservices/voices/list"
 Invoke-RestMethod -Uri $uri -Headers $headers
 ```

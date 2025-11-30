@@ -1,4 +1,4 @@
-# AllProviders Module - TTS Provider Orchestrator
+﻿# AllProviders Module - TTS Provider Orchestrator
 # Dynamically discovers and loads all TTS provider modules
 if (-not (Get-Module -Name 'Logging')) {
 	Import-Module (Resolve-Path (Join-Path $PSScriptRoot '.\Logging.psm1')).Path
@@ -338,7 +338,7 @@ else {
 function Show-ProviderConfiguration {
     <#
     .SYNOPSIS
-    Shows the configuration dialog for a specific TTS provider
+    Shows the configuration Dialogue for a specific TTS provider
     .PARAMETER Provider
     The name of the provider (e.g., "Microsoft Azure", "Amazon Polly")
     #>
@@ -348,7 +348,7 @@ function Show-ProviderConfiguration {
     )
     
     try {
-        Add-ApplicationLog -Message "Opening configuration dialog for provider: $Provider" -Level "INFO"
+        Add-ApplicationLog -Message "Opening configuration Dialogue for provider: $Provider" -Level "INFO"
         
         # Map provider names to their setup functions
         $setupFunction = switch ($Provider) {

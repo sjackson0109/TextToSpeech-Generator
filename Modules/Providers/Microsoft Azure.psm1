@@ -1,8 +1,15 @@
-﻿if (-not (Get-Module -Name 'Logging')) {
+﻿# Exported provider-specific optimisation settings
+$ProviderOptimisationSettings = @{
+	MinPoolSize = 2
+	MaxPoolSize = 8
+	ConnectionTimeout = 30
+}
+Export-ModuleMember -Variable 'ProviderOptimisationSettings'
+if (-not (Get-Module -Name 'Logging')) {
 	Import-Module (Join-Path $PSScriptRoot '..\Logging.psm1')
 }
 
-# Load required assemblies for GUI dialogs
+# Load required assemblies for GUI Dialogues
 Add-Type -AssemblyName PresentationFramework -ErrorAction SilentlyContinue
 
 function ApplyConfigurationToGUI {
@@ -244,7 +251,7 @@ function Get-AzureVoiceOptions {
 		# Step 2: Use Bearer token to get voices list
 		$voicesUri = "https://$Region.tts.speech.microsoft.com/cognitiveservices/voices/list"
 		$voicesHeaders = @{
-			"Authorization" = "Bearer $token"
+			"Authorisation" = "Bearer $token"
 		}
 		
 		$response = Invoke-RestMethod -Uri $voicesUri -Method Get -Headers $voicesHeaders -TimeoutSec 10 -ErrorAction Stop
@@ -274,9 +281,9 @@ Export-ModuleMember -Function 'Get-AzureVoiceOptions'
 function Show-AzureProviderSetup {
 	<#
 	.SYNOPSIS
-	Shows the Azure Cognitive Services configuration dialog
+	Shows the Azure Cognitive Services configuration Dialogue
 	.DESCRIPTION
-	Creates a comprehensive Azure configuration dialog with GroupBoxes, Test Connection, and Validate buttons
+	Creates a comprehensive Azure configuration Dialogue with GroupBoxes, Test Connection, and Validate buttons
 	#>
 	param(
 		$Window,
@@ -340,11 +347,11 @@ function Show-AzureProviderSetup {
 			</Grid.RowDefinitions>
 			
 			<!-- API Key -->
-			<TextBlock Grid.Row="0" Grid.Column="0" Text="API Key:" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,8"/>
-			<TextBox x:Name="ApiKeyBox" Grid.Row="0" Grid.Column="1" Margin="0,0,8,8" Height="24" VerticalContentAlignment="Center"/>
+			<TextBlock Grid.Row="0" Grid.Column="0" Text="API Key:" Foreground="White" VerticalAlignment="Centre" Margin="0,0,8,8"/>
+			<TextBox x:Name="ApiKeyBox" Grid.Row="0" Grid.Column="1" Margin="0,0,8,8" Height="24" VerticalContentAlignment="Centre"/>
 			
 			<!-- Region -->
-			<TextBlock Grid.Row="0" Grid.Column="2" Text="Region:" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,8"/>
+			<TextBlock Grid.Row="0" Grid.Column="2" Text="Region:" Foreground="White" VerticalAlignment="Centre" Margin="0,0,8,8"/>
 			<ComboBox x:Name="RegionCombo" Grid.Row="0" Grid.Column="3" Margin="0,0,0,8" Height="24">
 "@
 		
@@ -361,8 +368,8 @@ function Show-AzureProviderSetup {
 			</ComboBox>
 			
 			<!-- Endpoint -->
-			<TextBlock Grid.Row="1" Grid.Column="0" Text="Endpoint:" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,0"/>
-			<TextBox x:Name="EndpointBox" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0,0,0" Height="24" VerticalContentAlignment="Center" IsReadOnly="True" Background="#FF2D2D30" Foreground="#FF808080"/>
+			<TextBlock Grid.Row="1" Grid.Column="0" Text="Endpoint:" Foreground="White" VerticalAlignment="Centre" Margin="0,0,8,0"/>
+			<TextBox x:Name="EndpointBox" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0,0,0" Height="24" VerticalContentAlignment="Centre" IsReadOnly="True" Background="#FF2D2D30" Foreground="#FF808080"/>
 		</Grid>
 	</GroupBox>
 	
@@ -374,7 +381,7 @@ function Show-AzureProviderSetup {
 				<ColumnDefinition Width="Auto"/>
 			</Grid.ColumnDefinitions>
 			
-			<TextBlock x:Name="TestStatus" Grid.Column="0" Text="Ready to test connection..." Foreground="White" VerticalAlignment="Center"/>
+			<TextBlock x:Name="TestStatus" Grid.Column="0" Text="Ready to test connection..." Foreground="White" VerticalAlignment="Centre"/>
 			<Button x:Name="TestConnectionBtn" Grid.Column="1" Content="🔌 Test Connection" Width="140" Height="28" 
 					Background="#FF28A745" Foreground="White" BorderBrush="#FF1E7E34" BorderThickness="1"/>
 		</Grid>
@@ -596,7 +603,7 @@ function Show-AzureProviderSetup {
 			
 			Add-ApplicationLog -Module "Azure" -Message "Azure configuration saved successfully" -Level "INFO"
 			
-			$Window.DialogResult = $true
+			$Window.DialogueResult = $true
 			$Window.Close()
 		})
 	}	} catch {
@@ -720,14 +727,14 @@ class AzureTTSProvider : TTSProvider {
 	}
 	
 	[hashtable] ShowConfigurationDialog([hashtable]$currentConfig) {
-		Add-ApplicationLog -Module "Azure" -Message "Showing Azure configuration dialog" -Level "INFO"
+		Add-ApplicationLog -Module "Azure" -Message "Showing Azure configuration Dialogue" -Level "INFO"
 		
 		# Load PresentationFramework if not already loaded
 		Add-Type -AssemblyName PresentationFramework -ErrorAction SilentlyContinue
 		Add-Type -AssemblyName PresentationCore -ErrorAction SilentlyContinue
 		Add-Type -AssemblyName WindowsBase -ErrorAction SilentlyContinue
 		
-		# Create complete dialog window with all controls
+		# Create complete Dialogue window with all controls
 		$xaml = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -764,14 +771,14 @@ class AzureTTSProvider : TTSProvider {
 					<RowDefinition Height="Auto"/>
 				</Grid.RowDefinitions>
 				
-				<TextBlock Grid.Row="0" Grid.Column="0" Text="API Key:" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,8"/>
-				<TextBox x:Name="ApiKeyBox" Grid.Row="0" Grid.Column="1" Margin="0,0,8,8" Height="24" VerticalContentAlignment="Center"/>
+				<TextBlock Grid.Row="0" Grid.Column="0" Text="API Key:" Foreground="White" VerticalAlignment="Centre" Margin="0,0,8,8"/>
+				<TextBox x:Name="ApiKeyBox" Grid.Row="0" Grid.Column="1" Margin="0,0,8,8" Height="24" VerticalContentAlignment="Centre"/>
 				
-				<TextBlock Grid.Row="0" Grid.Column="2" Text="Region:" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,8"/>
+				<TextBlock Grid.Row="0" Grid.Column="2" Text="Region:" Foreground="White" VerticalAlignment="Centre" Margin="0,0,8,8"/>
 				<ComboBox x:Name="RegionCombo" Grid.Row="0" Grid.Column="3" Margin="0,0,0,8" Height="24"/>
 				
-				<TextBlock Grid.Row="1" Grid.Column="0" Text="Endpoint:" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,0"/>
-				<TextBox x:Name="EndpointBox" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Height="24" VerticalContentAlignment="Center" IsReadOnly="True" Background="#FF2D2D30" Foreground="#FF808080"/>
+				<TextBlock Grid.Row="1" Grid.Column="0" Text="Endpoint:" Foreground="White" VerticalAlignment="Centre" Margin="0,0,8,0"/>
+				<TextBox x:Name="EndpointBox" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Height="24" VerticalContentAlignment="Centre" IsReadOnly="True" Background="#FF2D2D30" Foreground="#FF808080"/>
 			</Grid>
 		</GroupBox>
 		
@@ -783,7 +790,7 @@ class AzureTTSProvider : TTSProvider {
 					<ColumnDefinition Width="Auto"/>
 				</Grid.ColumnDefinitions>
 				
-				<TextBlock x:Name="TestStatus" Grid.Column="0" Text="Ready to test connection..." Foreground="White" VerticalAlignment="Center"/>
+				<TextBlock x:Name="TestStatus" Grid.Column="0" Text="Ready to test connection..." Foreground="White" VerticalAlignment="Centre"/>
 				<Button x:Name="TestConnectionBtn" Grid.Column="1" Content="🔌 Test Connection" Width="140" Height="28" 
 						Background="#FF28A745" Foreground="White" BorderBrush="#FF1E7E34" BorderThickness="1"/>
 			</Grid>
@@ -973,21 +980,21 @@ class AzureTTSProvider : TTSProvider {
 					Datacenter = $region
 					Endpoint = $endpoint
 				}
-				$window.DialogResult = $true
+				$window.DialogueResult = $true
 				$window.Close()
 			}.GetNewClosure())
 			
 			# Cancel handler - using closure to capture window
 			$cancelBtn.add_Click({
 				$window.Tag = @{ Success = $false }
-				$window.DialogResult = $false
+				$window.DialogueResult = $false
 				$window.Close()
 			}.GetNewClosure())
 			
-			# Show dialog and get result
-			$dialogResult = $window.ShowDialog()
+			# Show Dialogue and get result
+			$DialogueResult = $window.ShowDialog()
 			
-			Add-ApplicationLog -Module "Azure" -Message "Dialog closed, DialogResult=$dialogResult, Tag=$($window.Tag | ConvertTo-Json -Compress)" -Level "DEBUG"
+			Add-ApplicationLog -Module "Azure" -Message "Dialogue closed, DialogueResult=$DialogueResult, Tag=$($window.Tag | ConvertTo-Json -Compress)" -Level "DEBUG"
 			
 			# Return result from Tag
 			if ($window.Tag -and $window.Tag.Success) {
