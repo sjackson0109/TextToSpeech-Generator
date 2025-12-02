@@ -13,17 +13,6 @@ Write-Verbose "Looking for provider modules in: $ProvidersPath"
 $script:LoadedProviders = @{}
 $script:ProviderModules = @()
 
-# Pre-defined provider module names (alphabetical order)
-$script:KnownProviders = @(
-    "AWS Polly.psm1",
-    "ElevenLabs.psm1",
-    "Google Cloud.psm1",
-    "Microsoft Azure.psm1",
-    "Murf AI.psm1",
-    "OpenAI.psm1",
-    "Telnyx.psm1",
-    "Twilio.psm1"
-)
 
 function Import-TTSProviderModule {
     <#
@@ -52,12 +41,12 @@ function Import-TTSProviderModule {
             }
         }
         
-    Add-ApplicationLog -Module "AllProviders" -Message "Loaded module: $moduleName" -Level "INFO"
+    Add-ApplicationLog -Module "Providers" -Message "Loaded module: $moduleName" -Level "INFO"
         return $true
     }
     catch {
-    Add-ApplicationLog -Module "AllProviders" -Message "Failed to load provider module $ModulePath : $($_.Exception.Message)" -Level "WARNING"
-        Add-ApplicationLog -Module "AllProviders" -Message "Failed to load provider module $ModulePath : $($_.Exception.Message)" -Level "ERROR"
+    Add-ApplicationLog -Module "Providers" -Message "Failed to load provider module $ModulePath : $($_.Exception.Message)" -Level "WARNING"
+        Add-ApplicationLog -Module "Providers" -Message "Failed to load provider module $ModulePath : $($_.Exception.Message)" -Level "ERROR"
         return $false
     }
 }
@@ -68,68 +57,35 @@ function Initialise-TTSProviders {
     Discovers and loads all TTS provider modules
     #>
     
-    Add-ApplicationLog -Module "AllProviders" -Message "Initialising TTS providers" -Level "INFO"
+    Add-ApplicationLog -Module "Providers" -Message "Initialising TTS providers" -Level "INFO"
     
     # Check if Providers directory exists
     if (-not (Test-Path $ProvidersPath)) {
-    Add-ApplicationLog -Module "AllProviders" -Message "Providers directory not found: $ProvidersPath" -Level "WARNING"
-    Add-ApplicationLog -Module "AllProviders" -Message "Creating Providers directory: $ProvidersPath" -Level "INFO"
+    Add-ApplicationLog -Module "Providers" -Message "Providers directory not found: $ProvidersPath" -Level "WARNING"
+    Add-ApplicationLog -Module "Providers" -Message "Creating Providers directory: $ProvidersPath" -Level "INFO"
         New-Item -ItemType Directory -Path $ProvidersPath -Force | Out-Null
     }
     
     $loadedCount = 0
     $failedCount = 0
-    
-    # Load pre-defined providers first (in order)
-    foreach ($providerFile in $script:KnownProviders) {
-        $providerPath = Join-Path $ProvidersPath $providerFile
-        
-        if (Test-Path $providerPath) {
-            # Extract provider name from filename
-            $providerName = $providerFile -replace "\.psm1$", "" -replace "^DECOM-", ""
-            $providerName = switch ($providerName) {
-                "AWS Polly" { "AWS Polly" }
-                "ElevenLabs" { "ElevenLabs" }
-                "Google Cloud" { "Google Cloud" }
-                "Microsoft Azure" { "Microsoft Azure" }
-                "Murf AI" { "Murf AI" }
-                "OpenAI" { "OpenAI" }
-                "Telnyx" { "Telnyx" }
-                "Twilio" { "Twilio" }
-                default { $providerName }
-            }
-            
-            if (Import-TTSProviderModule -ModulePath $providerPath -ProviderName $providerName) {
-                $loadedCount++
-                Add-ApplicationLog -Module "AllProviders" -Message "OK Loaded provider: $providerName" -Level "INFO"
-            }
-            else {
-                $failedCount++
-                Add-ApplicationLog -Module "AllProviders" -Message "FAILED to load: $providerName" -Level "ERROR"
-            }
-        }
-        else {
-            Write-Verbose "Provider module not found: $providerPath"
-        }
-    }
-    
-    # Discover any additional provider modules not in the known list
-    $additionalProviders = Get-ChildItem -Path $ProvidersPath -Filter "*.psm1" -ErrorAction SilentlyContinue |
-        Where-Object { $_.Name -notin $script:KnownProviders -and $_.Name -notmatch "^DECOM-" }
-    
-    foreach ($providerFile in $additionalProviders) {
+
+    # Dynamically discover all provider modules in Providers directory
+    $providerFiles = Get-ChildItem -Path $ProvidersPath -Filter "*.psm1" -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -notmatch "^DECOM-" }
+
+    foreach ($providerFile in $providerFiles) {
         $providerName = $providerFile.BaseName
-        
         if (Import-TTSProviderModule -ModulePath $providerFile.FullName -ProviderName $providerName) {
             $loadedCount++
-            Add-ApplicationLog -Module "AllProviders" -Message "OK Loaded additional provider: $providerName" -Level "INFO"
+            Add-ApplicationLog -Module "Providers" -Message "OK Loaded provider: $providerName" -Level "INFO"
         }
         else {
             $failedCount++
+            Add-ApplicationLog -Module "Providers" -Message "FAILED to load: $providerName" -Level "ERROR"
         }
     }
     
-    Add-ApplicationLog -Module "AllProviders" -Message "TTS Providers initialised: $loadedCount loaded, $failedCount failed" -Level "INFO"
+    Add-ApplicationLog -Module "Providers" -Message "TTS Providers initialised: $loadedCount loaded, $failedCount failed" -Level "INFO"
     
     return @{
         LoadedCount = $loadedCount
@@ -144,7 +100,7 @@ function Test-TTSProviderCapabilities {
     Tests and reports capabilities of all loaded TTS providers
     #>
     
-    Add-ApplicationLog -Module "AllProviders" -Message "Testing TTS provider capabilities" -Level "INFO"
+    Add-ApplicationLog -Module "Providers" -Message "Testing TTS provider capabilities" -Level "INFO"
     
     $results = @{}
     
@@ -179,9 +135,11 @@ function Test-TTSProviderCapabilities {
         }
     }
     
-    # Add any providers that failed to load
-    $allProviderNames = @("AWS Polly", "ElevenLabs", "Google Cloud", "Microsoft Azure", "Murf AI", "OpenAI", "Telnyx", "Twilio")
-    foreach ($providerName in $allProviderNames) {
+    # Add any providers that failed to load (dynamically)
+    $providerFiles = Get-ChildItem -Path $ProvidersPath -Filter "*.psm1" -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -notmatch "^DECOM-" }
+    foreach ($providerFile in $providerFiles) {
+        $providerName = $providerFile.BaseName
         if (-not $results.ContainsKey($providerName)) {
             $results[$providerName] = @{
                 Status = "Not Loaded"
@@ -213,64 +171,26 @@ function Get-TTSProvider {
         
         # Create provider class instance using factory function from module
         try {
-            $instance = switch ($ProviderName) {
-                "AWS Polly" { 
-                    if (Get-Command -Name "New-AWSPollyTTSProviderInstance" -ErrorAction SilentlyContinue) {
-                        New-AWSPollyTTSProviderInstance
-                    } else { $null }
-                }
-                "ElevenLabs" { 
-                    if (Get-Command -Name "New-ElevenLabsTTSProviderInstance" -ErrorAction SilentlyContinue) {
-                        New-ElevenLabsTTSProviderInstance
-                    } else { $null }
-                }
-                "Google Cloud" { 
-                    if (Get-Command -Name "New-GoogleCloudTTSProviderInstance" -ErrorAction SilentlyContinue) {
-                        New-GoogleCloudTTSProviderInstance
-                    } else { $null }
-                }
-                "Microsoft Azure" { 
-                    if (Get-Command -Name "New-AzureTTSProviderInstance" -ErrorAction SilentlyContinue) {
-                        New-AzureTTSProviderInstance
-                    } else { $null }
-                }
-                "Murf AI" { 
-                    if (Get-Command -Name "New-MurfAITTSProviderInstance" -ErrorAction SilentlyContinue) {
-                        New-MurfAITTSProviderInstance
-                    } else { $null }
-                }
-                "OpenAI" { 
-                    if (Get-Command -Name "New-OpenAITTSProviderInstance" -ErrorAction SilentlyContinue) {
-                        New-OpenAITTSProviderInstance
-                    } else { $null }
-                }
-                "Telnyx" { 
-                    if (Get-Command -Name "New-TelnyxTTSProviderInstance" -ErrorAction SilentlyContinue) {
-                        New-TelnyxTTSProviderInstance
-                    } else { $null }
-                }
-                "Twilio" { 
-                    if (Get-Command -Name "New-TwilioTTSProviderInstance" -ErrorAction SilentlyContinue) {
-                        New-TwilioTTSProviderInstance
-                    } else { $null }
-                }
-                default { $null }
+            # Dynamically find factory function for provider
+            $factoryFunction = "New-${ProviderName}TTSProviderInstance" -replace "[\s-]", ""
+            if (Get-Command -Name $factoryFunction -ErrorAction SilentlyContinue) {
+                $instance = & $factoryFunction
+            } else {
+                $instance = $null
             }
-            
             if ($instance) {
                 $providerInfo.Instance = $instance
-                Add-ApplicationLog -Module "AllProviders" -Message "Created provider instance for: $ProviderName" -Level "DEBUG"
+                Add-ApplicationLog -Module "Providers" -Message "Created provider instance for: $ProviderName" -Level "DEBUG"
                 return $instance
             }
         } catch {
-            Add-ApplicationLog -Module "AllProviders" -Message "Failed to create provider instance for ${ProviderName}: $($_.Exception.Message)" -Level "WARNING"
+            Add-ApplicationLog -Module "Providers" -Message "Failed to create provider instance for ${ProviderName}: $($_.Exception.Message)" -Level "WARNING"
         }
-        
         # Fall back to metadata
         return $providerInfo
     }
     
-    Add-ApplicationLog -Module "AllProviders" -Message "Provider not found: $ProviderName" -Level "WARNING"
+    Add-ApplicationLog -Module "Providers" -Message "Provider not found: $ProviderName" -Level "WARNING"
     return $null
 }
 
@@ -296,7 +216,7 @@ function Register-TTSProvider {
     )
     
     $script:LoadedProviders[$ProviderName] = $ProviderInfo
-    Add-ApplicationLog -Module "AllProviders" -Message "Registered TTS provider: $ProviderName" -Level "INFO"
+    Add-ApplicationLog -Module "Providers" -Message "Registered TTS provider: $ProviderName" -Level "INFO"
 }
 
 function Get-ProviderStatus {
@@ -319,19 +239,15 @@ function Get-ProviderStatus {
 }
 
 # Initialise providers on module load
-Add-ApplicationLog -Module "AllProviders" -Message "Initialising TTS Providers..." -Level "INFO"
+Add-ApplicationLog -Module "Providers" -Message "Initialising TTS Providers..." -Level "INFO"
 $initResult = Initialise-TTSProviders
 
 if ($initResult.LoadedCount -eq 0) {
-    Add-ApplicationLog -Module "AllProviders" -Message "No TTS provider modules were loaded!" -Level "WARNING"
-    Add-ApplicationLog -Module "AllProviders" -Message "To add TTS providers, create provider modules in: $ProvidersPath" -Level "INFO"
-    Add-ApplicationLog -Module "AllProviders" -Message "Example provider files:" -Level "INFO"
-    Add-ApplicationLog -Module "AllProviders" -Message "  - Azure.psm1" -Level "INFO"
-    Add-ApplicationLog -Module "AllProviders" -Message "  - GoogleCloud.psm1" -Level "INFO"
-    Add-ApplicationLog -Module "AllProviders" -Message "  - AWSPolly.psm1" -Level "INFO"
+    Add-ApplicationLog -Module "Providers" -Message "No provider modules found in Providers directory." -Level "WARNING"
+    Add-ApplicationLog -Module "Providers" -Message "To add TTS providers, create provider modules in: $ProvidersPath" -Level "INFO"
 }
 else {
-    Add-ApplicationLog -Module "AllProviders" -Message "Successfully loaded $($initResult.LoadedCount) TTS provider(s)" -Level "INFO"
+    Add-ApplicationLog -Module "Providers" -Message "Successfully loaded $($initResult.LoadedCount) TTS provider(s)" -Level "INFO"
 }
 
 # Export functions
@@ -340,7 +256,7 @@ function Show-ProviderConfiguration {
     .SYNOPSIS
     Shows the configuration Dialogue for a specific TTS provider
     .PARAMETER Provider
-    The name of the provider (e.g., "Microsoft Azure", "Amazon Polly")
+    The name of the provider (e.g., "Any available provider module name")
     #>
     param(
         [Parameter(Mandatory=$true)]
@@ -350,33 +266,10 @@ function Show-ProviderConfiguration {
     try {
         Add-ApplicationLog -Message "Opening configuration Dialogue for provider: $Provider" -Level "INFO"
         
-        # Map provider names to their setup functions
-        $setupFunction = switch ($Provider) {
-            "AWS Polly" { "Show-AWSPollyProviderSetup" }
-            "ElevenLabs" { "Show-ElevenLabsProviderSetup" }
-            "Google Cloud" { "Show-GoogleCloudProviderSetup" }
-            "Microsoft Azure" { "Show-AzureProviderSetup" }
-            "Murf AI" { "Show-MurfAIProviderSetup" }
-            "OpenAI" { "Show-OpenAIProviderSetup" }
-            "Telnyx" { "Show-TelnyxProviderSetup" }
-            "Twilio" { "Show-TwilioProviderSetup" }
-            default { $null }
-        }
-        
-        if (-not $setupFunction) {
-            Add-ApplicationLog -Message "No configuration function found for provider: $Provider" -Level "WARNING"
-            [System.Windows.MessageBox]::Show(
-                "Configuration is not available for $Provider",
-                "Provider Configuration",
-                [System.Windows.MessageBoxButton]::OK,
-                [System.Windows.MessageBoxImage]::Information
-            )
-            return
-        }
-        
-        # Check if the function exists
+        # Dynamically map provider name to setup function
+        $setupFunction = "Show-${Provider}ProviderSetup" -replace "[\s-]", ""
         if (-not (Get-Command $setupFunction -ErrorAction SilentlyContinue)) {
-            Add-ApplicationLog -Message "Provider setup function '$setupFunction' not found" -Level "WARNING"
+            Add-ApplicationLog -Message "Provider setup function '$setupFunction' not found for provider: $Provider" -Level "WARNING"
             [System.Windows.MessageBox]::Show(
                 "Configuration function for $Provider is not yet implemented.`n`nFunction expected: $setupFunction",
                 "Provider Configuration",
@@ -385,7 +278,6 @@ function Show-ProviderConfiguration {
             )
             return
         }
-        
         # Call the provider-specific setup function
         Add-ApplicationLog -Message "Calling provider setup function: $setupFunction" -Level "INFO"
         & $setupFunction

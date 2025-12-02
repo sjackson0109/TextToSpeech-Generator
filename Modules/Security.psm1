@@ -203,7 +203,7 @@ function Start-SecuritySystem {
     $script:SecurityConfig.AuditLogPath = $AuditLogPath
     $script:SecurityConfig.SecureStorageEnabled = $EnableSecureStorage
     
-    Add-ApplicationLog -Message "Security system initialised - SecureStorage: $EnableSecureStorage" -Level "INFO"
+     -Message "Security system initialised - SecureStorage: $EnableSecureStorage" -Level "INFO"
 }
 
 function New-SecureConfigurationManager {

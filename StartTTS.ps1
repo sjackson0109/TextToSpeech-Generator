@@ -35,7 +35,29 @@ if (-not $EnableSecureStorage) { $EnableSecureStorage = $true }
 $WarningPreference = 'SilentlyContinue'
 
 
-# Import Logging.psm1 FIRST, before any logging calls
+# Logging helper for script scope (before Logging module is available)
+function Write-ApplicationLog {
+    param(
+        [string]$Message,
+        [string]$Module = "StartTTS",
+        [string]$Level = "INFO"
+    )
+    
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
+    $colour = switch ($Level) {
+        "DEBUG" { "Gray" }
+        "INFO" { "White" }
+        "WARNING" { "Yellow" }
+        "ERROR" { "Red" }
+        "CRITICAL" { "Magenta" }
+        default { "White" }
+    }
+    
+    $output = "[$timestamp] [$Level] [$Module] $Message"
+    Write-Host $output -ForegroundColor $colour
+}
+
+# Import Logging.psm1 - before any modules need it.
 try {
     $loggingModulePath = (Resolve-Path (Join-Path $PSScriptRoot 'Modules\Logging.psm1')).Path
     if (Get-Module -Name Logging) {
@@ -55,29 +77,29 @@ Import-Module (Resolve-Path (Join-Path $PSScriptRoot 'Modules\Performance.psm1')
 try {
     Import-Module (Resolve-Path (Join-Path $PSScriptRoot 'Modules\ShowUIHelper.psm1')).Path -ErrorAction Stop
     $ShowUIAvailable = $true
-    Add-ApplicationLog -Message "ShowUIHelper module loaded successfully." -Level "INFO"
+    Write-ApplicationLog -Message "ShowUIHelper module loaded successfully." -Level "INFO"
 } catch {
     $ShowUIAvailable = $false
-    Add-ApplicationLog -Message "ShowUIHelper module not available (ShowUI not installed). Using fallback GUI." -Level "INFO"
+    Write-ApplicationLog -Message "ShowUIHelper module not available (ShowUI not installed). Using fallback GUI." -Level "INFO"
 }
 
 # Initialise global optimisation objects
 $Global:ConnectionPool = New-OptimisationConnectionPool -Provider 'Default' -MinSize 2 -MaxSize 10
 $Global:AsyncManager = New-OptimisationAsyncManager -MaxConcurrency 5
-Add-ApplicationLog -Message "Performance optimisation module loaded." -Level "INFO"
+Write-ApplicationLog -Message "Performance optimisation module loaded." -Level "INFO"
 # Example usage (can be replaced with real logic):
 $exampleConn = New-OptimisationConnection -Provider 'example-conn'
 Remove-OptimisationConnection $Global:ConnectionPool $exampleConn
 $connCount = $Global:ConnectionPool.Available.Count + $Global:ConnectionPool.Active.Count
 $conn = Get-OptimisationConnection $Global:ConnectionPool
 $asyncResult = Get-OptimisationAsyncSlot $Global:AsyncManager
-Add-ApplicationLog -Message "ConnectionPool count: $connCount, Got: $conn, Async result: $asyncResult" -Level "DEBUG"
+Write-ApplicationLog -Message "ConnectionPool count: $connCount, Got: $conn, Async result: $asyncResult" -Level "DEBUG"
 
 $ErrorActionPreference = "Continue"
 
 # Show GUI using ShowUI if available
 if ($ShowUIAvailable -and -not $RunTests -and -not $ValidateOnly -and -not $ShowHelp) {
-    Add-ApplicationLog -Message "Launching GUI using ShowUI..." -Level "INFO"
+    Write-ApplicationLog -Message "Launching GUI using ShowUI..." -Level "INFO"
     $null = Show-TTSGeneratorGUI -Profile $ConfigProfile
     return
 }
@@ -127,24 +149,22 @@ if ($Verbose) {
 # ============================================================================
 
 
-Add-ApplicationLog -Module "StartTTS" -Message "=== TextToSpeech Generator ===" -Level "INFO"
+Write-ApplicationLog -Module "StartTTS" -Message "=== TextToSpeech Generator ===" -Level "INFO"
 if ($DryRun) {
-    Add-ApplicationLog -Message "DRY RUN MODE - No API calls will be made" -Level "WARNING"
+    Write-ApplicationLog -Message "DRY RUN MODE - No API calls will be made" -Level "WARNING"
 }
 if ($ValidateOnly) {
-    Add-ApplicationLog -Message "VALIDATION ONLY - System validation check" -Level "WARNING"
+    Write-ApplicationLog -Message "VALIDATION ONLY - System validation check" -Level "WARNING"
 }
-Add-ApplicationLog -Message "Initialising modular system..." -Level "INFO"
+Write-ApplicationLog -Message "Initialising modular system..." -Level "INFO"
 
 try {
     # Import all modules with error handling
-    Add-ApplicationLog -Message "Loading modules..." -Level "INFO"
+    Write-ApplicationLog -Message "Loading modules..." -Level "INFO"
     
 
     $ModulesToLoad = @(
         "Modules\Security.psm1",
-        # "Modules\Optimisation.psm1",  # Already imported at top
-        # "Modules\Performance.psm1",   # Already imported at top
         "Modules\Utilities.psm1",
         "Modules\Configuration.psm1",
         "Modules\Validator.psm1",
@@ -158,18 +178,17 @@ try {
         try {
             $modulePath = Join-Path $PSScriptRoot $Module
             if (Test-Path $modulePath) {
-                # Use -Global for all modules except Logging.psm1 (already imported)
                 Import-Module $modulePath -Force -Global -ErrorAction Stop -WarningAction SilentlyContinue 3>$null
-                Add-ApplicationLog -Message "OK $Module" -Level "INFO"
+                Write-ApplicationLog -Message "OK $Module" -Level "INFO"
             }
             else {
-                Add-ApplicationLog -Message "MISSING $Module - Check file path: $modulePath" -Level "WARNING"
-                Add-ApplicationLog -Message "Module not found: $modulePath" -Level "WARNING"
+                Write-ApplicationLog -Message "MISSING $Module - Check file path: $modulePath" -Level "WARNING"
+                Write-ApplicationLog -Message "Module not found: $modulePath" -Level "WARNING"
             }
         }
         catch {
-            Add-ApplicationLog -Message "FAILED $Module : $($_.Exception.Message)" -Level "WARNING"
-            Add-ApplicationLog -Message "Failed to load $Module : $($_.Exception.Message)" -Level "ERROR"
+            Write-ApplicationLog -Message "FAILED $Module : $($_.Exception.Message)" -Level "WARNING"
+            Write-ApplicationLog -Message "Failed to load $Module : $($_.Exception.Message)" -Level "ERROR"
         }
     }
 
@@ -180,18 +199,18 @@ try {
         Add-Type -AssemblyName PresentationFramework -ErrorAction Stop
         $wpfAvailable = $true
     } catch {
-        Add-ApplicationLog -Message "WPF PresentationFramework assembly not available. GUI will be disabled. CLI mode only." -Level "WARNING"
+        Write-ApplicationLog -Message "WPF PresentationFramework assembly not available. GUI will be disabled. CLI mode only." -Level "WARNING"
     }
     if ($wpfAvailable -and (Test-Path $guiModulePath)) {
         try {
             Import-Module $guiModulePath -Force -ErrorAction Stop
-            Add-ApplicationLog -Message "OK Modules\GUI.psm1" -Level "INFO"
+            Write-ApplicationLog -Message "OK Modules\GUI.psm1" -Level "INFO"
         } catch {
-            Add-ApplicationLog -Message "FAILED Modules\GUI.psm1 : $($_.Exception.Message)" -Level "WARNING"
-            Add-ApplicationLog -Message "Failed to load Modules\GUI.psm1 : $($_.Exception.Message)" -Level "ERROR"
+            Write-ApplicationLog -Message "FAILED Modules\GUI.psm1 : $($_.Exception.Message)" -Level "WARNING"
+            Write-ApplicationLog -Message "Failed to load Modules\GUI.psm1 : $($_.Exception.Message)" -Level "ERROR"
         }
     } else {
-        Add-ApplicationLog -Message "Skipping GUI module import. Running in CLI mode only." -Level "INFO"
+        Write-ApplicationLog -Message "Skipping GUI module import. Running in CLI mode only." -Level "INFO"
     }
     
     if ($EnablePerformanceMonitoring) {
@@ -201,10 +220,10 @@ try {
         }
     }
     
-    Add-ApplicationLog -Module "StartTTS" -Message "All modules loaded" -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "All modules loaded" -Level "INFO"
     
     # Initialise systems
-    Add-ApplicationLog -Module "StartTTS" -Message "Initialising systems..." -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "Initialising systems..." -Level "INFO"
     
 
     # Initialise logging system properly
@@ -212,59 +231,59 @@ try {
     $LogLevel = if ($LogLevel) { $LogLevel } else { "INFO" }
     
     try {
-        # Call New-LoggingSystem with proper named parameters (already imported at top)
+        # Call New-LoggingSystem with proper named parameters
         New-LoggingSystem -LogPath $logPath -Level $LogLevel -MaxSizeMB 10 -MaxFiles 5
-        Add-ApplicationLog -Message "Logging system initialised successfully" -Level "INFO"
+        Write-ApplicationLog -Message "Logging system initialised successfully" -Level "INFO"
     } catch {
-        Add-ApplicationLog -Message "Logging system already initialised or parameter mismatch - continuing with existing logging" -Level "INFO"
+        Write-ApplicationLog -Message "Logging system already initialised - appending to existing log" -Level "INFO"
     }
-    Add-ApplicationLog -Module "StartTTS" -Message "TextToSpeech Generator v3.2 starting" -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "TextToSpeech Generator v3.2 starting" -Level "INFO"
     
     if ($EnableSecureStorage) {
         Start-SecuritySystem -EnableSecureStorage $true
-    Add-ApplicationLog -Module "StartTTS" -Message "Security system initialised" -Level "INFO"
+        Write-ApplicationLog -Module "StartTTS" -Message "Security system initialised" -Level "INFO"
     }
     
     $configPath = if ($ConfigPath) { $ConfigPath } else { Join-Path $PSScriptRoot "config.json" }
     $configManager = New-AdvancedConfigurationManager -ConfigPath $configPath
-    Add-ApplicationLog -Module "StartTTS" -Message "Configuration manager initialised" -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "Configuration manager initialised" -Level "INFO"
     $configManager.SetCurrentProfile($ConfigProfile)
-    Add-ApplicationLog -Module "StartTTS" -Message "Configuration profile: $ConfigProfile" -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "Configuration profile: $ConfigProfile" -Level "INFO"
     
     if ($EnablePerformanceMonitoring) {
         try {
             if (Get-Command Start-OperationMonitoring -ErrorAction SilentlyContinue) {
                 Start-OperationMonitoring -OperationName "ApplicationStartup"
-                Add-ApplicationLog -Module "StartTTS" -Message "Performance monitoring enabled" -Level "INFO"
+                Write-ApplicationLog -Module "StartTTS" -Message "Performance monitoring enabled" -Level "INFO"
             } else {
-                Add-ApplicationLog -Module "StartTTS" -Message "Performance monitoring disabled (function not available)" -Level "INFO"
+                Write-ApplicationLog -Module "StartTTS" -Message "Performance monitoring disabled (function not available)" -Level "INFO"
             }
         }
         catch {
-            Add-ApplicationLog -Module "StartTTS" -Message "Performance monitoring disabled (initialisation failed)" -Level "INFO"
+            Write-ApplicationLog -Module "StartTTS" -Message "Performance monitoring disabled (initialisation failed)" -Level "INFO"
         }
     }
     
-    Add-ApplicationLog -Module "StartTTS" -Message "All systems initialised" -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "All systems initialised" -Level "INFO"
     
     # Test system requirements
-    Add-ApplicationLog -Module "StartTTS" -Message "Testing system requirements..." -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "Testing system requirements..." -Level "INFO"
     $requirements = Test-SystemRequirements
     
     if ($requirements.OverallStatus) {
-    Add-ApplicationLog -Module "StartTTS" -Message "System requirements met" -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "System requirements met" -Level "INFO"
     }
     else {
-    Add-ApplicationLog -Module "StartTTS" -Message "Some requirements not optimal:" -Level "WARNING"
+    Write-ApplicationLog -Module "StartTTS" -Message "Some requirements not optimal:" -Level "WARNING"
         foreach ($req in $requirements.GetEnumerator()) {
             if ($req.Value -is [hashtable] -and -not $req.Value.Met) {
-                Add-ApplicationLog -Module "StartTTS" -Message "- $($req.Key): Required $($req.Value.Required), Current $($req.Value.Current)" -Level "WARNING"
+                Write-ApplicationLog -Module "StartTTS" -Message "- $($req.Key): Required $($req.Value.Required), Current $($req.Value.Current)" -Level "WARNING"
             }
         }
     }
     
     # Test TTS providers
-    Add-ApplicationLog -Module "StartTTS" -Message "Testing TTS providers..." -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "Testing TTS providers..." -Level "INFO"
     
     # Check if the function is available
     if (Get-Command Test-TTSProviderCapabilities -ErrorAction SilentlyContinue) {
@@ -273,31 +292,30 @@ try {
         foreach ($provider in $providerCapabilities.Keys) {
             $status = $providerCapabilities[$provider]
             $colour = if ($status.Status -eq "Available") { "Green" } else { "Red" }
-            Add-ApplicationLog -Module "StartTTS" -Message "$provider : $($status.Status)" -Level "INFO"
+            Write-ApplicationLog -Module "StartTTS" -Message "$provider : $($status.Status)" -Level "INFO"
         }
     }
     else {
-    Add-ApplicationLog -Module "StartTTS" -Message "TTS Provider module not loaded - provider testing skipped" -Level "WARNING"
-    Add-ApplicationLog -Module "StartTTS" -Message "TTSProviders module not available - skipping provider tests" -Level "WARNING"
-        
-        # Create a minimal providers list for status display
-        $providerCapabilities = @{
-            "Microsoft Azure" = @{ Status = "Module Missing" }
-            "Google Cloud" = @{ Status = "Module Missing" }
-            "AWS Polly" = @{ Status = "Module Missing" }
-            "Twilio" = @{ Status = "Module Missing" }
-            "VoiceForge" = @{ Status = "Module Missing" }
-            "VoiceWare" = @{ Status = "Module Missing" }
-        }
-        
-        foreach ($provider in $providerCapabilities.Keys) {
-            Add-ApplicationLog -Module "StartTTS" -Message "$provider : Module Missing" -Level "WARNING"
-        }
+    Write-ApplicationLog -Module "StartTTS" -Message "TTS Provider module not loaded - provider testing skipped" -Level "WARNING"
+
+    # Dynamically enumerate all provider modules in Modules/Providers/*.psm1
+    $providerModules = Get-ChildItem -Path (Join-Path $PSScriptRoot 'Modules/Providers/*.psm1') -ErrorAction SilentlyContinue
+    $providerCapabilities = @{}
+    foreach ($providerModule in $providerModules) {
+        $providerName = [System.IO.Path]::GetFileNameWithoutExtension($providerModule.Name)
+        $providerCapabilities[$providerName] = @{ Status = "Module Missing" }
+    }
+    if ($providerCapabilities.Count -eq 0) {
+        Write-ApplicationLog -Module "StartTTS" -Message "No provider modules found in Modules/Providers/ directory." -Level "WARNING"
+    }
+    foreach ($provider in $providerCapabilities.Keys) {
+        Write-ApplicationLog -Module "StartTTS" -Message "$provider : Module Missing" -Level "WARNING"
+    }
     }
     
     # Run tests if requested
     if ($RunTests) {
-    Add-ApplicationLog -Module "StartTTS" -Message "Running test suite..." -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "Running test suite..." -Level "INFO"
         $testPath = Join-Path $PSScriptRoot "Tests\RunTests.ps1"
         if (Test-Path $testPath) {
             $testArgs = @{
@@ -307,31 +325,31 @@ try {
             $testResult = & $testPath @testArgs
             
             if ($LASTEXITCODE -eq 0) {
-                Add-ApplicationLog -Module "StartTTS" -Message "All tests passed" -Level "INFO"
+                Write-ApplicationLog -Module "StartTTS" -Message "All tests passed" -Level "INFO"
             }
             else {
-                Add-ApplicationLog -Module "StartTTS" -Message "Some tests failed" -Level "ERROR"
-                Add-ApplicationLog -Module "StartTTS" -Message "Test suite completed with failures" -Level "WARNING"
+                Write-ApplicationLog -Module "StartTTS" -Message "Some tests failed" -Level "ERROR"
+                Write-ApplicationLog -Module "StartTTS" -Message "Test suite completed with failures" -Level "WARNING"
             }
         }
         else {
-            Add-ApplicationLog -Module "StartTTS" -Message "Test runner not found - skipping tests" -Level "WARNING"
+            Write-ApplicationLog -Module "StartTTS" -Message "Test runner not found - skipping tests" -Level "WARNING"
         }
     }
     
     # Check security configuration
-    Add-ApplicationLog -Module "StartTTS" -Message "Testing security configuration..." -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "Testing security configuration..." -Level "INFO"
     $securityTest = Test-SecurityConfiguration
     
     if ($securityTest.OverallStatus -eq "Pass") {
-    Add-ApplicationLog -Module "StartTTS" -Message "Security configuration valid" -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "Security configuration valid" -Level "INFO"
     }
     else {
-    Add-ApplicationLog -Module "StartTTS" -Message "Security configuration issues detected:" -Level "WARNING"
+    Write-ApplicationLog -Module "StartTTS" -Message "Security configuration issues detected:" -Level "WARNING"
         if ($securityTest.Tests) {
             foreach ($test in $securityTest.Tests) {
                 if ($test.Status -ne "Pass") {
-                    Add-ApplicationLog -Module "StartTTS" -Message "- $($test.Name): $($test.Status) - $($test.Details)" -Level "WARNING"
+                    Write-ApplicationLog -Module "StartTTS" -Message "- $($test.Name): $($test.Status) - $($test.Details)" -Level "WARNING"
                 }
             }
         }
@@ -341,64 +359,59 @@ try {
         try {
             $startupMetrics = Stop-OperationMonitoring -OperationName "ApplicationStartup"
             $startupTime = $startupMetrics.Duration.TotalSeconds.ToString('F2')
-            Add-ApplicationLog -Module "StartTTS" -Message "Application startup completed in ${startupTime}s" -Level "INFO"
+            Write-ApplicationLog -Module "StartTTS" -Message "Application startup completed in ${startupTime}s" -Level "INFO"
         }
         catch {
             # Ignore if monitoring unavailable
         }
     }
     
-    Add-ApplicationLog -Module "StartTTS" -Message "=== System Status Summary ===" -Level "INFO"
-    Add-ApplicationLog -Module "StartTTS" -Message "Configuration Profile: $ConfigProfile" -Level "INFO"
-    Add-ApplicationLog -Module "StartTTS" -Message "Logging: Enabled (Level: $LogLevel, Path: $logPath)" -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "=== System Status Summary ===" -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "Configuration Profile: $ConfigProfile" -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "Logging: Enabled (Level: $LogLevel, Path: $logPath)" -Level "INFO"
     $securityStatus = if ($EnableSecureStorage) { 'Enabled with encryption' } else { 'Basic' }
-    Add-ApplicationLog -Module "StartTTS" -Message "Security: $securityStatus" -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "Security: $securityStatus" -Level "INFO"
     $perfStatus = if ($EnablePerformanceMonitoring) { 'Enabled' } else { 'Disabled' }
-    Add-ApplicationLog -Module "StartTTS" -Message "Performance Monitoring: $perfStatus" -Level "INFO"
-    Add-ApplicationLog -Module "StartTTS" -Message "Available Providers: $($providerCapabilities.Keys.Count)" -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "Performance Monitoring: $perfStatus" -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "Available Providers: $($providerCapabilities.Keys.Count)" -Level "INFO"
     
     # Exit if validation only
     if ($ValidateOnly) {
-    Add-ApplicationLog -Module "StartTTS" -Message "Validation complete. Exiting." -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "Validation complete. Exiting." -Level "INFO"
         exit 0
     }
     
     # Load main application UI (skip in test mode)
     if (-not $TestMode) {
-    Add-ApplicationLog -Module "StartTTS" -Message "Loading main application..." -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "Loading main application..." -Level "INFO"
         
         $guiScriptPath = Join-Path $PSScriptRoot "TextToSpeech-Generator.ps1"
         if (Test-Path $guiScriptPath) {
             Add-Type -AssemblyName PresentationFramework
             Add-Type -AssemblyName System.Windows.Forms
             
-            Add-ApplicationLog -Module "StartTTS" -Message "Loading GUI application" -Level "INFO"
+            Write-ApplicationLog -Module "StartTTS" -Message "Loading GUI application" -Level "INFO"
             
             # Execute the GUI script
             & $guiScriptPath
             
-            Add-ApplicationLog -Module "StartTTS" -Message "Application loaded successfully" -Level "INFO"
+            Write-ApplicationLog -Module "StartTTS" -Message "Application loaded successfully" -Level "INFO"
         }
         else {
-                Add-ApplicationLog -Message "Main application script not found - test mode only" -Level "WARNING"
+                Write-ApplicationLog -Message "Main application script not found - test mode only" -Level "WARNING"
         }
     }
     else {
-        Add-ApplicationLog -Message "Test mode - skipping main application" -Level "INFO"
+        Write-ApplicationLog -Message "Test mode - skipping main application" -Level "INFO"
     }
     
 }
 catch {
-        Add-ApplicationLog -Message "Failed to Initialise application: $($_.Exception.Message)" -Level "ERROR"
-        try {
-            Add-ApplicationLog -Message "Application initialisation failed: $($_.Exception.Message)" -Level "ERROR"
-        }
-        catch {
-            Add-ApplicationLog -Message "Unable to log error: $($_.Exception.Message)" -Level "ERROR"
-        }
+    Write-ApplicationLog -Message "Failed to Initialise application: $($_.Exception.Message)" -Level "ERROR"
     if ($EnablePerformanceMonitoring) {
         try {
             Stop-OperationMonitoring -OperationName "ApplicationStartup"
+            Write-ApplicationLog -Message "Application OperationMonitoring Stopping" -Level "INFO"
         }
         catch {
             # Ignore cleanup errors
@@ -410,38 +423,38 @@ catch {
 # Generate final report if requested
 if ($GenerateReport -and $EnablePerformanceMonitoring) {
     try {
-    Add-ApplicationLog -Module "StartTTS" -Message "Generating performance report..." -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "Generating performance report..." -Level "INFO"
         $report = Get-PerformanceReport
         $reportPath = Join-Path $PSScriptRoot "performance-report.json"
         $report | ConvertTo-Json -Depth 10 | Set-Content -Path $reportPath
-    Add-ApplicationLog -Module "StartTTS" -Message "Performance report saved to: $reportPath" -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "Performance report saved to: $reportPath" -Level "INFO"
         
         if ($report.OperationSummary.Count -gt 0) {
-            Add-ApplicationLog -Module "StartTTS" -Message "Key Performance Metrics:" -Level "INFO"
+            Write-ApplicationLog -Module "StartTTS" -Message "Key Performance Metrics:" -Level "INFO"
             foreach ($op in $report.OperationSummary.Keys) {
                 $summary = $report.OperationSummary[$op]
-                Add-ApplicationLog -Module "StartTTS" -Message "$op : Avg $($summary.AverageDurationMs)ms, Count: $($summary.Count)" -Level "INFO"
+                Write-ApplicationLog -Module "StartTTS" -Message "$op : Avg $($summary.AverageDurationMs)ms, Count: $($summary.Count)" -Level "INFO"
             }
         }
         
         if ($report.Recommendations.Count -gt 0) {
-            Add-ApplicationLog -Module "StartTTS" -Message "Performance Recommendations:" -Level "INFO"
+            Write-ApplicationLog -Module "StartTTS" -Message "Performance Recommendations:" -Level "INFO"
             foreach ($rec in $report.Recommendations) {
-                Add-ApplicationLog -Module "StartTTS" -Message "- $rec" -Level "INFO"
+                Write-ApplicationLog -Module "StartTTS" -Message "- $rec" -Level "INFO"
             }
         }
         
     }
     catch {
-    Add-ApplicationLog -Module "StartTTS" -Message "Failed to generate performance report: $($_.Exception.Message)" -Level "WARNING"
+    Write-ApplicationLog -Module "StartTTS" -Message "Failed to generate performance report: $($_.Exception.Message)" -Level "WARNING"
     }
 }
 
 try {
-    Add-ApplicationLog -Module "StartTTS" -Message "Application session completed" -Level "INFO"
+    Write-ApplicationLog -Module "StartTTS" -Message "Application session completed" -Level "INFO"
 }
 catch {
     # Ignore logging errors during shutdown
 }
 
-Add-ApplicationLog -Message "=== Application Ready ===" -Level "INFO"
+Write-ApplicationLog -Module "StartTTS" -Message "=== Application Ready ===" -Level "INFO"
