@@ -225,11 +225,11 @@ class EnhancedTestFramework {
             try {
                 # Test loading all modules together
                 $modules = @(
-                    "Modules\Logging.psm1",
-                    "Modules\Configuration.psm1",
-                    "Modules\Security.psm1",
-                    "Modules\ErrorRecovery.psm1",
-                    "Modules\Optimisation.psm1"
+                    "modules\Logging.psm1",
+                    "modules\Configuration.psm1",
+                    "modules\Security.psm1",
+                    "modules\ErrorRecovery.psm1",
+                    "modules\Optimisation.psm1"
                 )
                 
                 foreach ($module in $modules) {

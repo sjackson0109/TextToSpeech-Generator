@@ -6,7 +6,7 @@ $ProviderOptimisationSettings = @{
 }
 Export-ModuleMember -Variable 'ProviderOptimisationSettings'
 if (-not (Get-Module -Name 'Logging')) {
-	Import-Module (Join-Path $PSScriptRoot '..\Logging.psm1')
+	Import-Module (Join-Path (Split-Path $PSScriptRoot -Parent) 'modules\Logging.psm1')
 }
 
 # Load required assemblies for GUI Dialogues

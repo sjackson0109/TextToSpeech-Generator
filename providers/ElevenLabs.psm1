@@ -12,7 +12,7 @@ Export-ModuleMember -Variable 'ProviderOptimisationSettings'
 Add-Type -AssemblyName PresentationFramework -ErrorAction SilentlyContinue
 
 if (-not (Get-Module -Name 'Logging')) {
-	Import-Module (Join-Path $PSScriptRoot '..\Logging.psm1')
+	Import-Module (Join-Path (Split-Path $PSScriptRoot -Parent) 'Modules\Logging.psm1')
 }
 
 function Test-ElevenLabsCredentials {

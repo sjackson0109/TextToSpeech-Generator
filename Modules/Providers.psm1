@@ -3,10 +3,9 @@
 if (-not (Get-Module -Name 'Logging')) {
 	Import-Module (Resolve-Path (Join-Path $PSScriptRoot '.\Logging.psm1')).Path
 }
-$ModulePath = $PSScriptRoot
-$ProvidersPath = Join-Path $ModulePath "Providers"
+$ProvidersPath = Join-Path (Split-Path $PSScriptRoot -Parent) "providers"
 
-Write-Verbose "AllProviders module initialising from: $ModulePath"
+Write-Verbose "AllProviders module initialising from: $PSScriptRoot"
 Write-Verbose "Looking for provider modules in: $ProvidersPath"
 
 # Registry of loaded providers
@@ -21,20 +20,20 @@ function Import-TTSProviderModule {
     #>
     param(
         [Parameter(Mandatory=$true)]
-        [string]$ModulePath,
+        [string]$ProviderPath,
         [string]$ProviderName
     )
     
     try {
-        Write-Verbose "Attempting to load provider module: $ModulePath"
-        Import-Module $ModulePath -Force -Global -ErrorAction Stop
+        Write-Verbose "Attempting to load provider module: $ProviderPath"
+        Import-Module $ProviderPath -Force -Global -ErrorAction Stop
         
-        $moduleName = [System.IO.Path]::GetFileNameWithoutExtension($ModulePath)
+        $moduleName = [System.IO.Path]::GetFileNameWithoutExtension($ProviderPath)
         $script:ProviderModules += $moduleName
         
         if ($ProviderName) {
             $script:LoadedProviders[$ProviderName] = @{
-                ModulePath = $ModulePath
+                ModulePath = $ProviderPath
                 ModuleName = $moduleName
                 LoadedAt = Get-Date
                 Status = "Loaded"
@@ -45,8 +44,8 @@ function Import-TTSProviderModule {
         return $true
     }
     catch {
-    Add-ApplicationLog -Module "Providers" -Message "Failed to load provider module $ModulePath : $($_.Exception.Message)" -Level "WARNING"
-        Add-ApplicationLog -Module "Providers" -Message "Failed to load provider module $ModulePath : $($_.Exception.Message)" -Level "ERROR"
+    Add-ApplicationLog -Module "Providers" -Message "Failed to load provider module $ProviderPath : $($_.Exception.Message)" -Level "WARNING"
+        Add-ApplicationLog -Module "Providers" -Message "Failed to load provider module $ProviderPath : $($_.Exception.Message)" -Level "ERROR"
         return $false
     }
 }
