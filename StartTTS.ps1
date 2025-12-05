@@ -7,7 +7,6 @@ param(
     [string]$ConfigProfile,
     [switch]$RunTests,
     [switch]$GenerateReport,
-    [switch]$EnablePerformanceMonitoring,
     [switch]$EnableSecureStorage,
     [switch]$TestMode,
     [switch]$DryRun,
@@ -28,7 +27,7 @@ if ([System.Threading.Thread]::CurrentThread.ApartmentState -ne 'STA') {
 # Set default values
 if (-not $ConfigProfile) { $ConfigProfile = "Development" }
 if (-not $LogLevel) { $LogLevel = "INFO" }
-if (-not $EnablePerformanceMonitoring) { $EnablePerformanceMonitoring = $true }
+$EnablePerformanceMonitoring = $true
 if (-not $EnableSecureStorage) { $EnableSecureStorage = $true }
 
 # Suppress verb warnings for CircuitBreaker module (uses custom UK English verbs)
@@ -112,18 +111,18 @@ USAGE:
   .\StartTTS.ps1 [OPTIONS]
 
 OPTIONS:
-  -ConfigProfile <string>     Configuration profile (Development, Production, Testing)
-  -RunTests                   Run test suites during initialisation
-  -GenerateReport            Generate detailed test reports
-  -TestMode                  Run in test mode only (validate system)
-  -DryRun                    Validate configuration without API calls
-  -ValidateOnly              Only validate configuration
-  -LogLevel <string>         Set logging level (DEBUG, INFO, WARNING, ERROR)
-  -ConfigPath <string>       Path to configuration file
-  -EnablePerformanceMonitoring   Enable performance monitoring
-  -EnableSecureStorage           Enable secure credential storage
-  -Verbose                   Enable verbose output
-  -ShowHelp                  Show this help message
+  -ConfigProfile <string>       Configuration profile (Development, Production, Testing)
+  -RunTests                     Run test suites during initialisation
+  -GenerateReport               Generate detailed test reports
+  -TestMode                     Run in test mode only (validate system)
+  -DryRun                       Validate configuration without API calls
+  -ValidateOnly                 Only validate configuration
+  -LogLevel <string>            Set logging level (DEBUG, INFO, WARNING, ERROR)
+  -ConfigPath <string>          Path to configuration file
+  -EnablePerformanceMonitoring  Enable performance monitoring
+  -EnableSecureStorage          Enable secure credential storage
+  -Verbose                      Enable verbose output
+  -ShowHelp                     Show this help message
 
 EXAMPLES:
   .\StartTTS.ps1
@@ -149,7 +148,7 @@ if ($Verbose) {
 # ============================================================================
 
 
-Write-ApplicationLog-Message "=== TextToSpeech Generator ===" -Level "INFO"
+Write-ApplicationLog -Message "=== TextToSpeech Generator ===" -Level "INFO"
 if ($DryRun) {
     Write-ApplicationLog -Message "DRY RUN MODE - No API calls will be made" -Level "WARNING"
 }
@@ -159,59 +158,53 @@ if ($ValidateOnly) {
 
 try {
     # Import all modules with error handling
-    Write-ApplicationLog -Message "Loading modules..." -Level "INFO"
+    Write-ApplicationLog -Message "Importing modules..." -Level "INFO"
+
+    $ModulesPath = Join-Path $PSScriptRoot "modules"
     $ModulesToLoad = @(
-        "modules\Security.psm1",
-        "modules\Utilities.psm1",
-        "modules\Configuration.psm1",
-        "modules\Validator.psm1",
-        "modules\CircuitBreaker.psm1",
-        "modules\ErrorHandling.psm1",
-        "modules\ErrorRecovery.psm1",
-        "modules\Providers.psm1"
+        "Security.psm1", "Utilities.psm1", "Configuration.psm1", "Validator.psm1",
+        "CircuitBreaker.psm1", "ErrorHandling.psm1", "ErrorRecovery.psm1", "Providers.psm1"
     )
+    if ($EnablePerformanceMonitoring) {
+        $ModulesToLoad += "Performance.psm1"
+    }
     foreach ($Module in $ModulesToLoad) {
         try {
-            $modulePath = Join-Path $PSScriptRoot $Module
-            if (Test-Path $modulePath) {
-                Import-Module $modulePath -Force -Global -ErrorAction Stop -WarningAction SilentlyContinue 3>$null
-                Write-ApplicationLog -Message "Module '$Module' loaded successfully" -Level "INFO"
+            $ModulePath = Join-Path $ModulesPath $Module
+            $ModuleName = $($Module -Replace ".psm1", "")
+            if (Test-Path $ModulePath) {
+                Import-Module $ModulePath -Force -Global -ErrorAction Stop -WarningAction SilentlyContinue 3>$null
+                Write-ApplicationLog -Message "Module $ModuleName loaded successfully" -Level "INFO"
             }
             else {
-                Write-ApplicationLog -Message "Module not found: $modulePath" -Level "WARNING"
+                Write-ApplicationLog -Message "Module file '$ModulePath' not found" -Level "WARNING"
             }
         }
         catch {
-            Write-ApplicationLog -Message "Module '$Module' failed: $($_.Exception.Message)" -Level "WARNING"
+            Write-ApplicationLog -Message "Module '$ModuleName' failed: $($_.Exception.Message)" -Level "WARNING"
         }
     }
 
-    # Try to load PresentationFramework and import GUI module if available
-    $guiModulePath = Join-Path $PSScriptRoot "modules\GUI.psm1"
-    $wpfAvailable = $false
+    
+    # Dynamically import GUI module using clean code pattern
+    $guiModuleName = "GUI.psm1"
+    $guiModulePath = Join-Path $ModulesPath $guiModuleName
     try {
         Add-Type -AssemblyName PresentationFramework -ErrorAction Stop
-        $wpfAvailable = $true
+        if (Test-Path $guiModulePath) {
+            try {
+                Import-Module $guiModulePath -Force -Global -ErrorAction Stop -WarningAction SilentlyContinue 3>$null
+                Write-ApplicationLog -Message "Module 'GUI' loaded successfully" -Level "INFO"
+            } catch {
+                Write-ApplicationLog -Message "Module 'GUI' failed: $($_.Exception.Message)" -Level "WARNING"
+            }
+        } else {
+            Write-ApplicationLog -Message "Module file '$guiModulePath' not found" -Level "WARNING"
+        }
     } catch {
         Write-ApplicationLog -Message "WPF PresentationFramework assembly not available. GUI will be disabled. CLI mode only." -Level "WARNING"
     }
-    if ($wpfAvailable -and (Test-Path $guiModulePath)) {
-        try {
-            Import-Module $guiModulePath -Force -ErrorAction Stop
-            Write-ApplicationLog -Message "Module 'GUI' loaded successfully" -Level "INFO"
-        } catch {
-            Write-ApplicationLog -Message "Module 'GUI' failed: $($_.Exception.Message)" -Level "WARNING"
-        }
-    } else {
-        Write-ApplicationLog -Message "Module 'GUI' NOT loaded intentionally (CLI mode)" -Level "INFO"
-    }
     
-    if ($EnablePerformanceMonitoring) {
-        $perfModule = Join-Path $PSScriptRoot "modules\Performance.psm1"
-        if (Test-Path $perfModule) {
-            Import-Module $perfModule -Force -ErrorAction SilentlyContinue
-        }
-    }
     
     Write-ApplicationLog -Message "All modules loaded" -Level "INFO"
     
@@ -220,30 +213,39 @@ try {
     
 
     # Initialise logging system properly
-    $logPath = Join-Path $PSScriptRoot "application.log"
+    $LogPath = Join-Path $PSScriptRoot "application.log"
     $LogLevel = if ($LogLevel) { $LogLevel } else { "INFO" }
-    
     try {
         # Call New-LoggingSystem with proper named parameters
-        New-LoggingSystem -LogPath $logPath -Level $LogLevel -MaxSizeMB 10 -MaxFiles 5
+        New-LoggingSystem -LogPath $LogPath -Level $LogLevel -MaxSizeMB 10 -MaxFiles 5
         Write-ApplicationLog -Message "Logging system initialised successfully" -Level "INFO"
     } catch {
         Write-ApplicationLog -Message "Logging system already initialised - appending to existing log" -Level "INFO"
     }
-    Write-ApplicationLog -Message "TextToSpeech Generator v3.2 starting" -Level "INFO"
     
+
+    Write-host "Before EnableSecureStorag [$EnableSecureStorage]"
     if ($EnableSecureStorage) {
         Start-SecuritySystem -EnableSecureStorage $true
-        Write-ApplicationLog -Message "Security system initialised" -Level "INFO"
+        Write-ApplicationLog -Message "Secure Storage Initialised" -Level "INFO"
+    } else {
+        Start-SecuritySystem -EnableSecureStorage $false
+        Write-ApplicationLog -Message "Secure Storage not Initialised" -Level "INFO"
     }
     
+    Write-host "Before ConfigPath"
     $configPath = if ($ConfigPath) { $ConfigPath } else { Join-Path $PSScriptRoot "config.json" }
+    Write-ApplicationLog -Message "Configuration file path: $configPath" -Level "DEBUG"
     $configManager = New-AdvancedConfigurationManager -ConfigPath $configPath
     Write-ApplicationLog -Message "Configuration manager initialised" -Level "INFO"
+
+    Write-host "Before SetCurrentProfile"
     $configManager.SetCurrentProfile($ConfigProfile)
     Write-ApplicationLog -Message "Configuration profile: $ConfigProfile" -Level "INFO"
     
     if ($EnablePerformanceMonitoring) {
+        
+        Write-Host "here"
         try {
             if (Get-Command Start-OperationMonitoring -ErrorAction SilentlyContinue) {
                 Start-OperationMonitoring -OperationName "ApplicationStartup"
@@ -291,15 +293,19 @@ try {
     else {
     Write-ApplicationLog -Message "TTS Provider module not loaded - provider testing skipped" -Level "WARNING"
 
-    # Dynamically enumerate all provider modules in Modules/Providers/*.psm1
-    $providerModules = Get-ChildItem -Path (Join-Path $PSScriptRoot 'Modules/Providers/*.psm1') -ErrorAction SilentlyContinue
-    $providerCapabilities = @{}
-    foreach ($providerModule in $providerModules) {
-        $providerName = [System.IO.Path]::GetFileNameWithoutExtension($providerModule.Name)
-        $providerCapabilities[$providerName] = @{ Status = "Module Missing" }
-    }
+        # Use Providers.psm1 to get available providers for capability reporting
+        if (Get-Command Get-AvailableProviders -ErrorAction SilentlyContinue) {
+            $providerList = Get-AvailableProviders
+            $providerCapabilities = @{}
+            foreach ($providerName in $providerList) {
+                $providerCapabilities[$providerName] = @{ Status = "Module Missing" }
+            }
+        } else {
+            Write-ApplicationLog -Message "Get-AvailableProviders function not found in Providers.psm1." -Level "WARNING"
+            $providerCapabilities = @{}
+        }
     if ($providerCapabilities.Count -eq 0) {
-        Write-ApplicationLog -Message "No provider modules found in Modules/Providers/ directory." -Level "WARNING"
+        Write-ApplicationLog -Message "No provider modules found in ./providers/ directory." -Level "WARNING"
     }
     foreach ($provider in $providerCapabilities.Keys) {
         Write-ApplicationLog -Message "$provider : Module Missing" -Level "WARNING"
@@ -338,7 +344,7 @@ try {
     Write-ApplicationLog -Message "Security configuration valid" -Level "INFO"
     }
     else {
-    Write-ApplicationLog -Message "Security configuration issues detected:" -Level "WARNING"
+        Write-ApplicationLog -Message "Security configuration issues detected:" -Level "WARNING"
         if ($securityTest.Tests) {
             foreach ($test in $securityTest.Tests) {
                 if ($test.Status -ne "Pass") {
@@ -361,7 +367,7 @@ try {
     
     Write-ApplicationLog -Message "=== System Status Summary ===" -Level "INFO"
     Write-ApplicationLog -Message "Configuration Profile: $ConfigProfile" -Level "INFO"
-    Write-ApplicationLog -Message "Logging: Enabled (Level: $LogLevel, Path: $logPath)" -Level "INFO"
+    Write-ApplicationLog -Message "Logging: Enabled (Level: $LogLevel, Path: $LogPath)" -Level "INFO"
     $securityStatus = if ($EnableSecureStorage) { 'Enabled with encryption' } else { 'Basic' }
     Write-ApplicationLog -Message "Security: $securityStatus" -Level "INFO"
     $perfStatus = if ($EnablePerformanceMonitoring) { 'Enabled' } else { 'Disabled' }
@@ -374,27 +380,64 @@ try {
         exit 0
     }
     
+
     # Load main application UI (skip in test mode)
     if (-not $TestMode) {
-    Write-ApplicationLog -Message "Loading main application..." -Level "INFO"
-        
-        $guiScriptPath = Join-Path $PSScriptRoot "TextToSpeech-Generator.ps1"
-        if (Test-Path $guiScriptPath) {
-            Add-Type -AssemblyName PresentationFramework
-            Add-Type -AssemblyName System.Windows.Forms
-            
-            Write-ApplicationLog -Message "Loading GUI application" -Level "INFO"
-            
-            # Execute the GUI script
-            & $guiScriptPath
-            
-            Write-ApplicationLog -Message "Application loaded successfully" -Level "INFO"
+        Write-ApplicationLog -Message "Loading main application..." -Level "INFO"
+
+        # Get provider names from Get-AvailableProviders
+        $providerNames = @()
+        if (Get-Command Get-AvailableProviders -ErrorAction SilentlyContinue) {
+            $providerTable = Get-AvailableProviders
+            $providerNames = $providerTable | Select-Object -ExpandProperty Name
+            Write-ApplicationLog -Message "Passing provider names to GUI: $($providerNames -join ', ')" -Level "DEBUG"
+        } else {
+            Write-ApplicationLog -Message "Get-AvailableProviders function not found. Provider list will be empty." -Level "WARNING"
         }
-        else {
-                Write-ApplicationLog -Message "Main application script not found - test mode only" -Level "WARNING"
+
+        # Incorporate main GUI launch logic directly
+        $guiModulePath = Join-Path $PSScriptRoot 'modules/GUI.psm1'
+        $wpfAvailable = $false
+        if (Test-Path $guiModulePath) {
+            try {
+                Add-Type -AssemblyName PresentationFramework -ErrorAction Stop
+                $wpfAvailable = $true
+            } catch {
+                Write-ApplicationLog -Message "WPF PresentationFramework assembly not available. GUI will be disabled. CLI mode only." -Level "WARNING"
+            }
+            if ($wpfAvailable) {
+                try {
+                    Import-Module $guiModulePath -Force -ErrorAction Stop
+                    Write-ApplicationLog -Message "Creating GUI instance..." -Level "INFO"
+                    $gui = New-GUI -Profile "Default" -ProviderNames $providerNames
+
+                    # Show the GUI and keep the application alive
+                    if ($gui -ne $null) {
+                        Write-ApplicationLog -Message "GUI object created, checking Window property..." -Level "INFO"
+                        if ($gui.Window -ne $null) {
+                            Write-ApplicationLog -Message "GUI.Window type: $($gui.Window.GetType().FullName)" -Level "DEBUG"
+                        } else {
+                            Write-ApplicationLog -Message "GUI.Window is null - XAML conversion failed" -Level "ERROR"
+                        }
+                        if ($gui.Window) {
+                            Write-ApplicationLog -Message "Bringing GUI window into focus" -Level "INFO"
+                            $gui.Window.Topmost = $true
+                        } else {
+                            Write-ApplicationLog -Message "GUI window creation failed - Window property is null" -Level "ERROR"
+                        }
+                    } else {
+                        Write-ApplicationLog -Message "GUI creation failed - New-GUI returned null" -Level "ERROR"
+                    }
+                } catch {
+                    Write-ApplicationLog -Message "Main GUI launch failed: $($_.Exception.Message)" -Level "ERROR"
+                }
+            } else {
+                Write-ApplicationLog -Message "GUI module present but WPF unavailable. Running in CLI mode only." -Level "WARNING"
+            }
+        } else {
+            Write-ApplicationLog -Message "GUI module not found. Running in CLI mode only." -Level "WARNING"
         }
-    }
-    else {
+    } else {
         Write-ApplicationLog -Message "Test mode - skipping main application" -Level "INFO"
     }
     

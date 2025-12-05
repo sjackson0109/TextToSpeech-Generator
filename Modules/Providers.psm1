@@ -1,4 +1,21 @@
-﻿# AllProviders Module - TTS Provider Orchestrator
+﻿# Returns a table of available providers with details
+function Get-AvailableProviders {
+    <#
+    .SYNOPSIS
+    Returns a table of all available TTS providers with status and module path
+    #>
+    $table = @()
+    foreach ($providerName in $script:LoadedProviders.Keys) {
+        $info = $script:LoadedProviders[$providerName]
+        $table += [PSCustomObject]@{
+            Name = $providerName
+            Status = $info.Status
+            ModulePath = $info.ModulePath
+        }
+    }
+    return $table
+}
+# AllProviders Module - TTS Provider Orchestrator
 # Dynamically discovers and loads all TTS provider modules
 if (-not (Get-Module -Name 'Logging')) {
 	Import-Module (Resolve-Path (Join-Path $PSScriptRoot '.\Logging.psm1')).Path
@@ -74,7 +91,7 @@ function Initialise-TTSProviders {
 
     foreach ($providerFile in $providerFiles) {
         $providerName = $providerFile.BaseName
-        if (Import-TTSProviderModule -ModulePath $providerFile.FullName -ProviderName $providerName) {
+        if (Import-TTSProviderModule -ProviderPath $providerFile.FullName -ProviderName $providerName) {
             $loadedCount++
             Add-ApplicationLog -Module "Providers" -Message "OK Loaded provider: $providerName" -Level "INFO"
         }
@@ -238,7 +255,6 @@ function Get-ProviderStatus {
 }
 
 # Initialise providers on module load
-Add-ApplicationLog -Module "Providers" -Message "Initialising TTS Providers..." -Level "INFO"
 $initResult = Initialise-TTSProviders
 
 if ($initResult.LoadedCount -eq 0) {
@@ -296,6 +312,7 @@ Export-ModuleMember -Function @(
     'Test-TTSProviderCapabilities',
     'Get-TTSProvider',
     'Get-AvailableTTSProviders',
+    'Get-AvailableProviders',
     'Register-TTSProvider',
     'Get-ProviderStatus',
     'Import-TTSProviderModule',

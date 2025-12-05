@@ -1,6 +1,10 @@
 # Advanced Configuration Module for TextToSpeech Generator
 # PowerShell 5.1 Compatible Version
 
+if (-not (Get-Module -Name 'Logging')) {
+    Import-Module (Join-Path (Split-Path $PSScriptRoot -Parent) 'modules/Logging.psm1')
+}
+
 # Configuration profiles for different environments
 $script:ConfigurationProfiles = @{
     "Development" = @{

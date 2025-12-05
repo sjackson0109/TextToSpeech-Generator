@@ -1,6 +1,10 @@
 # Enhanced Security Module for TextToSpeech Generator
 # Provides certificate-based encryption, secure storage, and audit trails
 
+if (-not (Get-Module -Name 'Logging')) {
+    Import-Module (Join-Path (Split-Path $PSScriptRoot -Parent) 'modules/Logging.psm1')
+}
+
 Add-Type -AssemblyName System.Security
 
 # Security configuration
@@ -203,7 +207,7 @@ function Start-SecuritySystem {
     $script:SecurityConfig.AuditLogPath = $AuditLogPath
     $script:SecurityConfig.SecureStorageEnabled = $EnableSecureStorage
     
-     -Message "Security system initialised - SecureStorage: $EnableSecureStorage" -Level "INFO"
+    Add-ApplicationLog -Module "Security" -Message "Security system initialised - SecureStorage: $EnableSecureStorage" -Level "INFO"
 }
 
 function New-SecureConfigurationManager {

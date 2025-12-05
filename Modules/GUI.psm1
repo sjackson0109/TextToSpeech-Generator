@@ -419,7 +419,7 @@ class GUI {
 	[object]initialiseModernGUI($Profile = "Default", $ConfigurationManager = $null) {
 		$this.CurrentProfile = $Profile
 		$this.ConfigManager = $ConfigurationManager
-		$this.WriteSafeLog("initialising Modern GUI with profile: $Profile", "INFO")
+		$this.WriteSafeLog("Creating Modern GUI with profile: $Profile", "INFO")
 		
 		# Verify WPF availability before proceeding
 		$wpfAvailable = $false
@@ -456,7 +456,7 @@ class GUI {
 				$this.WriteSafeLog("DEBUG: ConvertXAMLtoWindow returned: $($this.Window -ne $null)", "DEBUG")
 			}
 
-			if ($null -eq $this.Window -or ($this.Window.GetType().FullName -ne 'System.Windows.Window')) {
+			if ($null -eq $this.Window -or ($this.Window.GetType().FullName -ne 'System.Windows.Window' -or -not $this.Window.IsLoaded)) {
 				$this.WriteSafeLog("ERROR: Failed to create GUI window from XAML.", "ERROR")
 				return $null
 			}
@@ -790,18 +790,23 @@ class GUI {
 		#>
 		$this.WriteSafeLog("Populating provider dropdown manually", "INFO")
 		
-		$providerFiles = Get-ChildItem -Path (Join-Path $PSScriptRoot 'Providers') -Filter '*.psm1' | Sort-Object Name
-		$this.Window.ProviderSelect.Items.Clear()
-		foreach ($file in $providerFiles) {
-			$providerName = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
-			$item = New-Object System.Windows.Controls.ComboBoxItem
-			$item.Content = $providerName
-			$this.Window.ProviderSelect.Items.Add($item) | Out-Null
-		}
-		# Select first provider by default
-		if ($this.Window.ProviderSelect.Items.Count -gt 0) {
-			$this.Window.ProviderSelect.SelectedIndex = 0
-			$this.WriteSafeLog("Provider dropdown populated with $($this.Window.ProviderSelect.Items.Count) providers", "INFO")
+		# Use Get-AvailableProviders to get provider table and extract names
+		if (Get-Command Get-AvailableProviders -ErrorAction SilentlyContinue) {
+			$providerTable = Get-AvailableProviders
+			$providerNames = $providerTable | Select-Object -ExpandProperty Name
+			$this.Window.ProviderSelect.Items.Clear()
+			foreach ($providerName in $providerNames) {
+				$item = New-Object System.Windows.Controls.ComboBoxItem
+				$item.Content = $providerName
+				$this.Window.ProviderSelect.Items.Add($item) | Out-Null
+			}
+			# Select first provider by default
+			if ($this.Window.ProviderSelect.Items.Count -gt 0) {
+				$this.Window.ProviderSelect.SelectedIndex = 0
+				$this.WriteSafeLog("Provider dropdown populated with $($this.Window.ProviderSelect.Items.Count) providers", "INFO")
+			}
+		} else {
+			$this.WriteSafeLog("Get-AvailableProviders function not found. Provider dropdown not populated.", "ERROR")
 		}
 	}
 
