@@ -421,7 +421,7 @@ class GUI {
 		$this.ConfigManager = $ConfigurationManager
 		$this.WriteSafeLog("Creating Modern GUI with profile: $Profile", "INFO")
 		
-		# Verify WPF availability before proceeding
+		$this.ConfigManager = $ConfigurationManager
 		$wpfAvailable = $false
 		try {
 			# Ensure PresentationFramework.dll is loaded
@@ -456,7 +456,7 @@ class GUI {
 				$this.WriteSafeLog("DEBUG: ConvertXAMLtoWindow returned: $($this.Window -ne $null)", "DEBUG")
 			}
 
-			if ($null -eq $this.Window -or ($this.Window.GetType().FullName -ne 'System.Windows.Window' -or -not $this.Window.IsLoaded)) {
+			if ($null -eq $this.Window) {
 				$this.WriteSafeLog("ERROR: Failed to create GUI window from XAML.", "ERROR")
 				return $null
 			}
@@ -1303,6 +1303,7 @@ class GUI {
 			if ($_.Exception.InnerException) {
 				$msg += " | InnerException: $($_.Exception.InnerException.Message)"
 			}
+			$msg += "`nFull Exception:`n$($_.Exception.ToString())"
 			$this.WriteSafeLog($msg, "ERROR")
 			return $null
 		}

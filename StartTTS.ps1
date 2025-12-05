@@ -409,7 +409,7 @@ try {
                 try {
                     Import-Module $guiModulePath -Force -ErrorAction Stop
                     Write-ApplicationLog -Message "Creating GUI instance..." -Level "INFO"
-                    $gui = New-GUI -Profile "Default" -ProviderNames $providerNames
+                    $gui = New-GUI -Profile "Default"
 
                     # Show the GUI and keep the application alive
                     if ($gui -ne $null) {
