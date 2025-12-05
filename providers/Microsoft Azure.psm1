@@ -1125,3 +1125,12 @@ function New-AzureTTSProviderInstance {
 }
 
 Export-ModuleMember -Function 'Invoke-AzureTTS', 'New-AzureTTSProviderInstance'
+
+function Get-TTSProviderInfo {
+    [PSCustomObject]@{
+        Name        = 'MicrosoftAzure'
+        DisplayName = 'Microsoft Azure'
+        Description = 'Microsoft Azure Cognitive Services TTS'
+    }
+}
+Export-ModuleMember -Function Get-TTSProviderInfo

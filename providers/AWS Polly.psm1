@@ -733,7 +733,7 @@ function Invoke-PollyTTS {
 		# Native REST API call to AWS Polly will be implemented here (SigV4 signing required)
 		throw "Native AWS Polly REST API call not yet implemented."
 	} catch {
-	Add-ApplicationLog -Module "AWSPolly" -Message "AWS Polly TTS failed: $($_.Exception.Message)" -Level "ERROR"
+		Add-ApplicationLog -Module "AWSPolly" -Message "AWS Polly TTS failed: $($_.Exception.Message)" -Level "ERROR"
 		$placeholderContent = "AWS Polly TTS fallback - API error occurred`nText: $Text`nVoice: $Voice"
 		Set-Content -Path $OutputPath -Value $placeholderContent -Encoding UTF8
 		return @{ Success = $false; Error = $_.Exception.Message; Message = "Using fallback due to API error" }
@@ -752,3 +752,12 @@ function New-AWSPollyTTSProviderInstance {
 }
 
 Export-ModuleMember -Function 'Invoke-PollyTTS', 'New-AWSPollyTTSProviderInstance'
+
+function Get-TTSProviderInfo {
+    [PSCustomObject]@{
+        Name        = 'AWSPolly'
+        DisplayName = 'AWS Polly'
+        Description = 'Amazon text-to-speech service'
+    }
+}
+Export-ModuleMember -Function Get-TTSProviderInfo

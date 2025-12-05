@@ -483,3 +483,12 @@ function New-ElevenLabsTTSProviderInstance {
 }
 
 Export-ModuleMember -Function 'New-ElevenLabsTTSProviderInstance'
+
+function Get-TTSProviderInfo {
+    [PSCustomObject]@{
+        Name        = 'ElevenLabs'
+        DisplayName = 'ElevenLabs'
+        Description = 'ElevenLabs neural text-to-speech service'
+    }
+}
+Export-ModuleMember -Function Get-TTSProviderInfo

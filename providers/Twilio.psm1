@@ -462,3 +462,12 @@ function New-TwilioTTSProviderInstance {
 }
 
 Export-ModuleMember -Function 'New-TwilioTTSProviderInstance'
+
+function Get-TTSProviderInfo {
+    [PSCustomObject]@{
+        Name        = 'Twilio'
+        DisplayName = 'Twilio'
+        Description = 'Twilio text-to-speech service'
+    }
+}
+Export-ModuleMember -Function Get-TTSProviderInfo

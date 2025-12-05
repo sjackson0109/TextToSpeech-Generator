@@ -700,4 +700,11 @@ function Show-OpenAIProviderSetup {
     }
 }
 
-Export-ModuleMember -Function Test-OpenAICredentials, Get-OpenAIVoiceOptions, New-OpenAITTSProviderInstance, Show-OpenAIProviderSetup
+function Get-TTSProviderInfo {
+    [PSCustomObject]@{
+        Name        = 'OpenAI'
+        DisplayName = 'OpenAI'
+        Description = 'OpenAI text-to-speech service'
+    }
+}
+Export-ModuleMember -Function Test-OpenAICredentials, Get-OpenAIVoiceOptions, New-OpenAITTSProviderInstance, Show-OpenAIProviderSetup, Get-TTSProviderInfo

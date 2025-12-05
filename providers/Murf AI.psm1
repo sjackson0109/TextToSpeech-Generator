@@ -512,3 +512,12 @@ function New-MurfAITTSProviderInstance {
 }
 
 Export-ModuleMember -Function 'New-MurfAITTSProviderInstance'
+
+function Get-TTSProviderInfo {
+    [PSCustomObject]@{
+        Name        = 'MurfAI'
+        DisplayName = 'Murf AI'
+        Description = 'Murf AI text-to-speech service'
+    }
+}
+Export-ModuleMember -Function Get-TTSProviderInfo

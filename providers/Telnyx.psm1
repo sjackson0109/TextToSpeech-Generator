@@ -519,4 +519,11 @@ function New-TelnyxTTSProviderInstance {
     return $provider
 }
 
-Export-ModuleMember -Function Test-TelnyxCredentials, Get-TelnyxVoiceOptions, New-TelnyxTTSProviderInstance
+function Get-TTSProviderInfo {
+    [PSCustomObject]@{
+        Name        = 'Telnyx'
+        DisplayName = 'Telnyx'
+        Description = 'Telnyx text-to-speech service'
+    }
+}
+Export-ModuleMember -Function Test-TelnyxCredentials, Get-TelnyxVoiceOptions, New-TelnyxTTSProviderInstance, Get-TTSProviderInfo

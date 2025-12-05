@@ -2,15 +2,39 @@
 function Get-AvailableProviders {
     <#
     .SYNOPSIS
-    Returns a table of all available TTS providers with status and module path
+    Returns a table of all available TTS providers with metadata
     #>
     $table = @()
     foreach ($providerName in $script:LoadedProviders.Keys) {
         $info = $script:LoadedProviders[$providerName]
-        $table += [PSCustomObject]@{
-            Name = $providerName
-            Status = $info.Status
-            ModulePath = $info.ModulePath
+        $modulePath = $info.ModulePath
+        # Import module if not already loaded
+        if ($modulePath -and -not (Get-Module -Name $info.ModuleName)) {
+            Import-Module $modulePath -Force -Global -ErrorAction SilentlyContinue
+        }
+        # Try to get provider metadata
+        $providerInfo = $null
+        try {
+            if (Get-Command Get-TTSProviderInfo -Module $info.ModuleName -ErrorAction SilentlyContinue) {
+                $providerInfo = & (Get-Command Get-TTSProviderInfo -Module $info.ModuleName)
+            }
+        } catch {}
+        if ($providerInfo -and $providerInfo.Name -and $providerInfo.DisplayName) {
+            $table += [PSCustomObject]@{
+                Name        = $providerInfo.Name
+                DisplayName = $providerInfo.DisplayName
+                Description = $providerInfo.Description
+                Status      = $info.Status
+                ModulePath  = $modulePath
+            }
+        } else {
+            $table += [PSCustomObject]@{
+                Name        = $providerName
+                DisplayName = $providerName
+                Description = ''
+                Status      = $info.Status
+                ModulePath  = $modulePath
+            }
         }
     }
     return $table
@@ -77,8 +101,8 @@ function Initialise-TTSProviders {
     
     # Check if Providers directory exists
     if (-not (Test-Path $ProvidersPath)) {
-    Add-ApplicationLog -Module "Providers" -Message "Providers directory not found: $ProvidersPath" -Level "WARNING"
-    Add-ApplicationLog -Module "Providers" -Message "Creating Providers directory: $ProvidersPath" -Level "INFO"
+        Add-ApplicationLog -Module "Providers" -Message "Providers directory not found: $ProvidersPath" -Level "WARNING"
+        Add-ApplicationLog -Module "Providers" -Message "Creating Providers directory: $ProvidersPath" -Level "INFO"
         New-Item -ItemType Directory -Path $ProvidersPath -Force | Out-Null
     }
     

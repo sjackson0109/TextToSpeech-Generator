@@ -687,3 +687,12 @@ function New-GoogleCloudTTSProviderInstance {
 }
 
 Export-ModuleMember -Function 'Invoke-GoogleCloudTTS', 'New-GoogleCloudTTSProviderInstance'
+
+function Get-TTSProviderInfo {
+    [PSCustomObject]@{
+        Name        = 'GoogleCloud'
+        DisplayName = 'Google Cloud'
+        Description = 'Google Cloud Text-to-Speech service'
+    }
+}
+Export-ModuleMember -Function Get-TTSProviderInfo
