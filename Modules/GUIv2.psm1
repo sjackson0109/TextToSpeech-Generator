@@ -1,4 +1,4 @@
-﻿# GUIModule.psm1 - Unified GUI module for TextToSpeech Generator
+# GUIModule.psm1 - Unified GUI module for TextToSpeech Generator
 # Consolidates all GUI logic, event handlers, configuration, and provider setup Dialogueueueueueues
 
 # Load required WPF assemblies for GUI functionality - check first, then load if needed
@@ -485,7 +485,7 @@ class GUI {
                                 $providerCount = $this.Window.ProviderSelect.Items.Count
                                 $this.WriteSafeLog("ProviderSelect has $providerCount items", "INFO")
                                 if ($providerCount -eq 0) {
-                                        $this.WriteSafeLog("ProviderSelect dropdown is empty! Adding providers manually...", "DEBUG")
+                                        $this.WriteSafeLog("ProviderSelect dropdown is empty! Adding providers manually...", "WARNING")
                                         $this.PopulateProviderDropdown()
                                 } else {
                                         $this.WriteSafeLog("ProviderSelect items loaded from XAML successfully", "INFO")
@@ -566,7 +566,7 @@ class GUI {
                         }
                         
                 } catch {
-                        $this.WriteSafeLog("Failed to auto-load configuration: $($($_.Exception).Message)", "WARNING")
+                        $this.WriteSafeLog("Failed to auto-load configuration: $($_.Exception.Message)", "WARNING")
                 }
         }
         
@@ -637,7 +637,7 @@ class GUI {
                                                 }
                                         }
                                 } catch {
-                                        $this.WriteSafeLog("Failed to load saved config for $Provider`: $($($_.Exception).Message)", "WARNING")
+                                        $this.WriteSafeLog("Failed to load saved config for $Provider`: $($_.Exception.Message)", "WARNING")
                                 }
                         }
                         
@@ -665,7 +665,7 @@ class GUI {
                                         
                                         $this.WriteSafeLog("Configuration saved for $Provider", "INFO")
                                 }               } catch {
-                        $this.WriteSafeLog("Error showing configuration Dialogue for $Provider`: $($($_.Exception).Message)", "ERROR")
+                        $this.WriteSafeLog("Error showing configuration Dialogue for $Provider`: $($_.Exception.Message)", "ERROR")
                         [System.Windows.MessageBox]::Show(
                                 "Error opening configuration Dialogue:`n$($_.Exception.Message)",
                                 "Configuration Error",
@@ -784,63 +784,27 @@ class GUI {
         [void]PopulateProviderDropdown() {
                 <#
                 .SYNOPSIS
-                Manually populates the Provider dropdown if XAML items didn't load
+                        Manually populates the Provider dropdown if XAML items didn't load
                 #>
                 $this.WriteSafeLog("Populating provider dropdown manually", "INFO")
                 
-                # Error handling for missing provider functions in dropdown population
+                # Use Get-AvailableProviders to get provider table and extract names
                 if (Get-Command Get-AvailableProviders -ErrorAction SilentlyContinue) {
                         $providerTable = Get-AvailableProviders
-                        if (-not $providerTable) {
-                                $this.WriteSafeLog("No providers returned from Get-AvailableProviders", "WARNING")
-                                return
-                        }
-                        $sortedProviders = $providerTable | Where-Object { $_.Status -eq 'Loaded' } | Sort-Object DisplayName
+                        $providerNames = $providerTable | Select-Object -ExpandProperty Name
                         $this.Window.ProviderSelect.Items.Clear()
-                        $defaultItem = New-Object System.Windows.Controls.ComboBoxItem
-                        $defaultItem.Content = "– Select a provider –"
-                        $defaultItem.Tag = $null
-                        $this.Window.ProviderSelect.Items.Add($defaultItem) | Out-Null
-                        foreach ($provider in $sortedProviders) {
-                                $hasInfo = $true
-                                try {
-                                        if (-not (Get-Command Get-TTSProviderInfo -Module $provider.Name -ErrorAction SilentlyContinue)) {
-                                                $hasInfo = $false
-                                        }
-                                } catch { $hasInfo = $false }
-                                if ($hasInfo) {
-                                        $item = New-Object System.Windows.Controls.ComboBoxItem
-                                        $item.Content = $provider.DisplayName
-                                        $item.Tag     = $provider.Name
-                                        $this.Window.ProviderSelect.Items.Add($item) | Out-Null
-                                } else {
-                                        $this.WriteSafeLog("Provider module '$($provider.Name)' missing Get-TTSProviderInfo function. Skipping from dropdown.", "WARNING")
-                                }
+                        foreach ($providerName in $providerNames) {
+                                $item = New-Object System.Windows.Controls.ComboBoxItem
+                                $item.Content = $providerName
+                                $this.Window.ProviderSelect.Items.Add($item) | Out-Null
                         }
-                        $this.WriteSafeLog("Provider dropdown populated with $($this.Window.ProviderSelect.Items.Count) items (including default)", "INFO")
-                        # Do not auto-select first provider; leave default selected
-                        $this.Window.ProviderSelect.SelectedIndex = 0
+                        # Select first provider by default
+                        if ($this.Window.ProviderSelect.Items.Count -gt 0) {
+                                $this.Window.ProviderSelect.SelectedIndex = 0
+                                $this.WriteSafeLog("Provider dropdown populated with $($this.Window.ProviderSelect.Items.Count) providers", "INFO")
+                        }
                 } else {
                         $this.WriteSafeLog("Get-AvailableProviders function not found. Provider dropdown not populated.", "ERROR")
-                }
-                
-                # Usability tweak: remember last used provider from config.json
-                try {
-                    $configPath = Join-Path $PSScriptRoot "..\config.json"
-                    if (Test-Path $configPath) {
-                        $savedConfig = Get-Content $configPath -Raw | ConvertFrom-Json
-                        if ($savedConfig.Provider) {
-                            foreach ($item in $this.Window.ProviderSelect.Items) {
-                                if ($item.Tag -eq $savedConfig.Provider) {
-                                    $this.Window.ProviderSelect.SelectedItem = $item
-                                    $this.WriteSafeLog("Restored last used provider: $($item.Content)", "INFO")
-                                    break
-                                }
-                            }
-                        }
-                    }
-                } catch {
-                    $this.WriteSafeLog("Failed to restore last used provider: $($_.Exception.Message)", "WARNING")
                 }
         }
         
@@ -949,7 +913,7 @@ class GUI {
                                                                         }
                                                                 }
                                                         } catch {
-                                                                $gui.WriteSafeLog("Failed to load config for $selectedProvider`: $($($_.Exception).Message)", "WARNING")
+                                                                $gui.WriteSafeLog("Failed to load config for $selectedProvider`: $($_.Exception.Message)", "WARNING")
                                                         }
                                                 }
                                                 
@@ -1077,7 +1041,7 @@ class GUI {
                                                 )
                                         }
                                 } catch {
-                                        $gui.WriteSafeLog("Failed to export log: $($($_.Exception).Message)", "ERROR")
+                                        $gui.WriteSafeLog("Failed to export log: $($_.Exception.Message)", "ERROR")
                                         [System.Windows.MessageBox]::Show(
                                                 "Failed to export log:`n$($_.Exception.Message)",
                                                 "Export Error",
@@ -1150,7 +1114,7 @@ class GUI {
                                                 [System.Windows.MessageBoxImage]::Information
                                         )
                                 } catch {
-                                        $gui.WriteSafeLog("Failed to save configuration: $($($_.Exception).Message)", "ERROR")
+                                        $gui.WriteSafeLog("Failed to save configuration: $($_.Exception.Message)", "ERROR")
                                         [System.Windows.MessageBox]::Show(
                                                 "Failed to save configuration:`n$($_.Exception.Message)",
                                                 "Save Error",
@@ -1198,7 +1162,7 @@ class GUI {
                                                 [System.Windows.MessageBoxImage]::Information
                                         )
                                 } catch {
-                                        $gui.WriteSafeLog("Failed to load configuration: $($($_.Exception).Message)", "ERROR")
+                                        $gui.WriteSafeLog("Failed to load configuration: $($_.Exception.Message)", "ERROR")
                                         [System.Windows.MessageBox]::Show(
                                                 "Failed to load configuration:`n$($_.Exception.Message)",
                                                 "Load Error",
@@ -1254,7 +1218,7 @@ class GUI {
                                                         [System.Windows.MessageBoxImage]::Information
                                                 )
                                         } catch {
-                                                $gui.WriteSafeLog("Failed to reset configuration: $($($_.Exception).Message)", "ERROR")
+                                                $gui.WriteSafeLog("Failed to reset configuration: $($_.Exception.Message)", "ERROR")
                                                 [System.Windows.MessageBox]::Show(
                                                         "Failed to reset configuration:`n$($_.Exception.Message)",
                                                         "Reset Error",
@@ -1266,142 +1230,6 @@ class GUI {
                         }.GetNewClosure())
                 }
                 
-                # Browse Input button event
-                if ($this.Window.BrowseInput) {
-                        $this.Window.BrowseInput.add_Click({
-                                $browseInputDialog = New-Object Microsoft.Win32.OpenFileDialog
-                                $browseInputDialog.Filter = "Text files (*.txt, *.csv)|*.txt;*.csv|All files (*.*)|*.*"
-                                $browseInputDialog.Title = "Select Input Text or CSV File"
-                                if ($browseInputDialog.ShowDialog()) {
-                                        $this.Window.InputFile.Text = $browseInputDialog.FileName
-                                        $this.WriteSafeLog("Input file selected: $($browseInputDialog.FileName)", "INFO")
-                                }
-                        }.GetNewClosure())
-                }
-
-                # Browse Output button event
-                if ($this.Window.BrowseOutput) {
-                        $this.Window.BrowseOutput.add_Click({
-                                $browseOutputDialog = New-Object Microsoft.Win32.SaveFileDialog
-                                $browseOutputDialog.Filter = "Audio files (*.mp3, *.wav)|*.mp3;*.wav|All files (*.*)|*.*"
-                                $browseOutputDialog.Title = "Select Output Audio File"
-                                if ($browseOutputDialog.ShowDialog()) {
-                                        $this.Window.OutputFile.Text = $browseOutputDialog.FileName
-                                        $this.WriteSafeLog("Output file selected: $($browseOutputDialog.FileName)", "INFO")
-                                }
-                        }.GetNewClosure())
-                }
-
-                # Import CSV button event
-                if ($this.Window.ImportCSV) {
-                        $this.Window.ImportCSV.add_Click({
-                                if ($this.Window.BulkMode.IsChecked) {
-                                        $csvDialog = New-Object Microsoft.Win32.OpenFileDialog
-                                        $csvDialog.Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*"
-                                        $csvDialog.Title = "Select Bulk CSV File"
-                                        if ($csvDialog.ShowDialog()) {
-                                                $csvPath = $csvDialog.FileName
-                                                $this.Window.InputFile.Text = $csvPath
-                                                $this.WriteSafeLog("Bulk CSV file selected: $csvPath", "INFO")
-                                                try {
-                                                        $rows = Import-Csv -Path $csvPath
-                                                        $providerItem = $this.Window.ProviderSelect.SelectedItem
-                                                        $providerName = $providerItem.Tag
-                                                        $providerInstance = Get-TTSProvider -ProviderName $providerName
-                                                        if (-not $providerInstance) {
-                                                                $this.WriteSafeLog("Provider instance not found for $providerName", "ERROR")
-                                                                return
-                                                        }
-                                                        $progressBar = $this.Window.ProgressBar
-                                                        $total = $rows.Count
-                                                        $count = 0
-                                                        foreach ($row in $rows) {
-                                                                $text = $row.Text
-                                                                $outputFile = $this.Window.OutputFile.Text
-                                                                try {
-                                                                        $providerInstance.ProcessTTS($text, $outputFile)
-                                                                        $count++
-                                                                        if ($progressBar) {
-                                                                                $progressBar.Value = [math]::Round(($count/$total)*100)
-                                                                        }
-                                                                        $this.WriteSafeLog("Processed row $count/$total", "INFO")
-                                                                } catch {
-                                                                        $this.WriteSafeLog("Error processing row: $($($_.Exception).Message)", "ERROR")
-                                                                }
-                                                        }
-                                                        $this.WriteSafeLog("Bulk CSV processing complete.", "INFO")
-                                                } catch {
-                                                        $this.WriteSafeLog("Failed to import CSV: $($_.Exception.Message)", "ERROR")
-                                                }
-                                        }
-                                } else {
-                                        $this.WriteSafeLog("Bulk mode not enabled. Import CSV ignored.", "INFO")
-                                }
-                        }.GetNewClosure())
-                }
-
-                # Generate Speech button event
-                if ($this.Window.GenerateSpeech) {
-                        $this.Window.GenerateSpeech.add_Click({
-                                try {
-                                        $providerItem = $this.Window.ProviderSelect.SelectedItem
-                                        $providerName = $providerItem.Tag
-                                        if (-not $providerName) {
-                                                $this.WriteSafeLog("No provider selected for speech generation.", "ERROR")
-                                                return
-                                        }
-                                        $providerInstance = Get-TTSProvider -ProviderName $providerName
-                                        if (-not $providerInstance) {
-                                                $this.WriteSafeLog("Provider instance not found for $providerName", "ERROR")
-                                                return
-                                        }
-                                        $text = $this.Window.TextInput.Text
-                                        $outputFile = $this.Window.OutputFile.Text
-                                        # Collect dynamic voice options from VoiceOptionsPanel
-                                        $voiceOptions = @{
-                                        }
-                                        $voicePanel = $this.Window.VoiceOptionsPanel
-                                        if ($voicePanel -and $voicePanel.Children.Count -gt 0) {
-                                                foreach ($child in $voicePanel.Children) {
-                                                        if ($child.GetType().Name -eq "ComboBox") {
-                                                                $voiceOptions[$child.Name] = $child.SelectedItem
-                                                        } elseif ($child.GetType().Name -eq "TextBox") {
-                                                                $voiceOptions[$child.Name] = $child.Text
-                                                        } elseif ($child.GetType().Name -eq "Slider") {
-                                                                $voiceOptions[$child.Name] = $child.Value
-                                                        }
-                                                }
-                                        }
-                                        # Pass options to provider instance if supported
-                                        if ($providerInstance.PSObject.Properties.Name -contains "VoiceOptions") {
-                                                $providerInstance.VoiceOptions = $voiceOptions
-                                        }
-                                        
-                                        # Error handling for missing ProcessTTS in GenerateSpeech
-                                        if ($providerInstance -and -not ($providerInstance.PSObject.Methods.Name -contains 'ProcessTTS')) {
-                                                $this.WriteSafeLog("Provider '$providerName' missing ProcessTTS method. Cannot generate speech.", "ERROR")
-                                                return
-                                        }
-                                        
-                                        $progressBar = $this.Window.ProgressBar
-                                        if ($text -and $outputFile) {
-                                                $this.WriteSafeLog("Generating speech for input text...", "INFO")
-                                                try {
-                                                        $providerInstance.ProcessTTS($text, $outputFile)
-                                                        if ($progressBar) { $progressBar.Value = 100 }
-                                                        $this.WriteSafeLog("Speech generation complete.", "INFO")
-                                                } catch {
-                                                        $this.WriteSafeLog("Error during speech generation: $($($_.Exception).Message)", "ERROR")
-                                                        if ($progressBar) { $progressBar.Value = 0 }
-                                                }
-                                        } else {
-                                                $this.WriteSafeLog("Text input or output file missing.", "ERROR")
-                                        }
-                                } catch {
-                                        $this.WriteSafeLog("Exception in GenerateSpeech handler: $($($_.Exception).Message)", "ERROR")
-                                }
-                        }.GetNewClosure())
-                }
                 $this.WriteSafeLog("Event handlers wired successfully", "DEBUG")
         }
         
@@ -1515,7 +1343,7 @@ function Show-AdvancedVoiceSettings {
                 # Get provider instance
                 $providerInstance = Get-TTSProvider -ProviderName $Provider
                 if (-not $providerInstance) {
-                        Add-ApplicationLog -Module "GUI" -Module "GUI" -Message "Provider instance not found for $Provider" -Level "ERROR"
+                        Add-ApplicationLog -Module "GUI" -Message "Provider instance not found for $Provider" -Level "ERROR"
                         [System.Windows.MessageBox]::Show(
                                 "Provider not found. Please ensure the provider module is loaded.",
                                 "Advanced Settings Error",
@@ -1527,7 +1355,7 @@ function Show-AdvancedVoiceSettings {
                 
                 # Check if provider has ShowAdvancedVoiceDialog method
                 if (-not ($providerInstance.PSObject.Methods.Name -contains 'ShowAdvancedVoiceDialog')) {
-                        Add-ApplicationLog -Module "GUI" -Module "GUI" -Message "Advanced voice Dialogue not yet implemented for $Provider" -Level "WARNING"
+                        Add-ApplicationLog -Module "GUI" -Message "Advanced voice Dialogue not yet implemented for $Provider" -Level "WARNING"
                         [System.Windows.MessageBox]::Show(
                                 "Advanced voice settings are not yet implemented for $Provider.`n`nThis feature is currently available for OpenAI only.",
                                 "Advanced Settings",
@@ -1541,7 +1369,7 @@ function Show-AdvancedVoiceSettings {
                 $currentConfig = @{}
                 if ($providerInstance.Configuration -and $providerInstance.Configuration.Count -gt 0) {
                         $currentConfig = $providerInstance.Configuration
-                        Add-ApplicationLog -Module "GUI" -Module "GUI" -Message "Using existing configuration for $Provider advanced Dialogue" -Level "DEBUG"
+                        Add-ApplicationLog -Module "GUI" -Message "Using existing configuration for $Provider advanced Dialogue" -Level "DEBUG"
                 } else {
                         # Try to load from config.json
                         try {
@@ -1554,16 +1382,16 @@ function Show-AdvancedVoiceSettings {
                                                 foreach ($key in $providerConfig.PSObject.Properties.Name) {
                                                         $currentConfig[$key] = $providerConfig.$key
                                                 }
-                                                Add-ApplicationLog -Module "GUI" -Module "GUI" -Message "Loaded saved configuration for $Provider from config.json" -Level "DEBUG"
+                                                Add-ApplicationLog -Module "GUI" -Message "Loaded saved configuration for $Provider from config.json" -Level "DEBUG"
                                         }
                                 }
                         } catch {
-                                Add-ApplicationLog -Module "GUI" -Module "GUI" -Message "Failed to load saved config for $Provider`: $($($_.Exception).Message)" -Level "WARNING"
+                                Add-ApplicationLog -Module "GUI" -Message "Failed to load saved config for $Provider`: $($_.Exception.Message)" -Level "WARNING"
                         }
                 }
                 
                 # Call the provider's advanced Dialogue
-                Add-ApplicationLog -Module "GUI" -Module "GUI" -Message "Calling ShowAdvancedVoiceDialog for $Provider" -Level "DEBUG"
+                Add-ApplicationLog -Module "GUI" -Message "Calling ShowAdvancedVoiceDialog for $Provider" -Level "DEBUG"
                 $result = $providerInstance.ShowAdvancedVoiceDialog($currentConfig)
                 
                 # Handle the result
@@ -1580,7 +1408,7 @@ function Show-AdvancedVoiceSettings {
                                 }
                         }
                         
-                        Add-ApplicationLog -Module "GUI" -Module "GUI" -Message "Advanced voice settings saved for $Provider" -Level "INFO"
+                        Add-ApplicationLog -Module "GUI" -Message "Advanced voice settings saved for $Provider" -Level "INFO"
                         [System.Windows.MessageBox]::Show(
                                 "Advanced voice settings saved successfully for $Provider!",
                                 "Advanced Settings",
@@ -1588,13 +1416,13 @@ function Show-AdvancedVoiceSettings {
                                 [System.Windows.MessageBoxImage]::Information
                         )
                 } elseif ($result -and -not $result.Success) {
-                        Add-ApplicationLog -Module "GUI" -Module "GUI" -Message "Advanced voice settings Dialogue Cancelled for $Provider" -Level "DEBUG"
+                        Add-ApplicationLog -Module "GUI" -Message "Advanced voice settings Dialogue Cancelled for $Provider" -Level "DEBUG"
                 } else {
-                        Add-ApplicationLog -Module "GUI" -Module "GUI" -Message "Advanced voice settings Dialogue failed for $Provider" -Level "WARNING"
+                        Add-ApplicationLog -Module "GUI" -Message "Advanced voice settings Dialogue failed for $Provider" -Level "WARNING"
                 }
                 
         } catch {
-                Add-ApplicationLog -Module "GUI" -Module "GUI" -Message "Error in Show-AdvancedVoiceSettings for $Provider`: $($($_.Exception).Message)" -Level "ERROR"
+                Add-ApplicationLog -Module "GUI" -Message "Error in Show-AdvancedVoiceSettings for $Provider`: $($_.Exception.Message)" -Level "ERROR"
                 [System.Windows.MessageBox]::Show(
                         "Error opening advanced voice settings:`n$($_.Exception.Message)",
                         "Advanced Settings Error",

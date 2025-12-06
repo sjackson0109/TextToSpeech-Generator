@@ -103,8 +103,8 @@ class EnhancedTestFramework {
             New-Item -Path $this.TestResultsPath -ItemType Directory -Force | Out-Null
         }
         
-        Add-ApplicationLog -Message "Enhanced testing framework initialised" -Level "INFO"
-        Add-ApplicationLog -Message "Test results path: $($this.TestResultsPath)" -Level "DEBUG"
+        Add-ApplicationLog -Module "TestFramework" -Message "Enhanced testing framework initialised" -Level "INFO"
+        Add-ApplicationLog -Module "TestFramework" -Message "Test results path: $($this.TestResultsPath)" -Level "DEBUG"
     }
     
     [void] RegisterUnitTests() {
@@ -174,7 +174,7 @@ class EnhancedTestFramework {
                 Import-Module "$PSScriptRoot\..\Logging.psm1" -Force
                 
                 $testMessage = "Unit test log entry - $([System.Guid]::NewGuid())"
-                Add-ApplicationLog -Message $testMessage -Level "INFO" -category "Testing"
+                Add-ApplicationLog -Module "TestFramework" -Message $testMessage -Level "INFO" -category "Testing"
                 
                 # Verify log entry was written (simplified check)
                 return $true
@@ -467,7 +467,7 @@ class EnhancedTestFramework {
             category = $category
         }
         
-        Add-ApplicationLog -Message "Registered test: $category - $testName" -Level "DEBUG"
+        Add-ApplicationLog -Module "TestFramework" -Message "Registered test: $category - $testName" -Level "DEBUG"
     }
     
     [object] RunTestSuite([string]$category = "All") {
@@ -476,7 +476,7 @@ class EnhancedTestFramework {
                     }
         $this.TestRunner.SessionStartTime = Get-Date
         
-        Add-ApplicationLog -Message "Starting test suite execution: $category" -Level "INFO"
+        Add-ApplicationLog -Module "TestFramework" -Message "Starting test suite execution: $category" -Level "INFO"
         
         try {
             # Register all tests
@@ -516,7 +516,7 @@ class EnhancedTestFramework {
         $suite.SuiteName = $category
         $suite.StartTime = Get-Date
         
-        Add-ApplicationLog -Message "Executing test category: $category" -Level "INFO"
+        Add-ApplicationLog -Module "TestFramework" -Message "Executing test category: $category" -Level "INFO"
         
         $tests = $this.TestCategories[$category]
         
@@ -527,7 +527,7 @@ class EnhancedTestFramework {
         
         $suite.EndTime = Get-Date
         
-        Add-ApplicationLog -Message "Completed test category: $category (Passed: $($suite.PassedTests)/$($suite.TotalTests))" -Level "INFO"
+        Add-ApplicationLog -Module "TestFramework" -Message "Completed test category: $category (Passed: $($suite.PassedTests)/$($suite.TotalTests))" -Level "INFO"
         
         return $suite
     }
@@ -539,7 +539,7 @@ class EnhancedTestFramework {
         $result.StartTime = Get-Date
         
         try {
-            Add-ApplicationLog -Message "Executing test: $($test.Name)" -Level "DEBUG"
+            Add-ApplicationLog -Module "TestFramework" -Message "Executing test: $($test.Name)" -Level "DEBUG"
             
             $testPassed = & $test.Code
             $result.Passed = [bool]$testPassed
@@ -551,14 +551,14 @@ class EnhancedTestFramework {
         } catch {
             $result.Passed = $false
             $result.ErrorMessage = $_.Exception.Message
-            Add-ApplicationLog -Message "Test failed: $($test.Name) - $($_.Exception.Message)" -Level "WARNING"
+            Add-ApplicationLog -Module "TestFramework" -Message "Test failed: $($test.Name) - $($_.Exception.Message)" -Level "WARNING"
         } finally {
             $result.EndTime = Get-Date
             $result.ExecutionTimeMs = ($result.EndTime - $result.StartTime).TotalMilliseconds
         }
         
         $status = if ($result.Passed) { "PASSED" } else { "FAILED" }
-        Add-ApplicationLog -Message "Test $status`: $($test.Name) ($($result.ExecutionTimeMs)ms)" -Level "DEBUG"
+        Add-ApplicationLog -Module "TestFramework" -Message "Test $status`: $($test.Name) ($($result.ExecutionTimeMs)ms)" -Level "DEBUG"
         
         return $result
     }
@@ -654,14 +654,14 @@ class EnhancedTestFramework {
             $reportJson = $report | ConvertTo-Json -Depth 10
             $reportJson | Out-File -FilePath $reportPath -Encoding UTF8
             
-            Add-ApplicationLog -Message "Test report saved: $reportPath" -Level "INFO"
+            Add-ApplicationLog -Module "TestFramework" -Message "Test report saved: $reportPath" -Level "INFO"
             
             # Also create a summary text report
             $summaryPath = Join-Path $this.TestResultsPath "TestSummary-$timestamp.txt"
             $this.CreateTextSummary($report) | Out-File -FilePath $summaryPath -Encoding UTF8
             
         } catch {
-            Add-ApplicationLog -Message "Failed to save test report: $_" -Level "ERROR"
+            Add-ApplicationLog -Module "TestFramework" -Message "Failed to save test report: $_" -Level "ERROR"
         }
     }
     
@@ -744,6 +744,6 @@ Export-ModuleMember -Function @(
     'Set-TestConfiguration'
 ) -Variable @() -Cmdlet @() -Alias @()
 
-Add-ApplicationLog -Message "EnhancedTestFramework module loaded successfully" -Level "INFO"
+Add-ApplicationLog -Module "TestFramework" -Message "EnhancedTestFramework module loaded successfully" -Level "INFO"
 
 

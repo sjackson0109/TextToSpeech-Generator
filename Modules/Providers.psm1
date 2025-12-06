@@ -303,12 +303,12 @@ function Show-ProviderConfiguration {
     )
     
     try {
-        Add-ApplicationLog -Message "Opening configuration Dialogue for provider: $Provider" -Level "INFO"
+        Add-ApplicationLog -Module "Providers" -Message "Opening configuration Dialogue for provider: $Provider" -Level "INFO"
         
         # Dynamically map provider name to setup function
         $setupFunction = "Show-${Provider}ProviderSetup" -replace "[\s-]", ""
         if (-not (Get-Command $setupFunction -ErrorAction SilentlyContinue)) {
-            Add-ApplicationLog -Message "Provider setup function '$setupFunction' not found for provider: $Provider" -Level "WARNING"
+            Add-ApplicationLog -Module "Providers"-Message "Provider setup function '$setupFunction' not found for provider: $Provider" -Level "WARNING"
             [System.Windows.MessageBox]::Show(
                 "Configuration function for $Provider is not yet implemented.`n`nFunction expected: $setupFunction",
                 "Provider Configuration",
@@ -318,11 +318,11 @@ function Show-ProviderConfiguration {
             return
         }
         # Call the provider-specific setup function
-        Add-ApplicationLog -Message "Calling provider setup function: $setupFunction" -Level "INFO"
+        Add-ApplicationLog -Module "Providers" -Message "Calling provider setup function: $setupFunction" -Level "INFO"
         & $setupFunction
         
     } catch {
-        Add-ApplicationLog -Message "Error opening provider configuration: $($_.Exception.Message)" -Level "ERROR"
+        Add-ApplicationLog -Module "Providers" -Message "Error opening provider configuration: $($_.Exception.Message)" -Level "ERROR"
         [System.Windows.MessageBox]::Show(
             "Failed to open configuration for $Provider`:`n`n$($_.Exception.Message)",
             "Configuration Error",

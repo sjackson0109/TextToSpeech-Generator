@@ -41,11 +41,11 @@ class SecureConfigurationManager {
         }
         
         if (-not $certs) {
-            Add-ApplicationLog -Message "Creating new encryption certificate for secure storage" -Level "INFO"
+            Add-ApplicationLog -Module "Security" -Message "Creating new encryption certificate for secure storage" -Level "INFO"
             $this.CreateEncryptionCertificate()
         } else {
             $this.EncryptionCertThumbprint = $certs[0].Thumbprint
-            Add-ApplicationLog -Message "Using existing encryption certificate: $($this.EncryptionCertThumbprint)" -Level "INFO"
+            Add-ApplicationLog -Module "Security" -Message "Using existing encryption certificate: $($this.EncryptionCertThumbprint)" -Level "INFO"
         }
     }
     
@@ -60,7 +60,7 @@ class SecureConfigurationManager {
                 -NotAfter (Get-Date).AddYears(5)
             
             $this.EncryptionCertThumbprint = $cert.Thumbprint
-            Add-ApplicationLog -Message "Created encryption certificate: $($this.EncryptionCertThumbprint)" -Level "INFO"
+            Add-ApplicationLog -Module "Security" -Message "Created encryption certificate: $($this.EncryptionCertThumbprint)" -Level "INFO"
         }
         catch {
             Add-ErrorLog -Operation "CreateEncryptionCertificate" -Exception $_.Exception
@@ -156,7 +156,7 @@ class SecureConfigurationManager {
             $json = $configData | ConvertTo-Json -Depth 10
             Set-Content -Path $this.ConfigPath -Value $json -Encoding UTF8
             
-            Add-ApplicationLog -Message "Secure configuration saved to $($this.ConfigPath)" -Level "INFO"
+            Add-ApplicationLog -Module "Security" -Message "Secure configuration saved to $($this.ConfigPath)" -Level "INFO"
             Add-SecurityLog -Event "ConfigurationSave" -Action "SecureConfigurationSaved" -Details @{ Path = $this.ConfigPath }
         }
         catch {
@@ -168,7 +168,7 @@ class SecureConfigurationManager {
     [hashtable] LoadSecureConfiguration() {
         try {
             if (-not (Test-Path $this.ConfigPath)) {
-                Add-ApplicationLog -Message "No secure configuration file found, using defaults" -Level "INFO"
+                Add-ApplicationLog -Module "Security" -Message "No secure configuration file found, using defaults" -Level "INFO"
                 return @{}
             }
             
@@ -177,18 +177,18 @@ class SecureConfigurationManager {
             
             # Verify certificate compatibility
             if ($configData.CertificateThumbprint -ne $this.EncryptionCertThumbprint) {
-                Add-ApplicationLog -Message "Certificate mismatch - configuration may not be decryptable" -Level "WARNING"
+                Add-ApplicationLog -Module "Security" -Message "Certificate mismatch - configuration may not be decryptable" -Level "WARNING"
             }
             
             $config = $this.DecryptConfiguration($configData.Configuration)
-            Add-ApplicationLog -Message "Secure configuration loaded from $($this.ConfigPath)" -Level "INFO"
+            Add-ApplicationLog -Module "Security" -Message "Secure configuration loaded from $($this.ConfigPath)" -Level "INFO"
             Add-SecurityLog -Event "ConfigurationLoad" -Action "SecureConfigurationLoaded" -Details @{ Path = $this.ConfigPath }
             
             return $config
         }
         catch {
             Add-ErrorLog -Operation "LoadSecureConfiguration" -Exception $_.Exception
-            Add-ApplicationLog -Message "Failed to load secure configuration, using defaults" -Level "WARNING"
+            Add-ApplicationLog -Module "Security" -Message "Failed to load secure configuration, using defaults" -Level "WARNING"
             return @{}
         }
     }
@@ -360,7 +360,7 @@ function Remove-SensitiveDataFromLogs {
     
     try {
         if (-not (Test-Path $LogPath)) {
-            Add-ApplicationLog -Message "Log file not found: $LogPath" -Level "WARNING"
+            Add-ApplicationLog -Module "Security" -Message "Log file not found: $LogPath" -Level "WARNING"
             return
         }
         
@@ -413,7 +413,7 @@ function Invoke-SecureEncryption {
         return $secureManager.EncryptString($PlainTextValue)
     }
     catch {
-    Add-ApplicationLog -Message "Encryption failed: $($_.Exception.Message)" -Level "ERROR"
+    Add-ApplicationLog -Module "Security" -Message "Encryption failed: $($_.Exception.Message)" -Level "ERROR"
         return $PlainTextValue  # Fallback to plain text
     }
 }
@@ -437,7 +437,7 @@ function Invoke-SecureDecryption {
         return $secureManager.DecryptString($EncryptedValue)
     }
     catch {
-    Add-ApplicationLog -Message "Decryption failed: $($_.Exception.Message)" -Level "WARNING"
+    Add-ApplicationLog -Module "Security" -Message "Decryption failed: $($_.Exception.Message)" -Level "WARNING"
         return "DECRYPTION_FAILED"  # Return indicator of failure
     }
 }

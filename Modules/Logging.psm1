@@ -187,7 +187,7 @@ function Add-PerformanceLog {
         $properties[$key] = $Metrics[$key]
     }
     
-    Add-ApplicationLog -Module "Performance" -Message "Performance: $Operation completed in $([Math]::Round($Duration.TotalSeconds, 2))s" -Level "INFO" -Properties $properties
+    Add-ApplicationLog -Module "Logging" -Message "Performance: $Operation completed in $([Math]::Round($Duration.TotalSeconds, 2))s" -Level "INFO" -Properties $properties
 }
 
 function Add-ErrorLog {
@@ -219,7 +219,7 @@ function Add-ErrorLog {
         $properties["ProcessorCount"] = [Environment]::ProcessorCount
     }
     
-    Add-ApplicationLog -Module "Error" -Message "Error in $Operation`: $($Exception.Message)" -Level "ERROR" -Properties $properties
+    Add-ApplicationLog -Module "Logging" -Message "Error in $Operation`: $($Exception.Message)" -Level "ERROR" -Properties $properties
 }
 
 function Add-SecurityLog {
@@ -246,7 +246,7 @@ function Add-SecurityLog {
         $properties[$key] = $Details[$key]
     }
     
-    Add-ApplicationLog -Module "Security" -Message "Security: $Action - $Event" -Level "WARNING" -Properties $properties
+    Add-ApplicationLog -Module "Logging" -Message "Security: $Action - $Event" -Level "WARNING" -Properties $properties
 }
 
 function Start-LogRotation {

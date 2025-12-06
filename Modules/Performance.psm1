@@ -829,7 +829,7 @@ function Clear-PerformanceCache {
     Clears the performance cache
     #>
     $Global:IntelligentCache.Clear()
-    Add-ApplicationLog -Message "Performance cache cleared" -Level "INFO"
+    Add-ApplicationLog -Module "Performance" -Message "Performance cache cleared" -Level "INFO"
 }
 
 # Export functions

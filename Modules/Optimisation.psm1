@@ -7,20 +7,20 @@ Import-Module -Name "$PSScriptRoot\Logging.psm1" -Force
 # Load C# type definitions
 try {
     [ConnectionPool] | Out-Null
-    Add-ApplicationLog -Message "ConnectionPool type already loaded" -Level "DEBUG"
+    Add-ApplicationLog -Module "Optimisation"  -Message "ConnectionPool type already loaded" -Level "DEBUG"
 } catch {
     try {
         $typeDefinitionPath = Join-Path $PSScriptRoot ".\OptimisationTypes.cs"
         
         if (Test-Path $typeDefinitionPath) {
             Add-Type -Path $typeDefinitionPath -ErrorAction Stop
-            Add-ApplicationLog -Message "Loaded performance optimisation types from external file" -Level "INFO"
+            Add-ApplicationLog -Module "Optimisation"  -Message "Loaded performance optimisation types from external file" -Level "INFO"
         } else {
-            Add-ApplicationLog -Message "Type definition file not found at: $typeDefinitionPath" -Level "ERROR"
+            Add-ApplicationLog -Module "Optimisation"  -Message "Type definition file not found at: $typeDefinitionPath" -Level "ERROR"
             throw "Required type definitions file not found: $typeDefinitionPath"
         }
     } catch {
-        Add-ApplicationLog -Message "Failed to load types: $_" -Level "ERROR"
+        Add-ApplicationLog -Module "Optimisation"  -Message "Failed to load types: $_" -Level "ERROR"
         throw
     }
 }
@@ -115,4 +115,4 @@ Export-ModuleMember -Function @(
 # Export key functions for use in main script
 Export-ModuleMember -Function 'New-OptimisationConnectionPool', 'New-OptimisationAsyncManager'
 
-Add-ApplicationLog -Message "Optimisation module loaded successfully" -Level "INFO"
+Add-ApplicationLog -Module "Optimisation"  -Message "Optimisation module loaded successfully" -Level "INFO"

@@ -145,9 +145,9 @@ function Invoke-WithStandardErrorHandling {
     $attempt = 0
     do {
         try {
-            Add-ApplicationLog -Message "Starting operation: $OperationName (Attempt $($attempt + 1))" -Level "DEBUG"
+            Add-ApplicationLog -Module "ErrorHandling" -Message "Starting operation: $OperationName (Attempt $($attempt + 1))" -Level "DEBUG"
             $result = & $Operation
-            Add-ApplicationLog -Message "Operation completed successfully: $OperationName" -Level "DEBUG"
+            Add-ApplicationLog -Module "ErrorHandling" -Message "Operation completed successfully: $OperationName" -Level "DEBUG"
             return $result
         }
         catch {
@@ -156,7 +156,7 @@ function Invoke-WithStandardErrorHandling {
             
             $standardError = New-StandardError -Type $errorType -Message $_.Exception.Message -Operation $OperationName -Context $Context -Exception $_.Exception
             
-            Add-ApplicationLog -Message "Error in $OperationName`: $($_.Exception.Message)" -Level "ERROR"
+            Add-ApplicationLog -Module "ErrorHandling" -Message "Error in $OperationName`: $($_.Exception.Message)" -Level "ERROR"
             Add-ErrorLog -Operation $OperationName -Exception $_.Exception
             
             # Execute custom error handler if provided
@@ -167,7 +167,7 @@ function Invoke-WithStandardErrorHandling {
             # Retry logic
             if ($attempt -lt ($MaxRetries + 1)) {
                 $delay = $RetryDelay * [Math]::Pow(2, $attempt - 1)  # Exponential backoff
-                Add-ApplicationLog -Message "Retrying operation $OperationName in $delay ms (Attempt $attempt of $($MaxRetries + 1))" -Level "WARNING"
+                Add-ApplicationLog -Module "ErrorHandling" -Message "Retrying operation $OperationName in $delay ms (Attempt $attempt of $($MaxRetries + 1))" -Level "WARNING"
                 Start-Sleep -Milliseconds $delay
                 continue
             }
@@ -217,7 +217,7 @@ function Write-StandardError {
         $logMessage += " | $contextString"
     }
     
-    Add-ApplicationLog -Message $logMessage -Level $LogLevel
+    Add-ApplicationLog -Module "ErrorHandling" -Message $logMessage -Level $LogLevel
     
     # For critical errors, also write to event log
     if ($LogLevel -eq "CRITICAL") {

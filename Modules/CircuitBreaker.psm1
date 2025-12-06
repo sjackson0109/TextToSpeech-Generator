@@ -67,7 +67,7 @@ function New-CircuitBreaker {
         
         $script:CircuitBreakers[$ProviderId] = $breaker
         
-        Add-ApplicationLog -Message "Circuit breaker initialised for $ProviderId" -Level "INFO"
+        Add-ApplicationLog -Module "CircuitBreaker" -Message "Circuit breaker initialised for $ProviderId" -Level "INFO"
     }
 }
 
@@ -99,7 +99,7 @@ function Test-CircuitBreakerState {
             if ($timeoutExpired) {
                 $breaker.State = "HalfOpen"
                 $breaker.SuccessCount = 0
-                Add-ApplicationLog -Message "Circuit breaker for $ProviderId moved to HalfOpen state" -Level "INFO"
+                Add-ApplicationLog -Module "CircuitBreaker" -Message "Circuit breaker for $ProviderId moved to HalfOpen state" -Level "INFO"
                 return @{ CanExecute = $true; State = "HalfOpen"; Reason = "Timeout expired, testing recovery" }
             } else {
                 $remainingTime = $breaker.TimeoutMinutes - ((Get-Date) - $breaker.LastFailureTime).TotalMinutes
@@ -145,12 +145,12 @@ function Set-CircuitBreakerSuccess {
                 $breaker.State = "Closed"
                 $breaker.FailureCount = 0
                 $breaker.SuccessCount = 0
-                Add-ApplicationLog -Message "Circuit breaker for $ProviderId closed after successful recovery" -Level "INFO"
+                Add-ApplicationLog -Module "CircuitBreaker" -Message "Circuit breaker for $ProviderId closed after successful recovery" -Level "INFO"
             }
         }
     }
     
-    Add-ApplicationLog -Message "Success recorded for $ProviderId (State: $($breaker.State))" -Level "DEBUG"
+    Add-ApplicationLog -Module "CircuitBreaker" -Message "Success recorded for $ProviderId (State: $($breaker.State))" -Level "DEBUG"
 }
 
 function Set-CircuitBreakerFailure {
@@ -179,13 +179,13 @@ function Set-CircuitBreakerFailure {
     # Check if we should open the circuit
     if ($breaker.FailureCount -ge $breaker.FailureThreshold -and $breaker.State -ne "Open") {
         $breaker.State = "Open"
-        Add-ApplicationLog -Message "Circuit breaker for $ProviderId opened due to $($breaker.FailureCount) failures" -Level "WARNING"
+        Add-ApplicationLog -Module "CircuitBreaker" -Message "Circuit breaker for $ProviderId opened due to $($breaker.FailureCount) failures" -Level "WARNING"
         
         # Trigger alert for operations team
     Send-OperationalAlert -AlertType "CircuitBreakerOpen" -ProviderId $ProviderId -Message "Provider $ProviderId circuit breaker opened after $($breaker.FailureCount) failures"
     }
     
-    Add-ApplicationLog -Message "Failure recorded for $($ProviderId): $($ErrorMessage) (Failures: $($breaker.FailureCount))" -Level "DEBUG"
+    Add-ApplicationLog -Module "CircuitBreaker" -Message "Failure recorded for $($ProviderId): $($ErrorMessage) (Failures: $($breaker.FailureCount))" -Level "DEBUG"
 }
 
 function Get-CircuitBreakerStatus {
@@ -232,7 +232,7 @@ function Send-OperationalAlert {
     }
     
     # Log as structured data for monitoring
-    Add-ApplicationLog -Message "OPERATIONAL_ALERT: $($alertData | ConvertTo-Json -Compress)" -Level "WARNING"
+    Add-ApplicationLog -Module "CircuitBreaker" -Message "OPERATIONAL_ALERT: $($alertData | ConvertTo-Json -Compress)" -Level "WARNING"
     
     # Write to dedicated alert log if configured
     $alertLogPath = Join-Path $PSScriptRoot "alerts.log"
@@ -274,7 +274,7 @@ function Start-AdvancedRetry {
     
     while ($attempt -le $MaxRetries) {
         try {
-            Add-ApplicationLog -Message "[$ProviderId] Attempt $($attempt + 1)/$($MaxRetries + 1)" -Level "DEBUG"
+            Add-ApplicationLog -Module "CircuitBreaker" -Message "[$ProviderId] Attempt $($attempt + 1)/$($MaxRetries + 1)" -Level "DEBUG"
             
             $result = & $Operation
             
@@ -300,7 +300,7 @@ function Start-AdvancedRetry {
             
             # Don't retry if not retriable or max attempts reached
             if (-not $isRetriable -or $attempt -gt $MaxRetries) {
-                Add-ApplicationLog -Message "[$ProviderId] Operation failed permanently: $($_.Exception.Message)" -Level "ERROR"
+                Add-ApplicationLog -Module "CircuitBreaker" -Message "[$ProviderId] Operation failed permanently: $($_.Exception.Message)" -Level "ERROR"
                 throw
             }
             
@@ -326,7 +326,7 @@ function Start-AdvancedRetry {
             # Cap at maximum delay
             $delay = [Math]::Min($delay, $MaxDelayMs)
             
-            Add-ApplicationLog -Message "[$ProviderId] Retrying in $($delay)ms (attempt $attempt): $($_.Exception.Message)" -Level "WARNING"
+            Add-ApplicationLog -Module "CircuitBreaker" -Message "[$ProviderId] Retrying in $($delay)ms (attempt $attempt): $($_.Exception.Message)" -Level "WARNING"
             Start-Sleep -Milliseconds $delay
         }
     }
@@ -425,7 +425,7 @@ function Test-ProviderHealth {
     # Log health status
     $logLevel = if ($healthResult.IsHealthy) { "INFO" } else { "WARNING" }
     $checkSummary = ($healthResult.Checks | ForEach-Object { "$($_.Name):$($_.Status)" }) -join ", "
-    Add-ApplicationLog -Message "Provider health [$ProviderId]: $($healthResult.IsHealthy) ($checkSummary)" -Level $logLevel
+    Add-ApplicationLog -Module "CircuitBreaker" -Message "Provider health [$ProviderId]: $($healthResult.IsHealthy) ($checkSummary)" -Level $logLevel
     
     return $healthResult
 }

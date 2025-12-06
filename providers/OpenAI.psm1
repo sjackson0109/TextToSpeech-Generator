@@ -700,7 +700,7 @@ function Show-OpenAIProviderSetup {
     }
 }
 
-function Get-TTSProviderInfo {
+function   {
     [PSCustomObject]@{
         Name        = 'OpenAI'
         DisplayName = 'OpenAI'
